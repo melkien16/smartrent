@@ -45,9 +45,10 @@ const RegisterForm = ({ onToggleForm }) => {
         email,
         // Password would be handled by the backend
         avatar: 'https://images.pexels.com/photos/614810/pexels-photo-614810.jpeg?auto=compress&cs=tinysrgb&w=150',
+        role: 'user'
       });
       
-      navigate('/');
+      navigate('/dashboard');
     } catch (err) {
       setError('Failed to create account. Please try again.');
     } finally {

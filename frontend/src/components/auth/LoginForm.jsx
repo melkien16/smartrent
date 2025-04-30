@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
-import { Mail, Lock, AlertCircle } from 'lucide-react';
+import { Mail, Lock, AlertCircle, Eye, EyeOff } from 'lucide-react';
+import { demoUsers } from '../../data/dummyData';
 
 const LoginForm = ({ onToggleForm }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const { login } = useAuth();
@@ -26,27 +28,17 @@ const LoginForm = ({ onToggleForm }) => {
       // Simulate API call delay
       await new Promise(resolve => setTimeout(resolve, 800));
 
-      // Demo credentials check (in a real app, this would be a backend API call)
-      if (email === 'demo@smartrent.com' && password === 'password') {
-        login({
-          id: 'user-1',
-          email: 'demo@smartrent.com',
-          name: 'Demo User',
-          avatar: 'https://images.pexels.com/photos/614810/pexels-photo-614810.jpeg?auto=compress&cs=tinysrgb&w=150',
-        });
-        navigate('/');
+      // Call the login function with email and password
+      const user = login(email, password);
+      
+      // Navigate based on user role
+      if (user.role === 'admin') {
+        navigate('/admin');
       } else {
-        // For demo purposes, also log in with any credentials
-        login({
-          id: 'user-' + Math.random().toString(36).substring(2, 9),
-          email: email,
-          name: email.split('@')[0],
-          avatar: 'https://images.pexels.com/photos/614810/pexels-photo-614810.jpeg?auto=compress&cs=tinysrgb&w=150',
-        });
-        navigate('/');
+        navigate('/dashboard');
       }
     } catch (err) {
-      setError('Failed to login. Please try again.');
+      setError('Invalid email or password');
     } finally {
       setLoading(false);
     }
@@ -93,12 +85,19 @@ const LoginForm = ({ onToggleForm }) => {
             </div>
             <input
               id="password"
-              type="password"
+              type={showPassword ? "text" : "password"}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="input pl-10"
+              className="input pl-10 pr-10"
               placeholder="••••••••"
             />
+            <button
+              type="button"
+              onClick={() => setShowPassword(!showPassword)}
+              className="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400 hover:text-gray-500"
+            >
+              {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+            </button>
           </div>
           <div className="mt-1 text-right">
             <a href="#" className="text-xs text-primary-600 hover:text-primary-500">
@@ -139,7 +138,9 @@ const LoginForm = ({ onToggleForm }) => {
           </div>
         </div>
         <p className="mt-2 text-center text-xs text-gray-500">
-          Use email: <span className="font-medium">demo@smartrent.com</span> and password: <span className="font-medium">password</span>
+          Demo User: <span className="font-medium">demo@smartrent.com</span> / <span className="font-medium">demo123</span>
+          <br />
+          Admin User: <span className="font-medium">admin@smartrent.com</span> / <span className="font-medium">admin123</span>
         </p>
       </div>
     </div>
