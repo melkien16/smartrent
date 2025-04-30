@@ -12,5 +12,18 @@
   "keywords": [],
   "author": "Rent Smart",
   "license": "ISC",
-  "description": "eCommerce platform for renting day today products build with MERN stack"
+  "description": "eCommerce platform for renting day today products build with MERN stack",
+  "dependencies": {
+    "bcryptjs": "^3.0.2",
+    "colors": "^1.4.0",
+    "cookie-parser": "^1.4.7",
+    "express": "^5.1.0",
+    "jsonwebtoken": "^9.0.2",
+    "mongoose": "^8.13.1"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.2",
+    "dotenv": "^16.4.7",
+    "nodemon": "^3.1.9"
+  }
 }
