@@ -1,0 +1,16 @@
+{
+  "name": "rentsmart",
+  "version": "1.0.0",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "start": "node backend/server.js",
+    "server": "nodemon backend/server.js",
+    "client": "npm start --prefix frontend",
+    "dev": "concurrently \"npm run server\" \"npm run client\""
+  },
+  "keywords": [],
+  "author": "Rent Smart",
+  "license": "ISC",
+  "description": "eCommerce platform for renting day today products build with MERN stack"
+}
