@@ -1,18 +1,27 @@
-import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import React from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import { Heart, Star, MapPin } from 'lucide-react';
 import { useCategories } from '../../context/CategoryContext';
+import { useAuth } from '../../context/AuthContext';
+import { useFavorites } from '../../context/FavoritesContext';
 
 const ItemCard = ({ item }) => {
   const { getCategoryById } = useCategories();
-  const [isFavorite, setIsFavorite] = useState(item.isFavorite || false);
+  const { isAuthenticated } = useAuth();
+  const { isFavorite, toggleFavorite } = useFavorites();
+  const navigate = useNavigate();
   const category = getCategoryById(item.category);
 
-  const toggleFavorite = (e) => {
+  const handleFavoriteClick = (e) => {
     e.preventDefault();
     e.stopPropagation();
-    setIsFavorite(!isFavorite);
-    // In a real app, you would update this in a database
+    
+    if (!isAuthenticated) {
+      navigate('/auth');
+      return;
+    }
+    
+    toggleFavorite(item.id);
   };
 
   return (
@@ -25,12 +34,12 @@ const ItemCard = ({ item }) => {
             className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
           />
           <button
-            onClick={toggleFavorite}
+            onClick={handleFavoriteClick}
             className={`absolute right-3 top-3 rounded-full bg-white p-1.5 shadow-sm transition-colors ${
-              isFavorite ? 'text-red-500' : 'text-gray-400 hover:text-gray-600'
+              isFavorite(item.id) ? 'text-red-500' : 'text-gray-400 hover:text-gray-600'
             }`}
           >
-            <Heart size={18} fill={isFavorite ? 'currentColor' : 'none'} />
+            <Heart size={18} fill={isFavorite(item.id) ? 'currentColor' : 'none'} />
           </button>
           {category && (
             <div className={`absolute left-3 top-3 rounded-full px-2.5 py-1 text-xs font-medium ${category.color}`}>

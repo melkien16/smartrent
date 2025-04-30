@@ -8,14 +8,13 @@
     "start": "vite",
     "build": "vite build",
     "lint": "eslint .",
-    "test": "vitest",
-    "preview": "vite preview",
-    "eject": "react-scripts eject"
+    "preview": "vite preview"
   },
   "dependencies": {
     "lucide-react": "^0.344.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
+    "react-hot-toast": "^2.5.2",
     "react-router-dom": "^6.21.1"
   },
   "devDependencies": {

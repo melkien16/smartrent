@@ -1,26 +1,36 @@
-// Import the Express module
 import express from "express";
-// Create an instance of an Express application
+import dotenv from "dotenv";
+import cookieParser from "cookie-parser";
+
+import UserRouter from "./routes/user.routes.js";
+import { notFound, errorHandler } from "./middleware/errorMiddleware.js";
+
+dotenv.config();
+
+import connectDb from "./config/db.js";
+
+const PORT = process.env.PORT || 5000;
+
+connectDb();
+
 const app = express();
 
-// Define the port the server will listen on
-const port = process.env.PORT || 3000;
-
-// Middleware to parse JSON request bodies
+// Body parser middleware
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
-// Define a simple route to handle GET requests to the root
-app.get("/", (req, res) => {
-  res.send("Hello, world!");
+// Cookie parser middleware
+app.use(cookieParser()); 
+
+app.get("/api", (_, res) => {
+  res.send("API is running...");
 });
 
-// Example of a POST route
-app.post("/data", (req, res) => {
-  const data = req.body;
-  res.json({ message: "Data received", data });
-});
+app.use("/api/users", UserRouter);
 
-// Start the server and listen on the specified port
-app.listen(port, () => {
-  console.log(`Server is running on http://localhost:${port}`);
+app.use(notFound);
+app.use(errorHandler);
+
+app.listen(PORT, () => {
+  console.log(`Server is running on port ${PORT}`);
 });

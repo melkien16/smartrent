@@ -1,5 +1,6 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { Toaster } from 'react-hot-toast';
 
 // Layout components
 import Navbar from './components/layout/Navbar';
@@ -14,10 +15,15 @@ import ListItemPage from './pages/ListItemPage';
 import AuthPage from './pages/AuthPage';
 import DashboardPage from './pages/DashboardPage';
 import AdminDashboardPage from './pages/AdminDashboardPage';
+import FavoritesPage from './pages/FavoritesPage';
+import PaymentPage from './pages/PaymentPage';
 
 // Context providers
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { CategoryProvider } from './context/CategoryContext';
+import { FavoritesProvider } from './context/FavoritesContext';
+import { BookingProvider } from './context/BookingContext';
+import { BalanceProvider } from './context/BalanceContext';
 
 // Protected Route component
 const ProtectedRoute = ({ children, requireAdmin = false }) => {
@@ -38,38 +44,47 @@ function App() {
   return (
     <Router>
       <AuthProvider>
-        <CategoryProvider>
-          <div className="flex min-h-screen flex-col">
-            <Navbar />
-            <main className="flex-1">
-              <Routes>
-                <Route path="/" element={<HomePage />} />
-                <Route path="/explore" element={<ExplorePage />} />
-                <Route path="/item/:id" element={<ItemDetailPage />} />
-                <Route path="/profile/:id" element={<ProfilePage />} />
-                <Route path="/list-item" element={<ListItemPage />} />
-                <Route path="/auth" element={<AuthPage />} />
-                <Route 
-                  path="/dashboard" 
-                  element={
-                    <ProtectedRoute>
-                      <DashboardPage />
-                    </ProtectedRoute>
-                  } 
-                />
-                <Route 
-                  path="/admin" 
-                  element={
-                    <ProtectedRoute requireAdmin>
-                      <AdminDashboardPage />
-                    </ProtectedRoute>
-                  } 
-                />
-              </Routes>
-            </main>
-            <Footer />
-          </div>
-        </CategoryProvider>
+        <FavoritesProvider>
+          <CategoryProvider>
+            <BookingProvider>
+              <BalanceProvider>
+                <div className="flex min-h-screen flex-col">
+                  <Navbar />
+                  <main className="flex-1">
+                    <Routes>
+                      <Route path="/" element={<HomePage />} />
+                      <Route path="/explore" element={<ExplorePage />} />
+                      <Route path="/item/:id" element={<ItemDetailPage />} />
+                      <Route path="/profile/:id" element={<ProfilePage />} />
+                      <Route path="/list-item" element={<ListItemPage />} />
+                      <Route path="/auth" element={<AuthPage />} />
+                      <Route path="/favorites" element={<FavoritesPage />} />
+                      <Route path="/payment" element={<PaymentPage />} />
+                      <Route 
+                        path="/dashboard" 
+                        element={
+                          <ProtectedRoute>
+                            <DashboardPage />
+                          </ProtectedRoute>
+                        } 
+                      />
+                      <Route 
+                        path="/admin" 
+                        element={
+                          <ProtectedRoute requireAdmin>
+                            <AdminDashboardPage />
+                          </ProtectedRoute>
+                        } 
+                      />
+                    </Routes>
+                  </main>
+                  <Footer />
+                  <Toaster position="top-right" />
+                </div>
+              </BalanceProvider>
+            </BookingProvider>
+          </CategoryProvider>
+        </FavoritesProvider>
       </AuthProvider>
     </Router>
   );

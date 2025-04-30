@@ -1,13 +1,17 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import { Calendar, MapPin, AlertCircle, Star, User, ChevronLeft, ChevronRight, Heart, Shield } from 'lucide-react';
 import { featuredItems, recentItems } from '../data/mockData';
 import { useCategories } from '../context/CategoryContext';
 import { useAuth } from '../context/AuthContext';
+import { useBooking } from '../context/BookingContext';
+import { toast } from 'react-hot-toast';
 
 const ItemDetailPage = () => {
   const { id } = useParams();
+  const navigate = useNavigate();
   const { isAuthenticated } = useAuth();
+  const { createBooking } = useBooking();
   const { getCategoryById } = useCategories();
   const [item, setItem] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -63,10 +67,9 @@ const ItemDetailPage = () => {
     // In a real app, this would update in a database
   };
 
-  const handleRentNow = () => {
+  const handleRentNow = async () => {
     if (!isAuthenticated) {
-      // Redirect to login
-      window.location.href = '/auth';
+      navigate('/auth');
       return;
     }
 
@@ -83,8 +86,21 @@ const ItemDetailPage = () => {
       return;
     }
 
-    // In a real app, this would create a booking request
-    alert('Booking request sent! The owner will respond to your request soon.');
+    try {
+      const bookingData = {
+        itemId: item.id,
+        itemTitle: item.title,
+        startDate: start.toISOString(),
+        endDate: end.toISOString(),
+        totalAmount: item.price * totalDays,
+        status: 'pending'
+      };
+
+      const newBooking = await createBooking(bookingData);
+      navigate('/payment', { state: { booking: newBooking } });
+    } catch (error) {
+      toast.error(error.message || 'Failed to create booking');
+    }
   };
 
   if (loading) {
