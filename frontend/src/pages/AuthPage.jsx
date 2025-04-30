@@ -6,11 +6,11 @@ import RegisterForm from '../components/auth/RegisterForm';
 
 const AuthPage = () => {
   const [isLogin, setIsLogin] = useState(true);
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, isAdmin } = useAuth();
 
   // Redirect if already logged in
   if (isAuthenticated) {
-    return <Navigate to="/" />;
+    return <Navigate to={isAdmin ? '/admin' : '/dashboard'} />;
   }
 
   const toggleForm = () => {
