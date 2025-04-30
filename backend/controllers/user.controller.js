@@ -29,7 +29,7 @@ const authUser = asyncHandler(async (req, res) => {
 // @route  POST /api/users/login
 // @access  Public
 const registerUser = asyncHandler(async (req, res) => {
-  const { name, email, password } = req.body;
+  const { name, email, phone, address, avatar, password } = req.body;
 
   const userExists = await User.findOne({ email });
 
@@ -40,6 +40,9 @@ const registerUser = asyncHandler(async (req, res) => {
   const user = await User.create({
     name,
     email,
+    phone,
+    address,
+    avatar,
     password,
   });
 
@@ -49,7 +52,9 @@ const registerUser = asyncHandler(async (req, res) => {
       _id: user._id,
       name: user.name,
       email: user.email,
+      address: user.address,
       isAdmin: user.isAdmin,
+      avatar: user.avatar,
     });
   } else {
     res.status(400);
@@ -81,6 +86,10 @@ const getUserProfile = asyncHandler(async (req, res) => {
       name: user.name,
       email: user.email,
       isAdmin: user.isAdmin,
+      phone: user.phone,
+      address: user.address,
+      avatar: user.avatar,
+      isPremium: user.isPremium,
     });
   } else {
     res.status(404);
@@ -109,6 +118,10 @@ const updateUserProfile = asyncHandler(async (req, res) => {
       name: updatedUser.name,
       email: updatedUser.email,
       isAdmin: updatedUser.isAdmin,
+      phone: updatedUser.phone,
+      address: updatedUser.address,
+      avatar: updatedUser.avatar,
+      isPremium: updatedUser.isPremium,
     });
   } else {
     res.status(404);
