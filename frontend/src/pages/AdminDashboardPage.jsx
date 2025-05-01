@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
-import { demoUsers } from '../data/dummyData';
-import { featuredItems } from '../data/mockData';
+import { mockUsers } from '../data/mockUsers';
+import { mockItems } from '../data/mockItems';
+import { mockRentals } from '../data/mockRentals';
 import {
   Users,
   BookOpen,
@@ -24,12 +25,12 @@ const AdminDashboardPage = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedItems, setSelectedItems] = useState(new Set());
 
-  // Mock data - in a real app, this would come from your backend API
+  // Calculate stats from mock data
   const stats = {
-    activeUsers: 150,
-    rentalsToday: 25,
-    weeklyIncome: 3500,
-    pendingTasks: 8
+    activeUsers: Object.keys(mockUsers).length - 1, // Subtract admin
+    rentalsToday: mockRentals.active.length,
+    weeklyIncome: mockRentals.active.reduce((sum, rental) => sum + rental.totalPrice, 0),
+    pendingTasks: mockRentals.pending.length
   };
 
   // Redirect if not admin
@@ -57,7 +58,7 @@ const AdminDashboardPage = () => {
     { id: 'settings', label: 'Platform Settings', icon: Settings },
   ];
 
-  const filteredItems = featuredItems.filter(item => 
+  const filteredItems = mockItems.filter(item => 
     item.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
     item.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
     item.category.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -199,36 +200,22 @@ const AdminDashboardPage = () => {
                 <div className="bg-white rounded-lg shadow p-6">
                   <h3 className="text-lg font-semibold mb-4">Recent Activity</h3>
                   <div className="space-y-4">
-                    <div className="flex items-center">
-                      <div className="flex-shrink-0">
-                        <Users className="h-6 w-6 text-blue-600" />
+                    {mockRentals.active.slice(0, 3).map((rental) => (
+                      <div key={rental.id} className="flex items-center">
+                        <div className="flex-shrink-0">
+                          <Package className="h-6 w-6 text-green-600" />
+                        </div>
+                        <div className="ml-4">
+                          <p className="text-sm font-medium text-gray-900">New Rental</p>
+                          <p className="text-sm text-gray-500">
+                            {rental.item.title} rented by {rental.renter.name}
+                          </p>
+                        </div>
+                        <div className="ml-auto text-sm text-gray-500">
+                          {new Date(rental.startDate).toLocaleDateString()}
+                        </div>
                       </div>
-                      <div className="ml-4">
-                        <p className="text-sm font-medium text-gray-900">New User Registration</p>
-                        <p className="text-sm text-gray-500">John Doe joined the platform</p>
-                      </div>
-                      <div className="ml-auto text-sm text-gray-500">2 hours ago</div>
-                    </div>
-                    <div className="flex items-center">
-                      <div className="flex-shrink-0">
-                        <Package className="h-6 w-6 text-green-600" />
-                      </div>
-                      <div className="ml-4">
-                        <p className="text-sm font-medium text-gray-900">New Listing Added</p>
-                        <p className="text-sm text-gray-500">Professional Camera by Jane Smith</p>
-                      </div>
-                      <div className="ml-auto text-sm text-gray-500">4 hours ago</div>
-                    </div>
-                    <div className="flex items-center">
-                      <div className="flex-shrink-0">
-                        <AlertTriangle className="h-6 w-6 text-yellow-600" />
-                      </div>
-                      <div className="ml-4">
-                        <p className="text-sm font-medium text-gray-900">Reported Item</p>
-                        <p className="text-sm text-gray-500">Item #1234 reported for inappropriate content</p>
-                      </div>
-                      <div className="ml-auto text-sm text-gray-500">1 day ago</div>
-                    </div>
+                    ))}
                   </div>
                 </div>
               </div>
@@ -346,7 +333,7 @@ const AdminDashboardPage = () => {
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-200">
-                      {Object.values(demoUsers).map((user) => (
+                      {Object.values(mockUsers).map((user) => (
                         <tr key={user.id}>
                           <td className="px-6 py-4 whitespace-nowrap">
                             <div className="flex items-center">

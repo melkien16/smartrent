@@ -1,22 +1,29 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Heart, ArrowLeft } from 'lucide-react';
+import { Heart, ArrowLeft, AlertCircle } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useFavorites } from '../context/FavoritesContext';
 import ItemGrid from '../components/items/ItemGrid';
-import { featuredItems, recentItems } from '../data/mockData';
+import { mockItems } from '../data/mockItems';
 
 const FavoritesPage = () => {
-  const { isAuthenticated } = useAuth();
+  const { user } = useAuth();
   const { favorites } = useFavorites();
+  const [favoriteItems, setFavoriteItems] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  // Get all items from mock data
-  const allItems = [...featuredItems, ...recentItems];
-  
-  // Filter items that are in favorites
-  const favoriteItems = allItems.filter(item => favorites.includes(item.id));
+  useEffect(() => {
+    // In a real app, this would be an API call
+    // For demo purposes, we'll use mockItems
+    const allItems = [...mockItems.featured, ...mockItems.recent];
+    const favorites = allItems.filter(item => 
+      user?.favorites?.includes(item.id)
+    );
+    setFavoriteItems(favorites);
+    setLoading(false);
+  }, [user]);
 
-  if (!isAuthenticated) {
+  if (!user) {
     return (
       <div className="container mx-auto px-4 py-8">
         <div className="text-center">

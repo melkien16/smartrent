@@ -1,14 +1,13 @@
-import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { Calendar, Package, DollarSign, AlertCircle, Clock } from 'lucide-react';
+import { Calendar, Package, DollarSign, AlertCircle, Clock, PlusCircle, MinusCircle, X } from 'lucide-react';
 import ItemGrid from '../components/items/ItemGrid';
-import { featuredItems, recentItems } from '../data/mockData';
-import { dashboardMockData } from '../data/dashboardMockData';
-import { useNavigate } from 'react-router-dom';
+import { mockItems } from '../data/mockItems';
+import { mockRentals } from '../data/mockRentals';
+import { mockUsers } from '../data/mockUsers';
 import {
   LayoutDashboard,
-  PlusCircle,
   Wallet,
   Shield,
   Star,
@@ -19,18 +18,44 @@ import {
 } from 'lucide-react';
 
 const DashboardPage = () => {
-  const { user } = useAuth();
+  const { user, loading, isAuthenticated } = useAuth();
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('overview');
+  const [showTransactionModal, setShowTransactionModal] = useState(false);
+  const [transactionType, setTransactionType] = useState('deposit');
+  const [amount, setAmount] = useState('');
+  const [error, setError] = useState('');
 
-  // Mock data - in a real app, this would come from an API
-  const userRentedItems = featuredItems.filter(item => item.renterId === user?.id);
-  const userListedItems = recentItems.filter(item => item.owner?.id === user?.id);
+  useEffect(() => {
+    if (!loading && !isAuthenticated) {
+      navigate('/auth');
+    }
+  }, [loading, isAuthenticated, navigate]);
+
+  if (loading) {
+    return <div className="flex justify-center items-center h-screen">Loading...</div>;
+  }
+
+  if (!user) {
+    return null;
+  }
+
+  // Get user data from mockUsers
+  const currentUser = Object.values(mockUsers).find(u => u.id === user.id);
+  
+  if (!currentUser) {
+    return <div className="flex justify-center items-center h-screen">User data not found</div>;
+  }
+
+  // Get user's items and rentals
+  const userListedItems = mockItems.featured.filter(item => item?.owner?.id === user?.id);
+  const userRentedItems = mockRentals.active.filter(rental => rental?.renter?.id === user?.id);
 
   const stats = {
     activeRentals: userRentedItems.length,
     activeListings: userListedItems.length,
-    totalEarnings: userListedItems.reduce((sum, item) => sum + (item.price || 0), 0),
-    pendingRequests: 3, // Mock data
+    totalEarnings: userListedItems.reduce((sum, item) => sum + (item?.price || 0), 0),
+    pendingRequests: mockRentals.pending.filter(rental => rental?.item?.owner?.id === user?.id).length,
   };
 
   const tabs = [
@@ -47,8 +72,114 @@ const DashboardPage = () => {
     { id: 'report', label: 'Report a Problem', icon: AlertTriangle },
   ];
 
+  const handleTransaction = () => {
+    const numericAmount = parseFloat(amount);
+    if (isNaN(numericAmount) || numericAmount <= 0) {
+      setError('Please enter a valid amount');
+      return;
+    }
+
+    if (transactionType === 'withdraw' && numericAmount > (currentUser?.wallet?.balance || 0)) {
+      setError('Insufficient balance');
+      return;
+    }
+
+    // In a real app, this would be an API call
+    // For demo purposes, we'll update the mock data
+    const newTransaction = {
+      id: Date.now().toString(),
+      type: transactionType,
+      amount: numericAmount,
+      date: new Date().toISOString().split('T')[0],
+      status: 'completed'
+    };
+
+    // Update wallet balance
+    const updatedBalance = transactionType === 'deposit' 
+      ? (currentUser?.wallet?.balance || 0) + numericAmount
+      : (currentUser?.wallet?.balance || 0) - numericAmount;
+
+    // Update user's wallet data
+    currentUser.wallet = {
+      ...currentUser.wallet,
+      balance: updatedBalance,
+      recentTransactions: [
+        newTransaction,
+        ...(currentUser?.wallet?.recentTransactions || [])
+      ]
+    };
+
+    // Reset form and close modal
+    setAmount('');
+    setError('');
+    setShowTransactionModal(false);
+  };
+
   return (
     <div className="container mx-auto px-4 py-8">
+      {/* Transaction Modal */}
+      {showTransactionModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 w-full max-w-md">
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-xl font-semibold">
+                {transactionType === 'deposit' ? 'Deposit Funds' : 'Withdraw Funds'}
+              </h3>
+              <button 
+                onClick={() => {
+                  setShowTransactionModal(false);
+                  setError('');
+                  setAmount('');
+                }}
+                className="text-gray-500 hover:text-gray-700"
+              >
+                <X size={24} />
+              </button>
+            </div>
+
+            <div className="mb-4">
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Amount
+              </label>
+              <div className="relative">
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">$</span>
+                <input
+                  type="number"
+                  value={amount}
+                  onChange={(e) => setAmount(e.target.value)}
+                  placeholder="0.00"
+                  className="w-full pl-8 pr-4 py-2 border border-gray-300 rounded-md focus:ring-primary-500 focus:border-primary-500"
+                  min="0"
+                  step="0.01"
+                />
+              </div>
+              {error && (
+                <p className="mt-1 text-sm text-red-600">{error}</p>
+              )}
+            </div>
+
+            <div className="flex justify-end gap-4">
+              <button
+                onClick={() => {
+                  setShowTransactionModal(false);
+                  setError('');
+                  setAmount('');
+                }}
+                className="btn-secondary"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleTransaction}
+                className="btn-primary"
+              >
+                {transactionType === 'deposit' ? 'Deposit' : 'Withdraw'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-gray-900">My Dashboard</h1>
         <p className="mt-2 text-gray-600">Welcome back, {user?.name}</p>
@@ -61,7 +192,7 @@ const DashboardPage = () => {
             <FileBox className="h-10 w-10 text-primary-600" />
             <div className="ml-4">
               <p className="text-sm font-medium text-gray-500">Total Listings</p>
-              <p className="text-2xl font-semibold">{dashboardMockData.totalListings}</p>
+              <p className="text-2xl font-semibold">{stats.activeListings}</p>
             </div>
           </div>
         </div>
@@ -70,7 +201,7 @@ const DashboardPage = () => {
             <Package className="h-10 w-10 text-green-600" />
             <div className="ml-4">
               <p className="text-sm font-medium text-gray-500">Active Rentals</p>
-              <p className="text-2xl font-semibold">{dashboardMockData.activeRentals}</p>
+              <p className="text-2xl font-semibold">{stats.activeRentals}</p>
             </div>
           </div>
         </div>
@@ -79,7 +210,7 @@ const DashboardPage = () => {
             <Wallet className="h-10 w-10 text-blue-600" />
             <div className="ml-4">
               <p className="text-sm font-medium text-gray-500">Wallet Balance</p>
-              <p className="text-2xl font-semibold">${dashboardMockData.walletBalance}</p>
+              <p className="text-2xl font-semibold">${currentUser?.wallet.balance}</p>
             </div>
           </div>
         </div>
@@ -90,9 +221,9 @@ const DashboardPage = () => {
               <p className="text-sm font-medium text-gray-500">Account Type</p>
               <div className="flex items-center">
                 <p className="text-2xl font-semibold bg-gradient-to-r from-yellow-400 to-yellow-600 bg-clip-text text-transparent">
-                  {dashboardMockData.premiumStatus}
+                  {currentUser?.isPremium ? 'Premium' : 'Basic'}
                 </p>
-                {dashboardMockData.premiumStatus === 'Premium' && (
+                {currentUser?.isPremium && (
                   <span className="ml-2 px-2 py-1 text-xs font-semibold rounded-full bg-gradient-to-r from-yellow-400 to-yellow-600 text-white">
                     Premium
                   </span>
@@ -229,17 +360,17 @@ const DashboardPage = () => {
               <div className="bg-white rounded-lg shadow p-6">
                 <h3 className="text-lg font-semibold mb-4">Recent Listings</h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {dashboardMockData.listings.map((listing) => (
+                  {userListedItems.map((listing) => (
                     <div key={listing.id} className="border rounded-lg p-4 hover:shadow-md transition-shadow">
                       <div className="flex items-center">
-                        <img src={listing.image} alt={listing.title} className="h-16 w-16 object-cover rounded-lg" />
+                        <img src={listing.images[0]} alt={listing.title} className="h-16 w-16 object-cover rounded-lg" />
                         <div className="ml-4">
                           <h4 className="font-medium">{listing.title}</h4>
-                          <p className="text-sm text-gray-500">${listing.price}/day</p>
+                          <p className="text-sm text-gray-500">${listing.price}/{listing.priceUnit}</p>
                           <span className={`mt-1 inline-block px-2 py-1 text-xs font-semibold rounded-full ${
-                            listing.status === 'Active' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'
+                            listing.isAvailable ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'
                           }`}>
-                            {listing.status}
+                            {listing.isAvailable ? 'Active' : 'Rented'}
                           </span>
                         </div>
                       </div>
@@ -253,45 +384,62 @@ const DashboardPage = () => {
           {activeTab === 'rentals' && (
             <div>
               <h2 className="text-xl font-semibold mb-4">My Rentals</h2>
-              <div className="overflow-x-auto">
-                <table className="min-w-full divide-y divide-gray-200">
-                  <thead className="bg-gray-50">
-                    <tr>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Item</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Owner</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Return Date</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-gray-200">
-                    {dashboardMockData.rentals.map((rental) => (
-                      <tr key={rental.id}>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="flex items-center">
-                            <img className="h-10 w-10 rounded-full" src={rental.image} alt={rental.itemName} />
-                            <div className="ml-4">
-                              <div className="text-sm font-medium text-gray-900">{rental.itemName}</div>
-                            </div>
-                          </div>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="text-sm text-gray-900">{rental.owner}</div>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                            rental.status === 'Active' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'
-                          }`}>
-                            {rental.status}
-                          </span>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                          {rental.returnDate}
-                        </td>
+              {userRentedItems.length === 0 ? (
+                <div className="text-center py-8">
+                  <Package className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                  <p className="text-gray-500">You don't have any active rentals yet.</p>
+                  <button 
+                    onClick={() => setActiveTab('overview')}
+                    className="mt-4 text-primary-600 hover:text-primary-700"
+                  >
+                    Browse available items
+                  </button>
+                </div>
+              ) : (
+                <div className="overflow-x-auto">
+                  <table className="min-w-full divide-y divide-gray-200">
+                    <thead className="bg-gray-50">
+                      <tr>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Item</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Owner</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Return Date</th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+                    </thead>
+                    <tbody className="divide-y divide-gray-200">
+                      {userRentedItems.map((rental) => (
+                        <tr key={rental?.id}>
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            <div className="flex items-center">
+                              <img 
+                                className="h-10 w-10 rounded-full" 
+                                src={rental?.item?.images?.[0] || '/placeholder.png'} 
+                                alt={rental?.item?.title || 'Item'} 
+                              />
+                              <div className="ml-4">
+                                <div className="text-sm font-medium text-gray-900">{rental?.item?.title || 'Unknown Item'}</div>
+                              </div>
+                            </div>
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            <div className="text-sm text-gray-900">{rental?.item?.owner?.name || 'Unknown Owner'}</div>
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                              rental?.status === 'Active' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'
+                            }`}>
+                              {rental?.status || 'Unknown'}
+                            </span>
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                            {rental?.returnDate || 'Not specified'}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
             </div>
           )}
 
@@ -299,15 +447,15 @@ const DashboardPage = () => {
             <div>
               <h2 className="text-xl font-semibold mb-4">My Listings</h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {dashboardMockData.listings.map((listing) => (
+                {userListedItems.map((listing) => (
                   <div key={listing.id} className="bg-white rounded-lg shadow p-4">
-                    <img src={listing.image} alt={listing.title} className="w-full h-48 object-cover rounded-lg mb-4" />
+                    <img src={listing.images[0]} alt={listing.title} className="w-full h-48 object-cover rounded-lg mb-4" />
                     <h3 className="text-lg font-semibold">{listing.title}</h3>
-                    <p className="text-gray-600">${listing.price}/day</p>
+                    <p className="text-gray-600">${listing.price}/{listing.priceUnit}</p>
                     <span className={`mt-2 inline-block px-2 py-1 text-xs font-semibold rounded-full ${
-                      listing.status === 'Active' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'
+                      listing.isAvailable ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'
                     }`}>
-                      {listing.status}
+                      {listing.isAvailable ? 'Active' : 'Rented'}
                     </span>
                   </div>
                 ))}
@@ -330,19 +478,29 @@ const DashboardPage = () => {
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
                 <div className="bg-white p-4 rounded-lg shadow">
                   <p className="text-sm text-gray-500">Total Earnings</p>
-                  <p className="text-2xl font-semibold">${dashboardMockData.earnings.total}</p>
+                  <p className="text-2xl font-semibold">${stats.totalEarnings || 0}</p>
                 </div>
                 <div className="bg-white p-4 rounded-lg shadow">
                   <p className="text-sm text-gray-500">This Month</p>
-                  <p className="text-2xl font-semibold">${dashboardMockData.earnings.thisMonth}</p>
+                  <p className="text-2xl font-semibold">${currentUser?.earnings?.thisMonth || 0}</p>
                 </div>
                 <div className="bg-white p-4 rounded-lg shadow">
                   <p className="text-sm text-gray-500">Last Month</p>
-                  <p className="text-2xl font-semibold">${dashboardMockData.earnings.lastMonth}</p>
+                  <p className="text-2xl font-semibold">${currentUser?.earnings?.lastMonth || 0}</p>
                 </div>
               </div>
               <div className="h-64 bg-white rounded-lg shadow p-4">
-                {/* Add earnings chart */}
+                {currentUser?.earnings?.chartData ? (
+                  // Add earnings chart here when data is available
+                  <div className="flex items-center justify-center h-full">
+                    <p className="text-gray-500">Earnings chart will be displayed here</p>
+                  </div>
+                ) : (
+                  <div className="flex flex-col items-center justify-center h-full">
+                    <DollarSign className="h-12 w-12 text-gray-400 mb-4" />
+                    <p className="text-gray-500">No earnings data available yet</p>
+                  </div>
+                )}
               </div>
             </div>
           )}
@@ -353,30 +511,62 @@ const DashboardPage = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
                 <div className="bg-white p-4 rounded-lg shadow">
                   <p className="text-sm text-gray-500">Current Balance</p>
-                  <p className="text-2xl font-semibold">${dashboardMockData.wallet.balance}</p>
+                  <p className="text-2xl font-semibold">${currentUser?.wallet?.balance || 0}</p>
                 </div>
                 <div className="bg-white p-4 rounded-lg shadow">
                   <p className="text-sm text-gray-500">Pending Deposits</p>
-                  <p className="text-2xl font-semibold">${dashboardMockData.wallet.pendingDeposits}</p>
+                  <p className="text-2xl font-semibold">${currentUser?.wallet?.pendingDeposits || 0}</p>
                 </div>
               </div>
+
+              {/* Action Buttons */}
+              <div className="flex gap-4 mb-6">
+                <button 
+                  className="flex-1 btn-primary flex items-center justify-center gap-2"
+                  onClick={() => {
+                    setTransactionType('deposit');
+                    setShowTransactionModal(true);
+                  }}
+                >
+                  <PlusCircle className="h-5 w-5" />
+                  Deposit
+                </button>
+                <button 
+                  className="flex-1 btn-secondary flex items-center justify-center gap-2"
+                  onClick={() => {
+                    setTransactionType('withdraw');
+                    setShowTransactionModal(true);
+                  }}
+                >
+                  <MinusCircle className="h-5 w-5" />
+                  Withdraw
+                </button>
+              </div>
+
               <div className="space-y-4">
                 <h3 className="text-lg font-semibold">Recent Transactions</h3>
-                {dashboardMockData.wallet.recentTransactions.map((transaction) => (
-                  <div key={transaction.id} className="bg-white p-4 rounded-lg shadow">
-                    <div className="flex justify-between items-center">
-                      <div>
-                        <p className="font-medium">{transaction.type === 'deposit' ? 'Deposit' : 'Withdrawal'}</p>
-                        <p className="text-sm text-gray-500">{transaction.date}</p>
+                {currentUser?.wallet?.recentTransactions?.length > 0 ? (
+                  currentUser.wallet.recentTransactions.map((transaction) => (
+                    <div key={transaction?.id} className="bg-white p-4 rounded-lg shadow">
+                      <div className="flex justify-between items-center">
+                        <div>
+                          <p className="font-medium">{transaction?.type === 'deposit' ? 'Deposit' : 'Withdrawal'}</p>
+                          <p className="text-sm text-gray-500">{transaction?.date || 'Unknown date'}</p>
+                        </div>
+                        <p className={`text-lg font-semibold ${
+                          transaction?.type === 'deposit' ? 'text-green-600' : 'text-red-600'
+                        }`}>
+                          {transaction?.type === 'deposit' ? '+' : '-'}${transaction?.amount || 0}
+                        </p>
                       </div>
-                      <p className={`text-lg font-semibold ${
-                        transaction.type === 'deposit' ? 'text-green-600' : 'text-red-600'
-                      }`}>
-                        {transaction.type === 'deposit' ? '+' : '-'}${transaction.amount}
-                      </p>
                     </div>
+                  ))
+                ) : (
+                  <div className="text-center py-8">
+                    <Wallet className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                    <p className="text-gray-500">No recent transactions</p>
                   </div>
-                ))}
+                )}
               </div>
             </div>
           )}
@@ -387,27 +577,34 @@ const DashboardPage = () => {
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
                 <div className="bg-white p-4 rounded-lg shadow">
                   <p className="text-sm text-gray-500">Total Collateral</p>
-                  <p className="text-2xl font-semibold">${dashboardMockData.collateral.total}</p>
+                  <p className="text-2xl font-semibold">${currentUser?.collateral?.total || 0}</p>
                 </div>
                 <div className="bg-white p-4 rounded-lg shadow">
                   <p className="text-sm text-gray-500">Active Collateral</p>
-                  <p className="text-2xl font-semibold">${dashboardMockData.collateral.active}</p>
+                  <p className="text-2xl font-semibold">${currentUser?.collateral?.active || 0}</p>
                 </div>
                 <div className="bg-white p-4 rounded-lg shadow">
                   <p className="text-sm text-gray-500">Available Collateral</p>
-                  <p className="text-2xl font-semibold">${dashboardMockData.collateral.available}</p>
+                  <p className="text-2xl font-semibold">${currentUser?.collateral?.available || 0}</p>
                 </div>
               </div>
               <div className="space-y-4">
                 <h3 className="text-lg font-semibold">Collateral Items</h3>
-                {dashboardMockData.collateral.items.map((item) => (
-                  <div key={item.id} className="bg-white p-4 rounded-lg shadow">
-                    <div className="flex justify-between items-center">
-                      <p className="font-medium">{item.item}</p>
-                      <p className="text-lg font-semibold">${item.amount}</p>
+                {currentUser?.collateral?.items?.length > 0 ? (
+                  currentUser.collateral.items.map((item) => (
+                    <div key={item?.id} className="bg-white p-4 rounded-lg shadow">
+                      <div className="flex justify-between items-center">
+                        <p className="font-medium">{item?.name || 'Unknown Item'}</p>
+                        <p className="text-lg font-semibold">${item?.amount || 0}</p>
+                      </div>
                     </div>
+                  ))
+                ) : (
+                  <div className="text-center py-8">
+                    <Shield className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                    <p className="text-gray-500">No collateral items found</p>
                   </div>
-                ))}
+                )}
               </div>
             </div>
           )}
@@ -418,21 +615,34 @@ const DashboardPage = () => {
               <div className="bg-white p-6 rounded-lg shadow">
                 <div className="flex items-center justify-between mb-6">
                   <div>
-                    <h3 className="text-lg font-semibold">Current Plan: {dashboardMockData.premium.status}</h3>
-                    <p className="text-gray-600">Renewal Date: {dashboardMockData.premium.renewalDate}</p>
+                    <h3 className="text-lg font-semibold">
+                      Current Plan: {currentUser?.isPremium ? 'Premium' : 'Basic'}
+                    </h3>
+                    <p className="text-gray-600">
+                      Renewal Date: {currentUser?.premium?.renewalDate || 'Not specified'}
+                    </p>
                   </div>
-                  <button className="btn-primary">Upgrade Plan</button>
+                  <button className="btn-primary">
+                    {currentUser?.isPremium ? 'Manage Subscription' : 'Upgrade Plan'}
+                  </button>
                 </div>
                 <div className="space-y-4">
                   <h4 className="font-semibold">Premium Features</h4>
-                  <ul className="space-y-2">
-                    {dashboardMockData.premium.features.map((feature, index) => (
-                      <li key={index} className="flex items-center">
-                        <Star className="h-5 w-5 text-yellow-500 mr-2" />
-                        <span>{feature}</span>
-                      </li>
-                    ))}
-                  </ul>
+                  {currentUser?.premium?.features?.length > 0 ? (
+                    <ul className="space-y-2">
+                      {currentUser.premium.features.map((feature, index) => (
+                        <li key={index} className="flex items-center">
+                          <Star className="h-5 w-5 text-yellow-500 mr-2" />
+                          <span>{feature}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  ) : (
+                    <div className="text-center py-4">
+                      <Star className="h-8 w-8 text-gray-400 mx-auto mb-2" />
+                      <p className="text-gray-500">No premium features available</p>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
@@ -441,8 +651,9 @@ const DashboardPage = () => {
           {activeTab === 'messages' && (
             <div>
               <h2 className="text-xl font-semibold mb-4">Messages</h2>
-              <div className="space-y-4">
-                {/* Add messages UI */}
+              <div className="text-center py-8">
+                <MessageSquare className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                <p className="text-gray-500">No messages yet</p>
               </div>
             </div>
           )}
@@ -450,8 +661,9 @@ const DashboardPage = () => {
           {activeTab === 'reviews' && (
             <div>
               <h2 className="text-xl font-semibold mb-4">Reviews</h2>
-              <div className="space-y-4">
-                {/* Add reviews UI */}
+              <div className="text-center py-8">
+                <ThumbsUp className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                <p className="text-gray-500">No reviews yet</p>
               </div>
             </div>
           )}
@@ -459,9 +671,29 @@ const DashboardPage = () => {
           {activeTab === 'report' && (
             <div>
               <h2 className="text-xl font-semibold mb-4">Report a Problem</h2>
-              <form className="space-y-6">
-                {/* Add report form */}
-              </form>
+              <div className="bg-white p-6 rounded-lg shadow">
+                <form className="space-y-6">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">Subject</label>
+                    <input
+                      type="text"
+                      className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500"
+                      placeholder="Enter the subject of your report"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">Description</label>
+                    <textarea
+                      className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500"
+                      rows={4}
+                      placeholder="Describe the problem in detail"
+                    />
+                  </div>
+                  <button type="submit" className="btn-primary">
+                    Submit Report
+                  </button>
+                </form>
+              </div>
             </div>
           )}
         </div>

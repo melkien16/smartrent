@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { Mail, Lock, AlertCircle, Eye, EyeOff } from 'lucide-react';
-import { demoUsers } from '../../data/dummyData';
+import { mockUsers } from '../../data/mockUsers';
 
 const LoginForm = ({ onToggleForm }) => {
   const [email, setEmail] = useState('');
@@ -25,20 +25,20 @@ const LoginForm = ({ onToggleForm }) => {
     setLoading(true);
 
     try {
-      // Simulate API call delay
-      await new Promise(resolve => setTimeout(resolve, 800));
+      // In a real app, this would be an API call
+      // For demo purposes, we'll use mockUsers
+      const user = Object.values(mockUsers).find(
+        u => u.email === email && u.password === password
+      );
 
-      // Call the login function with email and password
-      const user = login(email, password);
-      
-      // Navigate based on user role
-      if (user.role === 'admin') {
-        navigate('/admin');
-      } else {
+      if (user) {
+        await login(user);
         navigate('/dashboard');
+      } else {
+        setError('Invalid email or password');
       }
     } catch (err) {
-      setError('Invalid email or password');
+      setError('An error occurred during login');
     } finally {
       setLoading(false);
     }

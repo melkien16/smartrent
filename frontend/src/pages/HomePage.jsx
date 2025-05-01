@@ -3,7 +3,9 @@ import { Link } from 'react-router-dom';
 import { Search, TrendingUp, Shield, CornerRightDown, ArrowRight } from 'lucide-react';
 import CategoryList from '../components/items/CategoryList';
 import ItemGrid from '../components/items/ItemGrid';
-import { featuredItems, recentItems, popularCategories, testimonials } from '../data/mockData';
+import { mockItems } from '../data/mockItems';
+import { mockTestimonials } from '../data/mockTestimonials';
+import { mockCategories } from '../data/mockCategories';
 
 const HomePage = () => {
   return (
@@ -62,7 +64,7 @@ const HomePage = () => {
             <p className="mt-2 text-lg text-gray-600">Discover our most popular rental items</p>
           </div>
           
-          <ItemGrid items={featuredItems.slice(0, 4)} />
+          <ItemGrid items={mockItems.featured} />
           
           <div className="mt-10 text-center">
             <Link 
@@ -130,7 +132,7 @@ const HomePage = () => {
           </div>
           
           <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
-            {popularCategories.map(category => (
+            {mockCategories.popular.map(category => (
               <Link 
                 key={category.id}
                 to={`/explore?category=${category.id}`}
@@ -162,7 +164,7 @@ const HomePage = () => {
             <p className="mt-2 text-lg text-gray-600">Check out the newest items available for rent</p>
           </div>
           
-          <ItemGrid items={recentItems} />
+          <ItemGrid items={mockItems.recent} />
           
           <div className="mt-10 text-center">
             <Link 
@@ -184,7 +186,7 @@ const HomePage = () => {
           </div>
           
           <div className="grid grid-cols-1 gap-8 md:grid-cols-3">
-            {testimonials.map(testimonial => (
+            {mockTestimonials.map(testimonial => (
               <div key={testimonial.id} className="rounded-lg bg-white p-6 shadow-sm">
                 <div className="flex items-center space-x-4">
                   <img
