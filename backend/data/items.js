@@ -1,4 +1,4 @@
-const  items = [
+const items = [
   {
     title: "Professional DSLR Camera",
     description:
