@@ -7,10 +7,10 @@ import { featuredItems, recentItems } from '../data/mockData';
 
 const ProfilePage = () => {
   const { id } = useParams();
-  const { user } = useAuth();
+  const { user, isAdmin } = useAuth();
   const [profileUser, setProfileUser] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState('listings');
+  const [activeTab, setActiveTab] = useState(isAdmin ? 'settings' : 'listings');
   const [userItems, setUserItems] = useState([]);
   
   const isOwnProfile = id === 'me' || id === user?.id;
@@ -140,17 +140,12 @@ const ProfilePage = () => {
                 </div>
               </div>
               
-              {isOwnProfile ? (
+              {isOwnProfile && !isAdmin && (
                 <Link to="/list-item" className="mt-4 self-start sm:mt-0 sm:self-auto">
                   <button className="btn-primary">
                     Add New Listing
                   </button>
                 </Link>
-              ) : (
-                <button className="mt-4 inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 sm:mt-0">
-                  <Mail size={16} className="mr-2" />
-                  Contact
-                </button>
               )}
             </div>
           </div>
@@ -176,58 +171,60 @@ const ProfilePage = () => {
         </div>
 
         {/* Tabs */}
-        <div className="mb-6 border-b border-gray-200">
-          <div className="-mb-px flex space-x-8">
-            <button
-              className={`pb-4 text-sm font-medium ${
-                activeTab === 'listings'
-                  ? 'border-b-2 border-primary-500 text-primary-600'
-                  : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700'
-              }`}
-              onClick={() => setActiveTab('listings')}
-            >
-              {isOwnProfile ? 'My Listings' : 'Listings'}
-            </button>
-            <button
-              className={`pb-4 text-sm font-medium ${
-                activeTab === 'reviews'
-                  ? 'border-b-2 border-primary-500 text-primary-600'
-                  : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700'
-              }`}
-              onClick={() => setActiveTab('reviews')}
-            >
-              Reviews
-            </button>
-            {isOwnProfile && (
-              <>
-                <button
-                  className={`pb-4 text-sm font-medium ${
-                    activeTab === 'rentals'
-                      ? 'border-b-2 border-primary-500 text-primary-600'
-                      : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700'
-                  }`}
-                  onClick={() => setActiveTab('rentals')}
-                >
-                  My Rentals
-                </button>
-                <button
-                  className={`pb-4 text-sm font-medium ${
-                    activeTab === 'settings'
-                      ? 'border-b-2 border-primary-500 text-primary-600'
-                      : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700'
-                  }`}
-                  onClick={() => setActiveTab('settings')}
-                >
-                  Settings
-                </button>
-              </>
-            )}
+        {!isAdmin && (
+          <div className="mb-6 border-b border-gray-200">
+            <div className="-mb-px flex space-x-8">
+              <button
+                className={`pb-4 text-sm font-medium ${
+                  activeTab === 'listings'
+                    ? 'border-b-2 border-primary-500 text-primary-600'
+                    : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700'
+                }`}
+                onClick={() => setActiveTab('listings')}
+              >
+                {isOwnProfile ? 'My Listings' : 'Listings'}
+              </button>
+              <button
+                className={`pb-4 text-sm font-medium ${
+                  activeTab === 'reviews'
+                    ? 'border-b-2 border-primary-500 text-primary-600'
+                    : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700'
+                }`}
+                onClick={() => setActiveTab('reviews')}
+              >
+                Reviews
+              </button>
+              {isOwnProfile && (
+                <>
+                  <button
+                    className={`pb-4 text-sm font-medium ${
+                      activeTab === 'rentals'
+                        ? 'border-b-2 border-primary-500 text-primary-600'
+                        : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700'
+                    }`}
+                    onClick={() => setActiveTab('rentals')}
+                  >
+                    My Rentals
+                  </button>
+                  <button
+                    className={`pb-4 text-sm font-medium ${
+                      activeTab === 'settings'
+                        ? 'border-b-2 border-primary-500 text-primary-600'
+                        : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700'
+                    }`}
+                    onClick={() => setActiveTab('settings')}
+                  >
+                    Settings
+                  </button>
+                </>
+              )}
+            </div>
           </div>
-        </div>
+        )}
 
         {/* Tab Content */}
         <div className="animate-fade-in">
-          {activeTab === 'listings' && (
+          {!isAdmin && activeTab === 'listings' && (
             <div>
               <h2 className="mb-4 text-xl font-semibold text-gray-900">
                 {isOwnProfile ? 'My Listings' : `${profileUser.name}'s Listings`}
@@ -253,7 +250,7 @@ const ProfilePage = () => {
             </div>
           )}
 
-          {activeTab === 'reviews' && (
+          {!isAdmin && activeTab === 'reviews' && (
             <div>
               <h2 className="mb-4 text-xl font-semibold text-gray-900">Reviews</h2>
               
@@ -268,7 +265,7 @@ const ProfilePage = () => {
             </div>
           )}
 
-          {activeTab === 'rentals' && isOwnProfile && (
+          {!isAdmin && activeTab === 'rentals' && isOwnProfile && (
             <div>
               <h2 className="mb-4 text-xl font-semibold text-gray-900">My Rentals</h2>
               
@@ -282,7 +279,7 @@ const ProfilePage = () => {
             </div>
           )}
 
-          {activeTab === 'settings' && isOwnProfile && (
+          {(isAdmin || activeTab === 'settings') && (
             <div>
               <h2 className="mb-4 text-xl font-semibold text-gray-900">Profile Settings</h2>
               

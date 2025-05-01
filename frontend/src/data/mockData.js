@@ -1,6 +1,8 @@
 // Mock data for the application
 // In a real application, this would come from an API/database
 
+import { demoUsers } from './dummyData';
+
 export const featuredItems = [
   {
     id: '1',
@@ -439,3 +441,334 @@ export const testimonials = [
     role: "Item Owner"
   }
 ];
+
+export const mockListings = [
+  {
+    id: 'listing-1',
+    title: 'Modern Downtown Apartment',
+    description: 'A beautiful modern apartment in the heart of downtown. Perfect for business travelers and tourists alike.',
+    price: 120,
+    location: 'Downtown',
+    bedrooms: 2,
+    bathrooms: 1,
+    maxGuests: 4,
+    amenities: ['WiFi', 'Kitchen', 'Washer', 'Dryer', 'Air Conditioning', 'TV'],
+    images: [
+      'https://images.pexels.com/photos/1571460/pexels-photo-1571460.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1',
+      'https://images.pexels.com/photos/1457842/pexels-photo-1457842.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1',
+      'https://images.pexels.com/photos/271624/pexels-photo-271624.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1'
+    ],
+    owner: demoUsers.michael,
+    rating: 4.8,
+    reviews: 24,
+    isAvailable: true,
+    createdAt: '2024-01-15T10:00:00Z'
+  },
+  {
+    id: 'listing-2',
+    title: 'Luxury Beachfront Villa',
+    description: 'Experience luxury living with stunning ocean views in this beautiful beachfront villa.',
+    price: 350,
+    location: 'Beachfront',
+    bedrooms: 4,
+    bathrooms: 3,
+    maxGuests: 8,
+    amenities: ['Pool', 'WiFi', 'Kitchen', 'Washer', 'Dryer', 'Air Conditioning', 'TV', 'Parking'],
+    images: [
+      'https://images.pexels.com/photos/323780/pexels-photo-323780.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1',
+      'https://images.pexels.com/photos/1396122/pexels-photo-1396122.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1',
+      'https://images.pexels.com/photos/259588/pexels-photo-259588.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1'
+    ],
+    owner: demoUsers.jessica,
+    rating: 4.9,
+    reviews: 18,
+    isAvailable: true,
+    createdAt: '2024-01-10T15:30:00Z'
+  },
+  {
+    id: 'listing-3',
+    title: 'Cozy Mountain Cabin',
+    description: 'Escape to this charming cabin nestled in the mountains. Perfect for a peaceful retreat.',
+    price: 95,
+    location: 'Mountain View',
+    bedrooms: 1,
+    bathrooms: 1,
+    maxGuests: 2,
+    amenities: ['WiFi', 'Kitchen', 'Fireplace', 'Hot Tub', 'Parking'],
+    images: [
+      'https://images.pexels.com/photos/1082355/pexels-photo-1082355.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1',
+      'https://images.pexels.com/photos/1082355/pexels-photo-1082355.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1',
+      'https://images.pexels.com/photos/1082355/pexels-photo-1082355.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1'
+    ],
+    owner: demoUsers.david,
+    rating: 4.7,
+    reviews: 32,
+    isAvailable: true,
+    createdAt: '2024-01-05T09:15:00Z'
+  },
+  {
+    id: 'listing-4',
+    title: 'Stylish Urban Loft',
+    description: 'A trendy loft apartment in the arts district with modern amenities and great city views.',
+    price: 180,
+    location: 'Arts District',
+    bedrooms: 1,
+    bathrooms: 1,
+    maxGuests: 2,
+    amenities: ['WiFi', 'Kitchen', 'Washer', 'Dryer', 'Air Conditioning', 'TV', 'Gym'],
+    images: [
+      'https://images.pexels.com/photos/1571460/pexels-photo-1571460.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1',
+      'https://images.pexels.com/photos/1457842/pexels-photo-1457842.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1',
+      'https://images.pexels.com/photos/271624/pexels-photo-271624.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1'
+    ],
+    owner: demoUsers.sarah,
+    rating: 4.6,
+    reviews: 15,
+    isAvailable: true,
+    createdAt: '2024-01-20T11:45:00Z'
+  },
+  {
+    id: 'listing-5',
+    title: 'Family-Friendly Suburban Home',
+    description: 'Spacious home in a quiet neighborhood, perfect for families and group stays.',
+    price: 200,
+    location: 'Suburbs',
+    bedrooms: 3,
+    bathrooms: 2,
+    maxGuests: 6,
+    amenities: ['WiFi', 'Kitchen', 'Washer', 'Dryer', 'Air Conditioning', 'TV', 'Backyard', 'Parking'],
+    images: [
+      'https://images.pexels.com/photos/323780/pexels-photo-323780.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1',
+      'https://images.pexels.com/photos/1396122/pexels-photo-1396122.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1',
+      'https://images.pexels.com/photos/259588/pexels-photo-259588.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1'
+    ],
+    owner: demoUsers.alex,
+    rating: 4.8,
+    reviews: 28,
+    isAvailable: true,
+    createdAt: '2024-01-12T14:20:00Z'
+  },
+  {
+    id: 'listing-6',
+    title: 'Luxury Penthouse Suite',
+    description: 'Experience the height of luxury in this stunning penthouse with panoramic city views.',
+    price: 500,
+    location: 'Financial District',
+    bedrooms: 2,
+    bathrooms: 2,
+    maxGuests: 4,
+    amenities: ['WiFi', 'Kitchen', 'Washer', 'Dryer', 'Air Conditioning', 'TV', 'Gym', 'Pool', 'Concierge'],
+    images: [
+      'https://images.pexels.com/photos/1571460/pexels-photo-1571460.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1',
+      'https://images.pexels.com/photos/1457842/pexels-photo-1457842.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1',
+      'https://images.pexels.com/photos/271624/pexels-photo-271624.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1'
+    ],
+    owner: demoUsers.ryan,
+    rating: 4.9,
+    reviews: 12,
+    isAvailable: true,
+    createdAt: '2024-01-18T16:00:00Z'
+  },
+  {
+    id: 'listing-7',
+    title: 'Rustic Country House',
+    description: 'A charming country house with modern amenities, surrounded by nature.',
+    price: 150,
+    location: 'Countryside',
+    bedrooms: 3,
+    bathrooms: 2,
+    maxGuests: 6,
+    amenities: ['WiFi', 'Kitchen', 'Washer', 'Dryer', 'Fireplace', 'Garden', 'Parking'],
+    images: [
+      'https://images.pexels.com/photos/323780/pexels-photo-323780.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1',
+      'https://images.pexels.com/photos/1396122/pexels-photo-1396122.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1',
+      'https://images.pexels.com/photos/259588/pexels-photo-259588.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1'
+    ],
+    owner: demoUsers.marcus,
+    rating: 4.7,
+    reviews: 20,
+    isAvailable: true,
+    createdAt: '2024-01-08T13:45:00Z'
+  },
+  {
+    id: 'listing-8',
+    title: 'Modern Studio Apartment',
+    description: 'A sleek and modern studio apartment in a prime location, perfect for solo travelers.',
+    price: 90,
+    location: 'City Center',
+    bedrooms: 1,
+    bathrooms: 1,
+    maxGuests: 2,
+    amenities: ['WiFi', 'Kitchen', 'Washer', 'Dryer', 'Air Conditioning', 'TV'],
+    images: [
+      'https://images.pexels.com/photos/1571460/pexels-photo-1571460.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1',
+      'https://images.pexels.com/photos/1457842/pexels-photo-1457842.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1',
+      'https://images.pexels.com/photos/271624/pexels-photo-271624.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1'
+    ],
+    owner: demoUsers.emma,
+    rating: 4.5,
+    reviews: 16,
+    isAvailable: true,
+    createdAt: '2024-01-22T10:30:00Z'
+  },
+  {
+    id: 'listing-9',
+    title: 'Lakeside Cottage',
+    description: 'A peaceful cottage by the lake, offering beautiful views and a relaxing atmosphere.',
+    price: 160,
+    location: 'Lakeside',
+    bedrooms: 2,
+    bathrooms: 1,
+    maxGuests: 4,
+    amenities: ['WiFi', 'Kitchen', 'Fireplace', 'Boat Dock', 'Parking'],
+    images: [
+      'https://images.pexels.com/photos/323780/pexels-photo-323780.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1',
+      'https://images.pexels.com/photos/1396122/pexels-photo-1396122.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1',
+      'https://images.pexels.com/photos/259588/pexels-photo-259588.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1'
+    ],
+    owner: demoUsers.carlos,
+    rating: 4.8,
+    reviews: 22,
+    isAvailable: true,
+    createdAt: '2024-01-14T12:15:00Z'
+  },
+  {
+    id: 'listing-10',
+    title: 'Historic Townhouse',
+    description: 'A beautifully restored historic townhouse with modern comforts and classic charm.',
+    price: 220,
+    location: 'Historic District',
+    bedrooms: 2,
+    bathrooms: 2,
+    maxGuests: 4,
+    amenities: ['WiFi', 'Kitchen', 'Washer', 'Dryer', 'Air Conditioning', 'TV', 'Garden'],
+    images: [
+      'https://images.pexels.com/photos/1571460/pexels-photo-1571460.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1',
+      'https://images.pexels.com/photos/1457842/pexels-photo-1457842.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1',
+      'https://images.pexels.com/photos/271624/pexels-photo-271624.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1'
+    ],
+    owner: demoUsers.tyler,
+    rating: 4.7,
+    reviews: 19,
+    isAvailable: true,
+    createdAt: '2024-01-16T09:45:00Z'
+  },
+  {
+    id: 'listing-11',
+    title: 'Seaside Bungalow',
+    description: 'A cozy bungalow steps away from the beach, perfect for a seaside getaway.',
+    price: 140,
+    location: 'Seaside',
+    bedrooms: 1,
+    bathrooms: 1,
+    maxGuests: 2,
+    amenities: ['WiFi', 'Kitchen', 'Washer', 'Dryer', 'Air Conditioning', 'TV', 'Beach Access'],
+    images: [
+      'https://images.pexels.com/photos/323780/pexels-photo-323780.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1',
+      'https://images.pexels.com/photos/1396122/pexels-photo-1396122.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1',
+      'https://images.pexels.com/photos/259588/pexels-photo-259588.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1'
+    ],
+    owner: demoUsers.olivia,
+    rating: 4.6,
+    reviews: 14,
+    isAvailable: true,
+    createdAt: '2024-01-19T11:30:00Z'
+  },
+  {
+    id: 'listing-12',
+    title: 'Modern High-Rise Apartment',
+    description: 'A sleek apartment in a modern high-rise building with city views and premium amenities.',
+    price: 190,
+    location: 'Business District',
+    bedrooms: 1,
+    bathrooms: 1,
+    maxGuests: 2,
+    amenities: ['WiFi', 'Kitchen', 'Washer', 'Dryer', 'Air Conditioning', 'TV', 'Gym', 'Pool'],
+    images: [
+      'https://images.pexels.com/photos/1571460/pexels-photo-1571460.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1',
+      'https://images.pexels.com/photos/1457842/pexels-photo-1457842.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1',
+      'https://images.pexels.com/photos/271624/pexels-photo-271624.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1'
+    ],
+    owner: demoUsers.nick,
+    rating: 4.8,
+    reviews: 17,
+    isAvailable: true,
+    createdAt: '2024-01-21T15:20:00Z'
+  }
+];
+
+export const mockBookings = [
+  {
+    id: 'booking-1',
+    listingId: 'listing-1',
+    userId: 'user-1',
+    startDate: '2024-02-01',
+    endDate: '2024-02-05',
+    totalPrice: 480,
+    status: 'confirmed',
+    createdAt: '2024-01-25T10:00:00Z'
+  },
+  {
+    id: 'booking-2',
+    listingId: 'listing-2',
+    userId: 'user-2',
+    startDate: '2024-02-10',
+    endDate: '2024-02-15',
+    totalPrice: 1750,
+    status: 'pending',
+    createdAt: '2024-01-26T14:30:00Z'
+  },
+  {
+    id: 'booking-3',
+    listingId: 'listing-3',
+    userId: 'user-3',
+    startDate: '2024-02-20',
+    endDate: '2024-02-22',
+    totalPrice: 190,
+    status: 'confirmed',
+    createdAt: '2024-01-27T09:15:00Z'
+  }
+];
+
+export const mockReviews = [
+  {
+    id: 'review-1',
+    listingId: 'listing-1',
+    userId: 'user-2',
+    rating: 5,
+    comment: 'Amazing place! The location was perfect and the apartment was exactly as described.',
+    createdAt: '2024-01-15T16:00:00Z'
+  },
+  {
+    id: 'review-2',
+    listingId: 'listing-2',
+    userId: 'user-3',
+    rating: 4,
+    comment: 'Beautiful villa with stunning views. Would definitely stay again!',
+    createdAt: '2024-01-16T11:30:00Z'
+  },
+  {
+    id: 'review-3',
+    listingId: 'listing-3',
+    userId: 'user-1',
+    rating: 5,
+    comment: 'Perfect getaway spot. The cabin was cozy and had everything we needed.',
+    createdAt: '2024-01-17T14:45:00Z'
+  }
+];
+
+export const getAdminUsers = () => {
+  return Object.entries(demoUsers).map(([key, user]) => ({
+    id: user.id,
+    email: user.email,
+    name: user.name,
+    avatar: user.avatar,
+    role: user.role,
+    status: 'active',
+    joinedDate: '2024-01-01',
+    lastLogin: new Date().toISOString(),
+    listingsCount: mockListings.filter(listing => listing.owner.id === user.id).length,
+    bookingsCount: mockBookings.filter(booking => booking.userId === user.id).length,
+    balance: dummyBalances[user.id] || 0
+  }));
+};

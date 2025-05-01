@@ -1,10 +1,12 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Search, Menu, X, Heart, User, LogIn, Package } from 'lucide-react';
+import { Search, Menu, X, Heart, User, LogIn, Package, Wallet } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
+import { useBalance } from '../../context/BalanceContext';
 
 const Navbar = () => {
   const { user, isAuthenticated, logout, isAdmin } = useAuth();
+  const { balance } = useBalance();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -76,59 +78,85 @@ const Navbar = () => {
               <div className="relative" ref={userMenuRef}>
                 <button 
                   onClick={toggleUserMenu}
-                  className="flex items-center space-x-1 text-sm font-medium text-gray-700 hover:text-primary-500"
+                  className="flex items-center space-x-2 text-sm font-medium text-gray-700 hover:text-primary-500"
                 >
+                  {!isAdmin && (
+                    <div className="flex items-center space-x-1 rounded-full bg-gray-100 px-2 py-1">
+                      <Wallet size={16} className="text-primary-500" />
+                      <span className="text-sm font-medium">${balance.toFixed(2)}</span>
+                    </div>
+                  )}
                   <User size={20} />
                 </button>
                 {isUserMenuOpen && (
                   <div className="absolute right-0 mt-2 w-48 rounded-md bg-white p-2 shadow-lg ring-1 ring-black ring-opacity-5">
                     {isAdmin ? (
-                      <Link 
-                        to="/admin" 
-                        className="block rounded-md px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                        onClick={() => setIsUserMenuOpen(false)}
-                      >
-                        Admin Dashboard
-                      </Link>
+                      <>
+                        <Link 
+                          to="/admin" 
+                          className="block rounded-md px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                          onClick={() => setIsUserMenuOpen(false)}
+                        >
+                          Admin Dashboard
+                        </Link>
+                        <Link 
+                          to="/profile/me" 
+                          className="block rounded-md px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                          onClick={() => setIsUserMenuOpen(false)}
+                        >
+                          Profile
+                        </Link>
+                        <button 
+                          onClick={() => {
+                            logout();
+                            setIsUserMenuOpen(false);
+                          }}
+                          className="block w-full rounded-md px-4 py-2 text-left text-sm text-red-600 hover:bg-gray-100"
+                        >
+                          Logout
+                        </button>
+                      </>
                     ) : (
-                      <Link 
-                        to="/dashboard" 
-                        className="block rounded-md px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                        onClick={() => setIsUserMenuOpen(false)}
-                      >
-                        Dashboard
-                      </Link>
+                      <>
+                        <Link 
+                          to="/dashboard" 
+                          className="block rounded-md px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                          onClick={() => setIsUserMenuOpen(false)}
+                        >
+                          Dashboard
+                        </Link>
+                        <Link 
+                          to="/profile/me" 
+                          className="block rounded-md px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                          onClick={() => setIsUserMenuOpen(false)}
+                        >
+                          Profile
+                        </Link>
+                        <Link 
+                          to="/favorites" 
+                          className="block rounded-md px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                          onClick={() => setIsUserMenuOpen(false)}
+                        >
+                          Favorites
+                        </Link>
+                        <Link 
+                          to="/my-rentals" 
+                          className="block rounded-md px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                          onClick={() => setIsUserMenuOpen(false)}
+                        >
+                          My Rentals
+                        </Link>
+                        <button 
+                          onClick={() => {
+                            logout();
+                            setIsUserMenuOpen(false);
+                          }}
+                          className="block w-full rounded-md px-4 py-2 text-left text-sm text-red-600 hover:bg-gray-100"
+                        >
+                          Logout
+                        </button>
+                      </>
                     )}
-                    <Link 
-                      to="/profile/me" 
-                      className="block rounded-md px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                      onClick={() => setIsUserMenuOpen(false)}
-                    >
-                      Profile
-                    </Link>
-                    <Link 
-                      to="/favorites" 
-                      className="block rounded-md px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                      onClick={() => setIsUserMenuOpen(false)}
-                    >
-                      Favorites
-                    </Link>
-                    <Link 
-                      to="/my-rentals" 
-                      className="block rounded-md px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                      onClick={() => setIsUserMenuOpen(false)}
-                    >
-                      My Rentals
-                    </Link>
-                    <button 
-                      onClick={() => {
-                        logout();
-                        setIsUserMenuOpen(false);
-                      }}
-                      className="block w-full rounded-md px-4 py-2 text-left text-sm text-red-600 hover:bg-gray-100"
-                    >
-                      Logout
-                    </button>
                   </div>
                 )}
               </div>

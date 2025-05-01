@@ -1,4 +1,5 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
+import { demoUsers } from '../data/dummyData';
 
 const AuthContext = createContext(null);
 
@@ -17,9 +18,19 @@ export const AuthProvider = ({ children }) => {
     setLoading(false);
   }, []);
 
-  const login = (userData) => {
-    setUser(userData);
-    localStorage.setItem('smartRentUser', JSON.stringify(userData));
+  const login = (email, password) => {
+    // For demo purposes, we'll use hardcoded credentials
+    if (email === 'demo@smartrent.com' && password === 'demo123') {
+      setUser(demoUsers.demo);
+      localStorage.setItem('smartRentUser', JSON.stringify(demoUsers.demo));
+      return demoUsers.demo;
+    }
+    if (email === 'admin@smartrent.com' && password === 'admin123') {
+      setUser(demoUsers.admin);
+      localStorage.setItem('smartRentUser', JSON.stringify(demoUsers.admin));
+      return demoUsers.admin;
+    }
+    throw new Error('Invalid credentials');
   };
 
   const register = (userData) => {
