@@ -286,6 +286,12 @@ const ItemDetailPage = () => {
                     />
                     <div>
                       <h3 className="font-medium text-gray-900">{item.owner.name}</h3>
+                      {item.owner.isPremium && (
+                        <div className="mt-1 inline-flex items-center rounded-full bg-gradient-to-r from-yellow-400 to-yellow-600 px-2 py-0.5 text-xs font-medium text-white">
+                          <Star size={12} className="mr-1" fill="currentColor" />
+                          Premium
+                        </div>
+                      )}
                       <div className="mt-1 flex items-center">
                         <Star size={14} className="mr-1 text-yellow-400" fill="currentColor" />
                         <span className="text-sm">{item.owner.rating} rating</span>

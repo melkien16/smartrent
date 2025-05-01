@@ -120,6 +120,12 @@ const ProfilePage = () => {
             <div className="flex flex-col justify-between sm:flex-row sm:items-end">
               <div>
                 <h1 className="text-2xl font-bold text-gray-900 sm:text-3xl">{profileUser.name}</h1>
+                {profileUser.isPremium && (
+                  <div className="mt-2 inline-flex items-center rounded-full bg-gradient-to-r from-yellow-400 to-yellow-600 px-3 py-1 text-sm font-medium text-white">
+                    <Star size={14} className="mr-1" fill="currentColor" />
+                    Premium Member
+                  </div>
+                )}
                 <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-gray-500">
                   {profileUser.location && (
                     <div className="flex items-center">
@@ -223,117 +229,31 @@ const ProfilePage = () => {
         )}
 
         {/* Tab Content */}
-        <div className="animate-fade-in">
-          {!isAdmin && activeTab === 'listings' && (
+        <div className="mt-6">
+          {activeTab === 'listings' && (
             <div>
               <h2 className="mb-4 text-xl font-semibold text-gray-900">
-                {isOwnProfile ? 'My Listings' : `${profileUser.name}'s Listings`}
+                {isOwnProfile ? 'My Listings' : 'Listings'}
               </h2>
-              
-              {userItems.length > 0 ? (
-                <ItemGrid items={userItems} />
-              ) : (
-                <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-gray-300 bg-gray-50 px-6 py-12 text-center">
-                  <p className="mb-2 text-lg font-medium text-gray-900">No listings yet</p>
-                  {isOwnProfile ? (
-                    <>
-                      <p className="mb-4 text-gray-500">Start earning money by listing your items for rent</p>
-                      <Link to="/list-item" className="btn-primary">
-                        List an Item
-                      </Link>
-                    </>
-                  ) : (
-                    <p className="text-gray-500">This user hasn't listed any items yet</p>
-                  )}
-                </div>
-              )}
+              <ItemGrid items={userItems} />
             </div>
           )}
-
-          {!isAdmin && activeTab === 'reviews' && (
+          {activeTab === 'reviews' && (
             <div>
               <h2 className="mb-4 text-xl font-semibold text-gray-900">Reviews</h2>
-              
-              <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-gray-300 bg-gray-50 px-6 py-12 text-center">
-                <p className="mb-2 text-lg font-medium text-gray-900">No reviews yet</p>
-                <p className="text-gray-500">
-                  {isOwnProfile 
-                    ? 'You haven\'t received any reviews yet' 
-                    : 'This user hasn\'t received any reviews yet'}
-                </p>
-              </div>
+              <p className="text-gray-600">No reviews yet.</p>
             </div>
           )}
-
-          {!isAdmin && activeTab === 'rentals' && isOwnProfile && (
+          {activeTab === 'rentals' && (
             <div>
               <h2 className="mb-4 text-xl font-semibold text-gray-900">My Rentals</h2>
-              
-              <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-gray-300 bg-gray-50 px-6 py-12 text-center">
-                <p className="mb-2 text-lg font-medium text-gray-900">No rentals yet</p>
-                <p className="mb-4 text-gray-500">You haven't rented any items yet</p>
-                <Link to="/explore" className="btn-primary">
-                  Explore Items to Rent
-                </Link>
-              </div>
+              <p className="text-gray-600">No rentals yet.</p>
             </div>
           )}
-
-          {(isAdmin || activeTab === 'settings') && (
+          {activeTab === 'settings' && (
             <div>
-              <h2 className="mb-4 text-xl font-semibold text-gray-900">Profile Settings</h2>
-              
-              <div className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
-                <div className="mb-4">
-                  <label className="mb-1 block text-sm font-medium text-gray-700">
-                    Full Name
-                  </label>
-                  <input
-                    type="text"
-                    className="input"
-                    defaultValue={profileUser.name}
-                  />
-                </div>
-                
-                <div className="mb-4">
-                  <label className="mb-1 block text-sm font-medium text-gray-700">
-                    Email
-                  </label>
-                  <input
-                    type="email"
-                    className="input"
-                    defaultValue={profileUser.email}
-                  />
-                </div>
-                
-                <div className="mb-4">
-                  <label className="mb-1 block text-sm font-medium text-gray-700">
-                    Location
-                  </label>
-                  <input
-                    type="text"
-                    className="input"
-                    defaultValue={profileUser.location}
-                    placeholder="e.g., Seattle, WA"
-                  />
-                </div>
-                
-                <div className="mb-6">
-                  <label className="mb-1 block text-sm font-medium text-gray-700">
-                    About Me
-                  </label>
-                  <textarea
-                    className="input min-h-[120px]"
-                    placeholder="Tell others about yourself..."
-                  ></textarea>
-                </div>
-                
-                <div className="flex justify-end">
-                  <button className="btn-primary">
-                    Save Changes
-                  </button>
-                </div>
-              </div>
+              <h2 className="mb-4 text-xl font-semibold text-gray-900">Settings</h2>
+              <p className="text-gray-600">Settings content will go here.</p>
             </div>
           )}
         </div>

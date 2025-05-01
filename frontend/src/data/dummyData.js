@@ -8,7 +8,8 @@ export const demoUsers = {
         password: 'demo123',
         name: 'Demo User',
         avatar: 'https://images.pexels.com/photos/614810/pexels-photo-614810.jpeg?auto=compress&cs=tinysrgb&w=150',
-        role: 'user'
+        role: 'user',
+        isPremium: true
     },
     admin: {
         id: 'admin-1',
@@ -16,7 +17,8 @@ export const demoUsers = {
         password: 'admin123',
         name: 'Admin User',
         avatar: 'https://images.pexels.com/photos/614810/pexels-photo-614810.jpeg?auto=compress&cs=tinysrgb&w=150',
-        role: 'admin'
+        role: 'admin',
+        isPremium: true
     },
     michael: {
         id: 'user-2',
@@ -24,7 +26,8 @@ export const demoUsers = {
         password: 'michael123',
         name: 'Michael R.',
         avatar: 'https://images.pexels.com/photos/220453/pexels-photo-220453.jpeg?auto=compress&cs=tinysrgb&w=150',
-        role: 'user'
+        role: 'user',
+        isPremium: false
     },
     jessica: {
         id: 'user-3',
