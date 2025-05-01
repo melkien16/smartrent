@@ -166,8 +166,157 @@ const AdminDashboardPage = () => {
           {activeTab === 'overview' && (
             <div>
               <h2 className="text-xl font-semibold mb-4">Dashboard Overview</h2>
-              <p className="text-gray-600">Platform performance at a glance</p>
-              {/* Add KPI charts and recent activity */}
+              
+              {/* Platform Health */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                <div className="bg-white rounded-lg shadow p-6">
+                  <h3 className="text-lg font-semibold mb-4">Platform Health</h3>
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center">
+                        <div className="w-3 h-3 rounded-full bg-green-500 mr-2"></div>
+                        <span className="text-sm font-medium">System Status</span>
+                      </div>
+                      <span className="text-sm text-green-600">All Systems Operational</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center">
+                        <div className="w-3 h-3 rounded-full bg-green-500 mr-2"></div>
+                        <span className="text-sm font-medium">API Response Time</span>
+                      </div>
+                      <span className="text-sm text-gray-600">120ms</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center">
+                        <div className="w-3 h-3 rounded-full bg-green-500 mr-2"></div>
+                        <span className="text-sm font-medium">Database Status</span>
+                      </div>
+                      <span className="text-sm text-green-600">Connected</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="bg-white rounded-lg shadow p-6">
+                  <h3 className="text-lg font-semibold mb-4">Recent Activity</h3>
+                  <div className="space-y-4">
+                    <div className="flex items-center">
+                      <div className="flex-shrink-0">
+                        <Users className="h-6 w-6 text-blue-600" />
+                      </div>
+                      <div className="ml-4">
+                        <p className="text-sm font-medium text-gray-900">New User Registration</p>
+                        <p className="text-sm text-gray-500">John Doe joined the platform</p>
+                      </div>
+                      <div className="ml-auto text-sm text-gray-500">2 hours ago</div>
+                    </div>
+                    <div className="flex items-center">
+                      <div className="flex-shrink-0">
+                        <Package className="h-6 w-6 text-green-600" />
+                      </div>
+                      <div className="ml-4">
+                        <p className="text-sm font-medium text-gray-900">New Listing Added</p>
+                        <p className="text-sm text-gray-500">Professional Camera by Jane Smith</p>
+                      </div>
+                      <div className="ml-auto text-sm text-gray-500">4 hours ago</div>
+                    </div>
+                    <div className="flex items-center">
+                      <div className="flex-shrink-0">
+                        <AlertTriangle className="h-6 w-6 text-yellow-600" />
+                      </div>
+                      <div className="ml-4">
+                        <p className="text-sm font-medium text-gray-900">Reported Item</p>
+                        <p className="text-sm text-gray-500">Item #1234 reported for inappropriate content</p>
+                      </div>
+                      <div className="ml-auto text-sm text-gray-500">1 day ago</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Quick Stats */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                <div className="bg-white rounded-lg shadow p-6">
+                  <h3 className="text-lg font-semibold mb-4">User Growth</h3>
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-3xl font-bold">1,234</p>
+                      <p className="text-sm text-gray-500">Total Users</p>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-green-600 font-semibold">+12%</p>
+                      <p className="text-sm text-gray-500">vs last month</p>
+                    </div>
+                  </div>
+                </div>
+                <div className="bg-white rounded-lg shadow p-6">
+                  <h3 className="text-lg font-semibold mb-4">Revenue</h3>
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-3xl font-bold">$24,500</p>
+                      <p className="text-sm text-gray-500">This Month</p>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-green-600 font-semibold">+8%</p>
+                      <p className="text-sm text-gray-500">vs last month</p>
+                    </div>
+                  </div>
+                </div>
+                <div className="bg-white rounded-lg shadow p-6">
+                  <h3 className="text-lg font-semibold mb-4">Active Listings</h3>
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-3xl font-bold">567</p>
+                      <p className="text-sm text-gray-500">Total Listings</p>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-green-600 font-semibold">+5%</p>
+                      <p className="text-sm text-gray-500">vs last month</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Recent Transactions */}
+              <div className="bg-white rounded-lg shadow p-6">
+                <h3 className="text-lg font-semibold mb-4">Recent Transactions</h3>
+                <div className="overflow-x-auto">
+                  <table className="min-w-full divide-y divide-gray-200">
+                    <thead className="bg-gray-50">
+                      <tr>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Transaction ID</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">User</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Amount</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-gray-200">
+                      <tr>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">#TRX-1234</td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">John Doe</td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">$150.00</td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                            Completed
+                          </span>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">2 hours ago</td>
+                      </tr>
+                      <tr>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">#TRX-1233</td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">Jane Smith</td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">$75.00</td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">
+                            Pending
+                          </span>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">4 hours ago</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
             </div>
           )}
 
