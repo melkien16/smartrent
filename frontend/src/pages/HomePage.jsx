@@ -6,7 +6,7 @@ import ItemGrid from '../components/items/ItemGrid';
 import { mockItems } from '../data/mockItems';
 import { mockTestimonials } from '../data/mockTestimonials';
 import { mockCategories } from '../data/mockCategories';
-import { fetchItems } from '../itemFetcher';
+import { fetchItems } from '../Fetchers/itemFetcher';
 
 const HomePage = () => {
   const [items, setItems] = useState([]);
