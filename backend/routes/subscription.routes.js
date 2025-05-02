@@ -6,7 +6,7 @@ import {
   getMySubscription,
   deactivateSubscription,
   checkExpiredSubscriptions,
-} from "../controllers/subscriptionController.js";
+} from "../controllers/subscription.controller.js";
 
 import { protect, admin } from "../middleware/authMiddleware.js";
 
