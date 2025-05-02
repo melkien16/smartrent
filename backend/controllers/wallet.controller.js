@@ -19,7 +19,6 @@ const getWalletByUserId = asyncHandler(async (req, res) => {
 // @route   POST /api/wallets/
 // @access  Private
 const createWallet = asyncHandler(async (req, res) => {
-  // const { userId } = req.body;
   const userId = req.user._id;
 
   const existingWallet = await Wallet.findOne({ user: userId });
@@ -51,7 +50,7 @@ const creditWallet = asyncHandler(async (req, res) => {
     throw new Error("Wallet not found");
   }
 
-  wallet.balance += amount;
+  wallet.balance += Number(amount);
   wallet.transactions.push({ type: "credit", amount, description });
 
   const updatedWallet = await wallet.save();
