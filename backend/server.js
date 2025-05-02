@@ -1,6 +1,7 @@
 import express from "express";
 import dotenv from "dotenv";
 import cookieParser from "cookie-parser";
+import cors from "cors";
 
 import UserRouter from "./routes/user.routes.js";
 import ItemRouter from "./routes/item.routes.js";
@@ -20,6 +21,10 @@ const PORT = process.env.PORT || 5000;
 connectDb();
 
 const app = express();
+app.use(cors({
+  origin: process.env.CLIENT_URL,
+  credentials: true,
+}));
 
 // Body parser middleware
 app.use(express.json());
