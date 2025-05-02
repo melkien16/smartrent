@@ -1,44 +1,35 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../../context/AuthContext';
-import { Mail, Lock, AlertCircle, Eye, EyeOff } from 'lucide-react';
-import { mockUsers } from '../../data/mockUsers';
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../../context/AuthContext";
+import { Mail, Lock, AlertCircle, Eye, EyeOff } from "lucide-react";
 
 const LoginForm = ({ onToggleForm }) => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const { login } = useAuth();
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError('');
+    setError("");
 
     if (!email || !password) {
-      setError('Please fill in all fields');
+      setError("Please fill in all fields");
       return;
     }
 
     setLoading(true);
 
     try {
-      // In a real app, this would be an API call
-      // For demo purposes, we'll use mockUsers
-      const user = Object.values(mockUsers).find(
-        u => u.email === email && u.password === password
-      );
-
-      if (user) {
-        await login(user);
-        navigate('/dashboard');
-      } else {
-        setError('Invalid email or password');
-      }
+      // Attempt login using the login function from context
+      await login(email, password);
+      navigate("/dashboard");
     } catch (err) {
-      setError('An error occurred during login');
+      console.error("Login error:", err);
+      setError(err.message || "An error occurred during login");
     } finally {
       setLoading(false);
     }
@@ -46,8 +37,10 @@ const LoginForm = ({ onToggleForm }) => {
 
   return (
     <div className="animate-fade-in">
-      <h2 className="mb-6 text-center text-2xl font-bold text-gray-900">Login to your account</h2>
-      
+      <h2 className="mb-6 text-center text-2xl font-bold text-gray-900">
+        Login to your account
+      </h2>
+
       {error && (
         <div className="mb-4 flex items-center rounded-md bg-red-50 p-3 text-red-700">
           <AlertCircle size={16} className="mr-2 flex-shrink-0" />
@@ -57,7 +50,10 @@ const LoginForm = ({ onToggleForm }) => {
 
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
-          <label htmlFor="email" className="mb-1 block text-sm font-medium text-gray-700">
+          <label
+            htmlFor="email"
+            className="mb-1 block text-sm font-medium text-gray-700"
+          >
             Email Address
           </label>
           <div className="relative">
@@ -76,7 +72,10 @@ const LoginForm = ({ onToggleForm }) => {
         </div>
 
         <div>
-          <label htmlFor="password" className="mb-1 block text-sm font-medium text-gray-700">
+          <label
+            htmlFor="password"
+            className="mb-1 block text-sm font-medium text-gray-700"
+          >
             Password
           </label>
           <div className="relative">
@@ -100,23 +99,22 @@ const LoginForm = ({ onToggleForm }) => {
             </button>
           </div>
           <div className="mt-1 text-right">
-            <a href="#" className="text-xs text-primary-600 hover:text-primary-500">
+            <a
+              href="#"
+              className="text-xs text-primary-600 hover:text-primary-500"
+            >
               Forgot password?
             </a>
           </div>
         </div>
 
-        <button
-          type="submit"
-          className="btn-primary w-full"
-          disabled={loading}
-        >
-          {loading ? 'Logging in...' : 'Login'}
+        <button type="submit" className="btn-primary w-full" disabled={loading}>
+          {loading ? "Logging in..." : "Login"}
         </button>
 
         <div className="text-center text-sm">
           <p className="text-gray-600">
-            Don't have an account?{' '}
+            Don't have an account?{" "}
             <button
               type="button"
               onClick={onToggleForm}
@@ -134,13 +132,18 @@ const LoginForm = ({ onToggleForm }) => {
             <div className="w-full border-t border-gray-300"></div>
           </div>
           <div className="relative flex justify-center text-sm">
-            <span className="bg-white px-2 text-gray-500">Demo credentials</span>
+            <span className="bg-white px-2 text-gray-500">
+              Demo credentials
+            </span>
           </div>
         </div>
         <p className="mt-2 text-center text-xs text-gray-500">
-          Demo User: <span className="font-medium">demo@smartrent.com</span> / <span className="font-medium">demo123</span>
+          Demo User: <span className="font-medium">demo@smartrent.com</span> /{" "}
+          <span className="font-medium">demo123</span>
           <br />
-          Admin User: <span className="font-medium">admin@smartrent.com</span> / <span className="font-medium">admin123</span>
+          Admin User: <span className="font-medium">
+            admin@smartrent.com
+          </span> / <span className="font-medium">admin123</span>
         </p>
       </div>
     </div>
