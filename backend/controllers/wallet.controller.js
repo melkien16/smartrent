@@ -87,6 +87,10 @@ const debitWallet = asyncHandler(async (req, res) => {
 // @access  Private/Admin
 const getAllWallets = asyncHandler(async (req, res) => {
   const wallets = await Wallet.find({}).populate("user", "name email");
+  if (!wallets) {
+    res.status(404);
+    throw new Error("No wallets found");
+  }
   res.json(wallets);
 });
 
