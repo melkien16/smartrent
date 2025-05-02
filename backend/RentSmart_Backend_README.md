@@ -11,9 +11,7 @@ RentSmart is a smart rental platform where users can list and rent tools, access
 - **MongoDB** + **Mongoose** – NoSQL Database
 - **JWT** – Authentication
 - **Multer** – File Uploads
-- **Cloudinary** – Media storage (optional)
 - **dotenv** – Environment variables
-- **node-cron** – Background jobs (e.g., subscription expiration)
 
 ---
 
@@ -22,8 +20,8 @@ RentSmart is a smart rental platform where users can list and rent tools, access
 ### 1. Clone the Repository
 
 ```bash
-git clone https://github.com/melkien16/rentsmart-backend.git
-cd rentsmart-backend
+git clone https://github.com/melkien16/smartrent.git
+cd backend
 ```
 
 ### 2. Install Dependencies
@@ -38,15 +36,9 @@ Create a `.env` file in the root directory:
 
 ```env
 PORT=5000
-MONGO_URI=mongodb://localhost:27017/rentsmart
+MONGO_URI=mongodb:
 JWT_SECRET=your_jwt_secret
 NODE_ENV=development
-
-# Optional (for Cloudinary)
-CLOUDINARY_CLOUD_NAME=your_cloud_name
-CLOUDINARY_API_KEY=your_api_key
-CLOUDINARY_API_SECRET=your_api_secret
-```
 
 ### 4. Run the Server
 
@@ -73,7 +65,8 @@ rentsmart-backend/
 ├── models/             # MongoDB schemas
 ├── routes/             # API route handlers
 ├── utils/              # Helper functions
-├── uploads/            # Local storage (optional)
+├── data/               # dummy seeded data
+├── Services/           # services like email(for the future)
 ├── server.js           # App entry point
 └── README.md
 ```
