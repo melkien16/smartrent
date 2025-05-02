@@ -38,6 +38,7 @@ const ProfilePage = () => {
           userItems={userItems}
           userRentals={userRentals}
           userReviews={userReviews}
+          profileUser={profileUser}
         />
       </div>
     </div>

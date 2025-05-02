@@ -15,7 +15,7 @@ const ExplorePage = () => {
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   
   const { filters, updateFilters, resetFilters, filtersApplied } = useFilters(searchParams);
-  const items = useFilteredItems(filters);
+  const { items, loading, error } = useFilteredItems(filters);
 
   const toggleFilters = () => setIsFilterOpen(!isFilterOpen);
 
@@ -34,9 +34,17 @@ const ExplorePage = () => {
                 ? `Search Results: "${searchQuery}"`
                 : 'Explore All Items'}
           </h1>
-          <p className="mt-2 text-gray-600">
-            {items.length} {items.length === 1 ? 'item' : 'items'} available
-          </p>
+          {!loading && !error && (
+            <p className="mt-2 text-gray-600">
+              {items.length} {items.length === 1 ? 'item' : 'items'} available
+            </p>
+          )}
+          {loading && (
+            <p className="mt-2 text-gray-600">Loading items...</p>
+          )}
+          {error && (
+            <p className="mt-2 text-red-600">Error loading items. Please try again later.</p>
+          )}
         </div>
 
         {/* Search and Filters */}
@@ -70,7 +78,7 @@ const ExplorePage = () => {
         <CategorySection show={!categoryParam && !searchQuery} />
 
         {/* Items Grid */}
-        <ItemsSection items={items} />
+        {!loading && !error && <ItemsSection items={items} />}
       </div>
     </div>
   );

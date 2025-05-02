@@ -1,11 +1,33 @@
-import { useMemo } from 'react';
-import { mockItems } from '../data/mockItems';
+import { useMemo, useState, useEffect } from 'react';
+import { fetchItems } from '../Fetchers/itemFetcher';
 
 export const useFilteredItems = (filters) => {
-    return useMemo(() => {
-        const allItems = [...mockItems.featured, ...mockItems.recent];
+    const [items, setItems] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
 
-        const filteredItems = allItems.filter((item) => {
+    useEffect(() => {
+        const loadItems = async () => {
+            try {
+                setLoading(true);
+                const fetchedItems = await fetchItems();
+                setItems(fetchedItems);
+            } catch (err) {
+                setError(err);
+                console.error('Error loading items:', err);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        loadItems();
+    }, []);
+
+    const filteredItems = useMemo(() => {
+        if (loading) return [];
+        if (error) return [];
+
+        const filtered = items.filter((item) => {
             const matchesSearch =
                 item.title.toLowerCase().includes(filters.search.toLowerCase()) ||
                 item.description.toLowerCase().includes(filters.search.toLowerCase());
@@ -23,25 +45,27 @@ export const useFilteredItems = (filters) => {
 
         switch (filters.sort) {
             case 'price-low':
-                filteredItems.sort((a, b) => a.price - b.price);
+                filtered.sort((a, b) => a.price - b.price);
                 break;
             case 'price-high':
-                filteredItems.sort((a, b) => b.price - a.price);
+                filtered.sort((a, b) => b.price - a.price);
                 break;
             case 'newest':
-                filteredItems.sort((a, b) => {
-                    if (mockItems.recent.find((item) => item.id === a.id)) return -1;
-                    if (mockItems.recent.find((item) => item.id === b.id)) return 1;
-                    return 0;
-                });
+                filtered.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
                 break;
             case 'rating':
-                filteredItems.sort((a, b) => b.rating - a.rating);
+                filtered.sort((a, b) => b.rating - a.rating);
                 break;
             default:
                 break;
         }
 
-        return filteredItems;
-    }, [filters]);
+        return filtered;
+    }, [filters, items, loading, error]);
+
+    return {
+        items: filteredItems,
+        loading,
+        error
+    };
 }; 

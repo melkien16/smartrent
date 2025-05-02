@@ -11,7 +11,8 @@ const ProfileTabs = ({
   userItems, 
   userRentals, 
   userReviews,
-  isAdmin 
+  isAdmin,
+  profileUser 
 }) => {
   return (
     <>
@@ -70,7 +71,7 @@ const ProfileTabs = ({
         {activeTab === 'listings' && <ListingsTab userItems={userItems} />}
         {activeTab === 'reviews' && <ReviewsTab userReviews={userReviews} />}
         {activeTab === 'rentals' && <RentalsTab userRentals={userRentals} />}
-        {activeTab === 'settings' && <SettingsTab />}
+        {activeTab === 'settings' && <SettingsTab profileUser={profileUser} />}
       </div>
     </>
   );

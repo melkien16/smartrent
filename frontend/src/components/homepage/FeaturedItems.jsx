@@ -11,13 +11,13 @@ const FeaturedItems = ({ items }) => (
       <div className="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
         {items?.map((item) => (
           <Link
-            key={item.id}
+            key={`featured-item-${item.id}`}
             to={`/item/${item.id}`}
             className="group overflow-hidden rounded-lg border border-gray-200 transition-all hover:border-primary-500 hover:shadow-lg"
           >
             <div className="aspect-w-16 aspect-h-9">
               <img
-                src={item.imageUrl}
+                src={item.image}
                 alt={item.title}
                 className="h-full w-full object-cover transition-transform group-hover:scale-105"
               />
