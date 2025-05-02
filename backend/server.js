@@ -38,6 +38,7 @@ app.use("/api/wallets", WalletRouter);
 app.use("/api/bookings", BookindRouter);
 app.use("/api/subscriptions", SubscriptionRouter);
 app.use("/api/collaterals", CollateralRouter);
+app.use("/api/reports", ReportRouter);
 
 app.use(notFound);
 app.use(errorHandler);
