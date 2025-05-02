@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { Search, Menu, X, Heart, User, LogIn, Package, Wallet } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useBalance } from '../../context/BalanceContext';
+import axios from 'axios';
 
 const Navbar = () => {
   const { user, isAuthenticated, logout, isAdmin } = useAuth();
@@ -29,6 +30,23 @@ const Navbar = () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
   }, []);
+
+  const handleLogout = async () => {
+    try {
+      await axios.post(
+        'http://localhost:5000/api/users/logout',
+        {},
+        {
+          withCredentials: true,
+        }
+      );
+      logout();
+      setIsUserMenuOpen(false);
+      navigate('/');
+    } catch (error) {
+      console.error('Logout error:', error);
+    }
+  };
 
   const handleSearch = (e) => {
     e.preventDefault();
@@ -107,10 +125,7 @@ const Navbar = () => {
                           Profile
                         </Link>
                         <button 
-                          onClick={() => {
-                            logout();
-                            setIsUserMenuOpen(false);
-                          }}
+                          onClick={handleLogout}
                           className="block w-full rounded-md px-4 py-2 text-left text-sm text-red-600 hover:bg-gray-100"
                         >
                           Logout
@@ -147,10 +162,7 @@ const Navbar = () => {
                           My Rentals
                         </Link>
                         <button 
-                          onClick={() => {
-                            logout();
-                            setIsUserMenuOpen(false);
-                          }}
+                          onClick={handleLogout}
                           className="block w-full rounded-md px-4 py-2 text-left text-sm text-red-600 hover:bg-gray-100"
                         >
                           Logout
@@ -245,10 +257,7 @@ const Navbar = () => {
                     My Rentals
                   </Link>
                   <button
-                    onClick={() => {
-                      logout();
-                      toggleMenu();
-                    }}
+                    onClick={handleLogout}
                     className="block w-full rounded-md px-3 py-2 text-left text-base font-medium text-red-600 hover:bg-gray-100"
                   >
                     Logout

@@ -1,9 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
-import { mockUsers } from '../data/mockUsers';
-import { mockItems } from '../data/mockItems';
 import { mockRentals } from '../data/mockRentals';
+import { fetchWallets } from '../Fetchers/allWallets';
+import { getAllUsers } from '../Fetchers/getAllUsers';
+import { deleteUser } from '../Fetchers/deleteUser';
+import { fetchItems } from '../Fetchers/itemFetcher';
+import { toast } from 'react-hot-toast';
 import {
   Users,
   BookOpen,
@@ -24,10 +27,14 @@ const AdminDashboardPage = () => {
   const [activeTab, setActiveTab] = useState('overview');
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedItems, setSelectedItems] = useState(new Set());
+  const [users, setUsers] = useState([]);
+  const [items, setItems] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
 
-  // Calculate stats from mock data
+  // Calculate stats from real data
   const stats = {
-    activeUsers: Object.keys(mockUsers).length - 1, // Subtract admin
+    activeUsers: users.length,
     rentalsToday: mockRentals.active.length,
     weeklyIncome: mockRentals.active.reduce((sum, rental) => sum + rental.totalPrice, 0),
     pendingTasks: mockRentals.pending.length
@@ -39,6 +46,71 @@ const AdminDashboardPage = () => {
       navigate('/');
     }
   }, [isAdmin, navigate]);
+
+  useEffect(() => {
+    const FetchWallets = async () => {
+      const wallets = await fetchWallets();
+      console.log(wallets);
+    };
+    FetchWallets();
+  }, []);
+
+  // Fetch users when users tab is active
+  useEffect(() => {
+    const fetchUsers = async () => {
+      if (activeTab === 'users') {
+        setLoading(true);
+        setError(null);
+        try {
+          const fetchedUsers = await getAllUsers();
+          setUsers(fetchedUsers);
+        } catch (err) {
+          setError('Failed to fetch users');
+          console.error('Error fetching users:', err);
+        } finally {
+          setLoading(false);
+        }
+      }
+    };
+
+    fetchUsers();
+  }, [activeTab]);
+
+  // Fetch items when items tab is active
+  useEffect(() => {
+    const fetchItemsData = async () => {
+      if (activeTab === 'items') {
+        setLoading(true);
+        setError(null);
+        try {
+          const fetchedItems = await fetchItems();
+          setItems(fetchedItems);
+        } catch (err) {
+          setError('Failed to fetch items');
+          console.error('Error fetching items:', err);
+        } finally {
+          setLoading(false);
+        }
+      }
+    };
+
+    fetchItemsData();
+  }, [activeTab]);
+
+  const handleDeleteUser = async (userId) => {
+    if (window.confirm('Are you sure you want to delete this user?')) {
+      try {
+        await deleteUser(userId);
+        toast.success('User deleted successfully');
+        // Refresh the users list
+        const updatedUsers = await getAllUsers();
+        setUsers(updatedUsers);
+      } catch (error) {
+        toast.error('Failed to delete user');
+        console.error('Error deleting user:', error);
+      }
+    }
+  };
 
   if (!isAdmin) {
     return null;
@@ -57,13 +129,6 @@ const AdminDashboardPage = () => {
     { id: 'messages', label: 'Messages & Support', icon: MessageSquare },
     { id: 'settings', label: 'Platform Settings', icon: Settings },
   ];
-
-  const filteredItems = mockItems.featured.filter(item => 
-    item.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    item.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    item.category.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    item.location.toLowerCase().includes(searchQuery.toLowerCase())
-  );
 
   const handleItemSelect = (itemId) => {
     const newSelectedItems = new Set(selectedItems);
@@ -313,7 +378,13 @@ const AdminDashboardPage = () => {
               <div className="space-y-4">
                 <div className="flex justify-between items-center">
                   <div className="flex space-x-2">
-                    <input type="text" placeholder="Search users..." className="input" />
+                    <input 
+                      type="text" 
+                      placeholder="Search users..." 
+                      className="input"
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                    />
                     <select className="select">
                       <option>All Status</option>
                       <option>Active</option>
@@ -322,57 +393,77 @@ const AdminDashboardPage = () => {
                   </div>
                   <button className="btn bg-primary-600 text-white">Add Admin User</button>
                 </div>
-                <div className="overflow-x-auto">
-                  <table className="min-w-full divide-y divide-gray-200">
-                    <thead className="bg-gray-50">
-                      <tr>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">User</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Role</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-gray-200">
-                      {Object.values(mockUsers).map((user) => (
-                        <tr key={user.id}>
-                          <td className="px-6 py-4 whitespace-nowrap">
-                            <div className="flex items-center">
-                              <div className="flex-shrink-0 h-10 w-10">
-                                <img
-                                  className="h-10 w-10 rounded-full"
-                                  src={user.avatar}
-                                  alt={user.name}
-                                />
-                              </div>
-                              <div className="ml-4">
-                                <div className="text-sm font-medium text-gray-900">{user.name}</div>
-                                <div className="text-sm text-gray-500">{user.email}</div>
-                              </div>
-                            </div>
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap">
-                            <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                              user.role === 'admin' 
-                                ? 'bg-purple-100 text-purple-800' 
-                                : 'bg-green-100 text-green-800'
-                            }`}>
-                              {user.role}
-                            </span>
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap">
-                            <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
-                              Active
-                            </span>
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                            <button className="text-indigo-600 hover:text-indigo-900 mr-3">Edit</button>
-                            <button className="text-red-600 hover:text-red-900">Delete</button>
-                          </td>
+                {loading ? (
+                  <div className="flex justify-center items-center h-64">
+                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-500"></div>
+                  </div>
+                ) : error ? (
+                  <div className="text-center py-8 text-red-600">
+                    {error}
+                  </div>
+                ) : (
+                  <div className="overflow-x-auto">
+                    <table className="min-w-full divide-y divide-gray-200">
+                      <thead className="bg-gray-50">
+                        <tr>
+                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">User</th>
+                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Role</th>
+                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
+                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
                         </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
+                      </thead>
+                      <tbody className="divide-y divide-gray-200">
+                        {users
+                          .filter(user => 
+                            user.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                            user.email.toLowerCase().includes(searchQuery.toLowerCase())
+                          )
+                          .map((user) => (
+                            <tr key={user._id}>
+                              <td className="px-6 py-4 whitespace-nowrap">
+                                <div className="flex items-center">
+                                  <div className="flex-shrink-0 h-10 w-10">
+                                    <img
+                                      className="h-10 w-10 rounded-full"
+                                      src={user.avatar}
+                                      alt={user.name}
+                                    />
+                                  </div>
+                                  <div className="ml-4">
+                                    <div className="text-sm font-medium text-gray-900">{user.name}</div>
+                                    <div className="text-sm text-gray-500">{user.email}</div>
+                                  </div>
+                                </div>
+                              </td>
+                              <td className="px-6 py-4 whitespace-nowrap">
+                                <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                                  user.isAdmin 
+                                    ? 'bg-purple-100 text-purple-800' 
+                                    : 'bg-green-100 text-green-800'
+                                }`}>
+                                  {user.isAdmin ? 'Admin' : 'User'}
+                                </span>
+                              </td>
+                              <td className="px-6 py-4 whitespace-nowrap">
+                                <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                                  Active
+                                </span>
+                              </td>
+                              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                <button className="text-indigo-600 hover:text-indigo-900 mr-3">Edit</button>
+                                <button 
+                                  onClick={() => handleDeleteUser(user._id)}
+                                  className="text-red-600 hover:text-red-900"
+                                >
+                                  Delete
+                                </button>
+                              </td>
+                            </tr>
+                          ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
               </div>
             </div>
           )}
@@ -423,77 +514,89 @@ const AdminDashboardPage = () => {
                     </button>
                   </div>
                 </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {filteredItems.map((item) => (
-                    <div 
-                      key={item.id} 
-                      className={`bg-white rounded-lg shadow overflow-hidden border-2 ${
-                        selectedItems.has(item.id) ? 'border-primary-500' : 'border-transparent'
-                      }`}
-                    >
-                      <div className="relative h-48">
-                        <img
-                          src={item.images[0]}
-                          alt={item.title}
-                          className="w-full h-full object-cover"
-                        />
-                        <div className="absolute top-2 right-2">
-                          <span className="bg-white text-gray-800 text-xs font-semibold px-2 py-1 rounded">
-                            ${item.price}/{item.priceUnit}
-                          </span>
-                        </div>
-                        <div className="absolute top-2 left-2">
-                          <input
-                            type="checkbox"
-                            checked={selectedItems.has(item.id)}
-                            onChange={() => handleItemSelect(item.id)}
-                            className="h-5 w-5 rounded border-gray-300 text-primary-600 focus:ring-primary-500"
-                          />
-                        </div>
-                      </div>
-                      <div className="p-4">
-                        <div className="flex items-center justify-between mb-2">
-                          <h3 className="text-lg font-semibold text-gray-900">{item.title}</h3>
-                          <div className="flex items-center">
-                            <span className="text-yellow-500">★</span>
-                            <span className="ml-1 text-sm text-gray-600">{item.rating}</span>
+                {loading ? (
+                  <div className="flex justify-center items-center h-64">
+                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-500"></div>
+                  </div>
+                ) : error ? (
+                  <div className="text-center py-8 text-red-600">
+                    {error}
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {items
+                      .filter(item => 
+                        item.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                        item.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                        item.category.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                        item.location.toLowerCase().includes(searchQuery.toLowerCase())
+                      )
+                      .map((item) => (
+                        <div 
+                          key={item._id} 
+                          className={`bg-white rounded-lg shadow overflow-hidden border-2 ${
+                            selectedItems.has(item._id) ? 'border-primary-500' : 'border-transparent'
+                          }`}
+                        >
+                          <div className="relative h-48">
+                            <img
+                              src={item.images?.[0] || 'https://via.placeholder.com/300x200'}
+                              alt={item.title}
+                              className="w-full h-full object-cover"
+                            />
+                            <div className="absolute top-2 right-2">
+                              <span className="bg-white text-gray-800 text-xs font-semibold px-2 py-1 rounded">
+                                ${item.price}/{item.priceUnit}
+                              </span>
+                            </div>
+                            <div className="absolute top-2 left-2">
+                              <input
+                                type="checkbox"
+                                checked={selectedItems.has(item._id)}
+                                onChange={() => handleItemSelect(item._id)}
+                                className="h-5 w-5 rounded border-gray-300 text-primary-600 focus:ring-primary-500"
+                              />
+                            </div>
+                          </div>
+                          <div className="p-4">
+                            <div className="flex items-center justify-between mb-2">
+                              <h3 className="text-lg font-semibold text-gray-900">{item.title}</h3>
+                              <div className="flex items-center">
+                                <span className="text-yellow-500">★</span>
+                                <span className="ml-1 text-sm text-gray-600">{item.rating || '0'}</span>
+                              </div>
+                            </div>
+                            <p className="text-sm text-gray-600 mb-2">{item.description}</p>
+                            <div className="flex items-center text-sm text-gray-500 mb-3">
+                              <span>{item.location}</span>
+                              <span className="mx-2">•</span>
+                              <span>{item.availability}</span>
+                            </div>
+                            <div className="flex items-center">
+                              <img
+                                src={item.owner?.avatar || 'https://via.placeholder.com/40'}
+                                alt={item.owner?.name || 'Owner'}
+                                className="w-8 h-8 rounded-full"
+                              />
+                              <div className="ml-2">
+                                <p className="text-sm font-medium text-gray-900">{item.owner?.name || 'Unknown Owner'}</p>
+                                <p className="text-xs text-gray-500">Response: {item.owner?.responseTime || 'N/A'}</p>
+                              </div>
+                            </div>
+                            <div className="mt-4 flex justify-between">
+                              <button className="text-indigo-600 hover:text-indigo-900 text-sm font-medium">
+                                Edit
+                              </button>
+                              <button 
+                                className="text-red-600 hover:text-red-900 text-sm font-medium"
+                                onClick={() => handleItemSelect(item._id)}
+                              >
+                                {selectedItems.has(item._id) ? 'Deselect' : 'Select'}
+                              </button>
+                            </div>
                           </div>
                         </div>
-                        <p className="text-sm text-gray-600 mb-2">{item.description}</p>
-                        <div className="flex items-center text-sm text-gray-500 mb-3">
-                          <span>{item.location}</span>
-                          <span className="mx-2">•</span>
-                          <span>{item.availability}</span>
-                        </div>
-                        <div className="flex items-center">
-                          <img
-                            src={item.owner.avatar}
-                            alt={item.owner.name}
-                            className="w-8 h-8 rounded-full"
-                          />
-                          <div className="ml-2">
-                            <p className="text-sm font-medium text-gray-900">{item.owner.name}</p>
-                            <p className="text-xs text-gray-500">Response: {item.owner.responseTime}</p>
-                          </div>
-                        </div>
-                        <div className="mt-4 flex justify-between">
-                          <button className="text-indigo-600 hover:text-indigo-900 text-sm font-medium">
-                            Edit
-                          </button>
-                          <button 
-                            className="text-red-600 hover:text-red-900 text-sm font-medium"
-                            onClick={() => handleItemSelect(item.id)}
-                          >
-                            {selectedItems.has(item.id) ? 'Deselect' : 'Select'}
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-                {filteredItems.length === 0 && (
-                  <div className="text-center py-8">
-                    <p className="text-gray-500">No items found matching your search criteria.</p>
+                      ))}
                   </div>
                 )}
               </div>

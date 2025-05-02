@@ -38,6 +38,15 @@ const RegisterForm = ({ onToggleForm }) => {
     setLoading(true);
 
     try {
+      // Log the registration data
+      console.log('Registration data:', {
+        name,
+        email,
+        phone,
+        address,
+        password,
+        avatar: 'https://images.pexels.com/photos/614810/pexels-photo-614810.jpeg?auto=compress&cs=tinysrgb&w=150'
+      });
       await register({
         name,
         email,
@@ -49,6 +58,8 @@ const RegisterForm = ({ onToggleForm }) => {
       
       navigate('/dashboard');
     } catch (err) {
+      // Log the error response
+      console.error('Registration error:', err, err.response?.data);
       setError(err.response?.data?.message || 'Failed to create account. Please try again.');
     } finally {
       setLoading(false);

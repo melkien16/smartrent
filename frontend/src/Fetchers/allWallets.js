@@ -1,8 +1,9 @@
 import axios from "axios";
+import BASE_URL from "../../constants/baseUrl";
 
 async function fetchWallets() {
   try {
-    const response = await axios.get("http://localhost:5000/api/wallets", {
+    const response = await axios.get(`${BASE_URL}/wallets`, {
       withCredentials: true,
     });
 

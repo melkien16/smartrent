@@ -32,13 +32,7 @@ const DashboardPage = () => {
     }
   }, [loading, isAuthenticated, navigate]);
 
-  useEffect(() => {
-    const FetchWallets = async () => {
-      const wallets = await fetchWallets();
-      console.log(wallets);
-    };
-    FetchWallets();
-  }, []);
+  
 
   if (loading) {
     return <div className="flex justify-center items-center h-screen">Loading...</div>;
