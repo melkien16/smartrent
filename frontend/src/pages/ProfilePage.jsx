@@ -1,69 +1,48 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import { Mail, MapPin, Calendar, Star, Shield, AlertCircle } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import ItemGrid from '../components/items/ItemGrid';
-import { mockUsers } from '../data/mockUsers';
-import { mockItems } from '../data/mockItems';
-import { mockRentals } from '../data/mockRentals';
+import { toast } from 'react-hot-toast';
+import { getUserProfile } from '../Fetchers/userDataFetcher';
 
 const ProfilePage = () => {
   const { id } = useParams();
   const { user, isAdmin } = useAuth();
+  const navigate = useNavigate();
   const [profileUser, setProfileUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState(isAdmin ? 'settings' : 'listings');
   const [userItems, setUserItems] = useState([]);
   
-  const isOwnProfile = id === 'me' || id === user?.id;
+  // If no ID is provided, we're viewing our own profile
+  const isOwnProfile = !id || id === user?.id;
 
   // Fetch user data
   useEffect(() => {
-    const fetchUser = async () => {
+    const fetchUserData = async () => {
       try {
         if (isOwnProfile) {
-          setProfileUser(user);
-        } else {
-          // Find user in mockUsers
-          const foundUser = Object.values(mockUsers).find(u => u.id === id);
-          
-          if (foundUser) {
-            setProfileUser({
-              id: foundUser.id,
-              name: foundUser.name,
-              avatar: foundUser.avatar,
-              rating: foundUser.rating,
-              email: foundUser.email,
-              location: foundUser.location,
-              memberSince: foundUser.memberSince,
-              isPremium: foundUser.isPremium,
-              wallet: foundUser.wallet
-            });
-          }
+          const userData = await getUserProfile();
+          setProfileUser(userData);
         }
       } catch (error) {
         console.error('Error fetching user data:', error);
+        toast.error('Failed to load user profile');
       } finally {
         setLoading(false);
       }
     };
 
-    // Fetch user items
-    const fetchUserItems = () => {
-      if (isOwnProfile) {
-        // Get items owned by the current user
-        const ownedItems = mockItems.featured.filter(item => item?.owner?.id === user?.id);
-        setUserItems(ownedItems);
-      } else {
-        // Get items owned by the profile user
-        const ownedItems = mockItems.featured.filter(item => item?.owner?.id === id);
-        setUserItems(ownedItems);
-      }
-    };
+    fetchUserData();
+  }, [isOwnProfile]);
 
-    fetchUser();
-    fetchUserItems();
-  }, [id, user, isOwnProfile]);
+  // Redirect to login if not authenticated
+  useEffect(() => {
+    if (!user && !loading) {
+      navigate('/auth');
+    }
+  }, [user, loading, navigate]);
 
   // Get user's rentals
   const userRentals = mockRentals.active.filter(rental => rental?.renter?.id === (isOwnProfile ? user?.id : id));

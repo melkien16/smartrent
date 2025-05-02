@@ -118,7 +118,7 @@ const Navbar = () => {
                           Admin Dashboard
                         </Link>
                         <Link 
-                          to="/profile/me" 
+                          to="/profile" 
                           className="block rounded-md px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                           onClick={() => setIsUserMenuOpen(false)}
                         >
@@ -141,7 +141,7 @@ const Navbar = () => {
                           Dashboard
                         </Link>
                         <Link 
-                          to="/profile/me" 
+                          to="/profile" 
                           className="block rounded-md px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                           onClick={() => setIsUserMenuOpen(false)}
                         >
@@ -236,7 +236,7 @@ const Navbar = () => {
                     Dashboard
                   </Link>
                   <Link
-                    to="/profile/me"
+                    to="/profile"
                     className="block rounded-md px-3 py-2 text-base font-medium text-gray-700 hover:bg-gray-100"
                     onClick={toggleMenu}
                   >
