@@ -1,5 +1,5 @@
 import asyncHandler from "../middleware/asyncHandler.js";
-import Report from "../models/reportModel.js";
+import Report from "../models/reportModle.js";
 import User from "../models/userModel.js";
 import Item from "../models/itemModel.js";
 import Booking from "../models/bookingModel.js";
