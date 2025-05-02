@@ -6,7 +6,7 @@ import {
   getReportById,
   updateReportStatus,
   deleteReport,
-} from "../controllers/reportController.js";
+} from "../controllers/report.controller.js";
 import { protect, admin } from "../middleware/authMiddleware.js";
 
 const router = express.Router();
@@ -16,3 +16,6 @@ router.get("/", protect, admin, getAllReports);
 router.get("/user/:userId", protect, getUserReports);
 router.get("/:id", protect, getReportById);
 router.put("/:id/status", protect, admin, updateReportStatus);
+router.delete("/:id", protect, admin, deleteReport);
+
+export default router;
