@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Search, TrendingUp, Shield, CornerRightDown, ArrowRight } from 'lucide-react';
 import CategoryList from '../components/items/CategoryList';
@@ -6,8 +6,22 @@ import ItemGrid from '../components/items/ItemGrid';
 import { mockItems } from '../data/mockItems';
 import { mockTestimonials } from '../data/mockTestimonials';
 import { mockCategories } from '../data/mockCategories';
+import { fetchItems } from '../itemFetcher';
 
 const HomePage = () => {
+  const [items, setItems] = useState([]);
+
+  useEffect(() => {
+    fetchItems()
+      .then(fetchedItems => {
+        setItems(fetchedItems);
+        console.log('Items saved to state:', fetchedItems);
+      })
+      .catch(error => {
+        console.error('Failed to fetch items:', error);
+      });
+  }, []);
+
   return (
     <div className="animate-fade-in">
       {/* Hero Section */}
@@ -64,7 +78,7 @@ const HomePage = () => {
             <p className="mt-2 text-lg text-gray-600">Discover our most popular rental items</p>
           </div>
           
-          <ItemGrid items={mockItems.featured} />
+          <ItemGrid items={items} />
           
           <div className="mt-10 text-center">
             <Link 

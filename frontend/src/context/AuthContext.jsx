@@ -1,5 +1,5 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
-import { mockUsers } from '../data/mockUsers';
+import { loginUser } from '../userLoginFetcher';
 
 const AuthContext = createContext(null);
 
@@ -24,25 +24,16 @@ export const AuthProvider = ({ children }) => {
     setLoading(false);
   }, []);
 
-  const login = (email, password) => {
-    // Find user in mockUsers
-    const userKey = Object.keys(mockUsers).find(
-      key => mockUsers[key].email === email && mockUsers[key].password === password
-    );
-
-    if (userKey) {
-      const user = mockUsers[userKey];
-      // Remove password from user object before saving
-      const { password, ...userWithoutPassword } = user;
-      const userToSave = {
-        ...userWithoutPassword,
-        id: userKey // Ensure we have the correct ID
-      };
-      setUser(userToSave);
-      localStorage.setItem('smartRentUser', JSON.stringify(userToSave));
-      return userToSave;
+  const login = async (email, password) => {
+    try {
+      const response = await loginUser(email, password);
+      // Save the user data from the API response
+      setUser(response);
+      localStorage.setItem('smartRentUser', JSON.stringify(response));
+      return response;
+    } catch (error) {
+      throw error;
     }
-    throw new Error('Invalid credentials');
   };
 
   const register = (userData) => {

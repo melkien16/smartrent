@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import { Mail, Lock, AlertCircle, Eye, EyeOff } from "lucide-react";
+import { loginUser } from "../../userLoginFetcher";
 
 const LoginForm = ({ onToggleForm }) => {
   const [email, setEmail] = useState("");
@@ -24,12 +25,13 @@ const LoginForm = ({ onToggleForm }) => {
     setLoading(true);
 
     try {
-      // Attempt login using the login function from context
+      
+      // Still use the context login to maintain the auth state
       await login(email, password);
       navigate("/dashboard");
     } catch (err) {
       console.error("Login error:", err);
-      setError(err.message || "An error occurred during login");
+      setError(err.response?.data?.message || err.message || "An error occurred during login");
     } finally {
       setLoading(false);
     }

@@ -5,7 +5,6 @@ import { Calendar, Package, DollarSign, AlertCircle, Clock, PlusCircle, MinusCir
 import ItemGrid from '../components/items/ItemGrid';
 import { mockItems } from '../data/mockItems';
 import { mockRentals } from '../data/mockRentals';
-import { mockUsers } from '../data/mockUsers';
 import {
   LayoutDashboard,
   Wallet,
@@ -40,13 +39,6 @@ const DashboardPage = () => {
     return null;
   }
 
-  // Get user data from mockUsers
-  const currentUser = Object.values(mockUsers).find(u => u.id === user.id);
-  
-  if (!currentUser) {
-    return <div className="flex justify-center items-center h-screen">User data not found</div>;
-  }
-
   // Get user's items and rentals
   const userListedItems = mockItems.featured.filter(item => item?.owner?.id === user?.id);
   const userRentedItems = mockRentals.active.filter(rental => rental?.renter?.id === user?.id);
@@ -79,7 +71,7 @@ const DashboardPage = () => {
       return;
     }
 
-    if (transactionType === 'withdraw' && numericAmount > (currentUser?.wallet?.balance || 0)) {
+    if (transactionType === 'withdraw' && numericAmount > (user?.wallet?.balance || 0)) {
       setError('Insufficient balance');
       return;
     }
@@ -96,16 +88,16 @@ const DashboardPage = () => {
 
     // Update wallet balance
     const updatedBalance = transactionType === 'deposit' 
-      ? (currentUser?.wallet?.balance || 0) + numericAmount
-      : (currentUser?.wallet?.balance || 0) - numericAmount;
+      ? (user?.wallet?.balance || 0) + numericAmount
+      : (user?.wallet?.balance || 0) - numericAmount;
 
     // Update user's wallet data
-    currentUser.wallet = {
-      ...currentUser.wallet,
+    user.wallet = {
+      ...user.wallet,
       balance: updatedBalance,
       recentTransactions: [
         newTransaction,
-        ...(currentUser?.wallet?.recentTransactions || [])
+        ...(user?.wallet?.recentTransactions || [])
       ]
     };
 
@@ -210,7 +202,7 @@ const DashboardPage = () => {
             <Wallet className="h-10 w-10 text-blue-600" />
             <div className="ml-4">
               <p className="text-sm font-medium text-gray-500">Wallet Balance</p>
-              <p className="text-2xl font-semibold">${currentUser?.wallet.balance}</p>
+              <p className="text-2xl font-semibold">${user?.wallet?.balance}</p>
             </div>
           </div>
         </div>
@@ -221,9 +213,9 @@ const DashboardPage = () => {
               <p className="text-sm font-medium text-gray-500">Account Type</p>
               <div className="flex items-center">
                 <p className="text-2xl font-semibold bg-gradient-to-r from-yellow-400 to-yellow-600 bg-clip-text text-transparent">
-                  {currentUser?.isPremium ? 'Premium' : 'Basic'}
+                  {user?.isPremium ? 'Premium' : 'Basic'}
                 </p>
-                {currentUser?.isPremium && (
+                {user?.isPremium && (
                   <span className="ml-2 px-2 py-1 text-xs font-semibold rounded-full bg-gradient-to-r from-yellow-400 to-yellow-600 text-white">
                     Premium
                   </span>
@@ -482,15 +474,15 @@ const DashboardPage = () => {
                 </div>
                 <div className="bg-white p-4 rounded-lg shadow">
                   <p className="text-sm text-gray-500">This Month</p>
-                  <p className="text-2xl font-semibold">${currentUser?.earnings?.thisMonth || 0}</p>
+                  <p className="text-2xl font-semibold">${user?.earnings?.thisMonth || 0}</p>
                 </div>
                 <div className="bg-white p-4 rounded-lg shadow">
                   <p className="text-sm text-gray-500">Last Month</p>
-                  <p className="text-2xl font-semibold">${currentUser?.earnings?.lastMonth || 0}</p>
+                  <p className="text-2xl font-semibold">${user?.earnings?.lastMonth || 0}</p>
                 </div>
               </div>
               <div className="h-64 bg-white rounded-lg shadow p-4">
-                {currentUser?.earnings?.chartData ? (
+                {user?.earnings?.chartData ? (
                   // Add earnings chart here when data is available
                   <div className="flex items-center justify-center h-full">
                     <p className="text-gray-500">Earnings chart will be displayed here</p>
@@ -511,11 +503,11 @@ const DashboardPage = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
                 <div className="bg-white p-4 rounded-lg shadow">
                   <p className="text-sm text-gray-500">Current Balance</p>
-                  <p className="text-2xl font-semibold">${currentUser?.wallet?.balance || 0}</p>
+                  <p className="text-2xl font-semibold">${user?.wallet?.balance || 0}</p>
                 </div>
                 <div className="bg-white p-4 rounded-lg shadow">
                   <p className="text-sm text-gray-500">Pending Deposits</p>
-                  <p className="text-2xl font-semibold">${currentUser?.wallet?.pendingDeposits || 0}</p>
+                  <p className="text-2xl font-semibold">${user?.wallet?.pendingDeposits || 0}</p>
                 </div>
               </div>
 
@@ -545,8 +537,8 @@ const DashboardPage = () => {
 
               <div className="space-y-4">
                 <h3 className="text-lg font-semibold">Recent Transactions</h3>
-                {currentUser?.wallet?.recentTransactions?.length > 0 ? (
-                  currentUser.wallet.recentTransactions.map((transaction) => (
+                {user?.wallet?.recentTransactions?.length > 0 ? (
+                  user.wallet.recentTransactions.map((transaction) => (
                     <div key={transaction?.id} className="bg-white p-4 rounded-lg shadow">
                       <div className="flex justify-between items-center">
                         <div>
@@ -577,21 +569,21 @@ const DashboardPage = () => {
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
                 <div className="bg-white p-4 rounded-lg shadow">
                   <p className="text-sm text-gray-500">Total Collateral</p>
-                  <p className="text-2xl font-semibold">${currentUser?.collateral?.total || 0}</p>
+                  <p className="text-2xl font-semibold">${user?.collateral?.total || 0}</p>
                 </div>
                 <div className="bg-white p-4 rounded-lg shadow">
                   <p className="text-sm text-gray-500">Active Collateral</p>
-                  <p className="text-2xl font-semibold">${currentUser?.collateral?.active || 0}</p>
+                  <p className="text-2xl font-semibold">${user?.collateral?.active || 0}</p>
                 </div>
                 <div className="bg-white p-4 rounded-lg shadow">
                   <p className="text-sm text-gray-500">Available Collateral</p>
-                  <p className="text-2xl font-semibold">${currentUser?.collateral?.available || 0}</p>
+                  <p className="text-2xl font-semibold">${user?.collateral?.available || 0}</p>
                 </div>
               </div>
               <div className="space-y-4">
                 <h3 className="text-lg font-semibold">Collateral Items</h3>
-                {currentUser?.collateral?.items?.length > 0 ? (
-                  currentUser.collateral.items.map((item) => (
+                {user?.collateral?.items?.length > 0 ? (
+                  user.collateral.items.map((item) => (
                     <div key={item?.id} className="bg-white p-4 rounded-lg shadow">
                       <div className="flex justify-between items-center">
                         <p className="font-medium">{item?.name || 'Unknown Item'}</p>
@@ -616,21 +608,21 @@ const DashboardPage = () => {
                 <div className="flex items-center justify-between mb-6">
                   <div>
                     <h3 className="text-lg font-semibold">
-                      Current Plan: {currentUser?.isPremium ? 'Premium' : 'Basic'}
+                      Current Plan: {user?.isPremium ? 'Premium' : 'Basic'}
                     </h3>
                     <p className="text-gray-600">
-                      Renewal Date: {currentUser?.premium?.renewalDate || 'Not specified'}
+                      Renewal Date: {user?.premium?.renewalDate || 'Not specified'}
                     </p>
                   </div>
                   <button className="btn-primary">
-                    {currentUser?.isPremium ? 'Manage Subscription' : 'Upgrade Plan'}
+                    {user?.isPremium ? 'Manage Subscription' : 'Upgrade Plan'}
                   </button>
                 </div>
                 <div className="space-y-4">
                   <h4 className="font-semibold">Premium Features</h4>
-                  {currentUser?.premium?.features?.length > 0 ? (
+                  {user?.premium?.features?.length > 0 ? (
                     <ul className="space-y-2">
-                      {currentUser.premium.features.map((feature, index) => (
+                      {user.premium.features.map((feature, index) => (
                         <li key={index} className="flex items-center">
                           <Star className="h-5 w-5 text-yellow-500 mr-2" />
                           <span>{feature}</span>
