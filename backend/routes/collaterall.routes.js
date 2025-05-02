@@ -3,7 +3,7 @@ import {
   uploadOrUpdateCollateral,
   getMyCollateral,
   checkCollateralMinimum,
-} from "../controllers/collateralController.js";
+} from "../controllers/collaterall.controller.js";
 import { protect } from "../middleware/authMiddleware.js";
 
 const router = express.Router();
