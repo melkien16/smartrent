@@ -47,7 +47,7 @@ export const useBookingLogic = (item) => {
 
     try {
       const bookingData = {
-        itemId: item.id,
+        itemId: item._id,
         itemTitle: item.title,
         startDate: start.toISOString(),
         endDate: end.toISOString(),

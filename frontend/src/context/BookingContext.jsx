@@ -1,5 +1,7 @@
-import React, { createContext, useState, useContext } from 'react';
-import { useAuth } from './AuthContext';
+import React, { createContext, useState, useContext } from "react";
+import { useAuth } from "./AuthContext";
+import axios from "axios";
+import BASE_URL from "../../constants/baseUrl";
 
 const BookingContext = createContext(null);
 
@@ -13,19 +15,20 @@ export const BookingProvider = ({ children }) => {
 
   // Check if a date range is available for an item
   const checkAvailability = (itemId, startDate, endDate) => {
-    const itemBookings = bookings.filter(booking => 
-      booking.itemId === itemId && 
-      booking.status !== 'cancelled' &&
-      booking.status !== 'rejected'
+    const itemBookings = bookings.filter(
+      (booking) =>
+        booking.itemId === itemId &&
+        booking.status !== "cancelled" &&
+        booking.status !== "rejected"
     );
 
     const requestedStart = new Date(startDate);
     const requestedEnd = new Date(endDate);
 
-    return !itemBookings.some(booking => {
+    return !itemBookings.some((booking) => {
       const bookingStart = new Date(booking.startDate);
       const bookingEnd = new Date(booking.endDate);
-      
+
       return (
         (requestedStart >= bookingStart && requestedStart <= bookingEnd) ||
         (requestedEnd >= bookingStart && requestedEnd <= bookingEnd) ||
@@ -37,7 +40,7 @@ export const BookingProvider = ({ children }) => {
   // Create a new booking request
   const createBooking = async (bookingData) => {
     if (!isAuthenticated) {
-      throw new Error('User must be authenticated to create a booking');
+      throw new Error("User must be authenticated to create a booking");
     }
 
     setLoading(true);
@@ -46,15 +49,22 @@ export const BookingProvider = ({ children }) => {
     try {
       // In a real app, this would be an API call
       const newBooking = {
-        id: Math.random().toString(36).substring(2, 9),
         ...bookingData,
-        renterId: user.id,
-        status: 'pending',
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
+        renterId: user._id,
+        status: "pending",
       };
 
-      setBookings(prev => [...prev, newBooking]);
+      // Post the new booking to the server by axios in BASE_URL/bookings and withCredential
+      const response = await axios.post(
+        `${BASE_URL}/bookings`,
+        { ...bookingData },
+        { withCredentials: true }
+      );
+      if (response.status !== 201) {
+        throw new Error("Failed to create booking");
+      }
+
+      setBookings((prev) => [...prev, newBooking]);
       return newBooking;
     } catch (err) {
       setError(err.message);
@@ -65,9 +75,9 @@ export const BookingProvider = ({ children }) => {
   };
 
   // Update booking status (for owners)
-  const updateBookingStatus = async (bookingId, status, message = '') => {
+  const updateBookingStatus = async (bookingId, status, message = "") => {
     if (!isAuthenticated) {
-      throw new Error('User must be authenticated to update booking status');
+      throw new Error("User must be authenticated to update booking status");
     }
 
     setLoading(true);
@@ -75,17 +85,19 @@ export const BookingProvider = ({ children }) => {
 
     try {
       // In a real app, this would be an API call
-      setBookings(prev => prev.map(booking => {
-        if (booking.id === bookingId) {
-          return {
-            ...booking,
-            status,
-            message,
-            updatedAt: new Date().toISOString(),
-          };
-        }
-        return booking;
-      }));
+      setBookings((prev) =>
+        prev.map((booking) => {
+          if (booking.id === bookingId) {
+            return {
+              ...booking,
+              status,
+              message,
+              updatedAt: new Date().toISOString(),
+            };
+          }
+          return booking;
+        })
+      );
     } catch (err) {
       setError(err.message);
       throw err;
@@ -95,9 +107,9 @@ export const BookingProvider = ({ children }) => {
   };
 
   // Cancel a booking (for renters)
-  const cancelBooking = async (bookingId, reason = '') => {
+  const cancelBooking = async (bookingId, reason = "") => {
     if (!isAuthenticated) {
-      throw new Error('User must be authenticated to cancel a booking');
+      throw new Error("User must be authenticated to cancel a booking");
     }
 
     setLoading(true);
@@ -105,17 +117,19 @@ export const BookingProvider = ({ children }) => {
 
     try {
       // In a real app, this would be an API call
-      setBookings(prev => prev.map(booking => {
-        if (booking.id === bookingId) {
-          return {
-            ...booking,
-            status: 'cancelled',
-            cancellationReason: reason,
-            updatedAt: new Date().toISOString(),
-          };
-        }
-        return booking;
-      }));
+      setBookings((prev) =>
+        prev.map((booking) => {
+          if (booking.id === bookingId) {
+            return {
+              ...booking,
+              status: "cancelled",
+              cancellationReason: reason,
+              updatedAt: new Date().toISOString(),
+            };
+          }
+          return booking;
+        })
+      );
     } catch (err) {
       setError(err.message);
       throw err;
@@ -126,14 +140,14 @@ export const BookingProvider = ({ children }) => {
 
   // Get bookings for a specific item
   const getItemBookings = (itemId) => {
-    return bookings.filter(booking => booking.itemId === itemId);
+    return bookings.filter((booking) => booking.itemId === itemId);
   };
 
   // Get user's bookings (as renter or owner)
   const getUserBookings = () => {
     if (!isAuthenticated) return [];
-    return bookings.filter(booking => 
-      booking.renterId === user.id || booking.ownerId === user.id
+    return bookings.filter(
+      (booking) => booking.renterId === user.id || booking.ownerId === user.id
     );
   };
 
@@ -149,5 +163,7 @@ export const BookingProvider = ({ children }) => {
     getUserBookings,
   };
 
-  return <BookingContext.Provider value={value}>{children}</BookingContext.Provider>;
-}; 
+  return (
+    <BookingContext.Provider value={value}>{children}</BookingContext.Provider>
+  );
+};

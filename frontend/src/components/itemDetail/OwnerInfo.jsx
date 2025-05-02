@@ -28,7 +28,7 @@ const OwnerInfo = ({ owner }) => {
             Typically responds {owner.responseTime}
           </p>
           <Link 
-            to={`/profile/${owner.id}`}
+            to={`/profile/${owner._id}`}
             className="mt-2 inline-flex items-center text-sm font-medium text-primary-600 hover:text-primary-700"
           >
             <User size={14} className="mr-1" />

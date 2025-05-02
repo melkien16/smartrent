@@ -54,8 +54,10 @@ const PaymentPage = () => {
       setPaymentAmount(booking.totalAmount);
       setShowPaymentSuccess(true);
 
+      console.log("Payment successful:", booking);
+
       // Update booking status to 'confirmed'
-      await updateBookingStatus(booking.id, 'confirmed');
+      await updateBookingStatus(booking._id, 'confirmed');
       
       // Refresh balance after payment
       await fetchBalance();

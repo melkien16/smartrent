@@ -13,7 +13,7 @@ const ItemGrid = ({ items, title, subtitle }) => {
       
       <div className="grid grid-cols-1 gap-x-4 gap-y-8 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
         {items.map((item) => (
-          <ItemCard key={item.id} item={item} />
+          <ItemCard key={item._id} item={item} />
         ))}
       </div>
       

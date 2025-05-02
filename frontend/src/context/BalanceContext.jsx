@@ -12,12 +12,10 @@ export const BalanceProvider = ({ children }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  const fetchBalance = async () => {
-    if (!user || !token) return;
-    
+  const fetchBalance = async () => {    
     setLoading(true);
     try {
-      const walletData = await getWalletByUserId(user.id, token);
+      const walletData = await getWalletByUserId(user._id);
       setBalance(walletData.balance || 0);
     } catch (err) {
       setError(err.message || 'Error fetching balance');

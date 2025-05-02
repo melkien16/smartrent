@@ -26,7 +26,7 @@ const ItemCard = ({ item }) => {
 
   return (
     <div className="group animate-fade-in">
-      <Link to={`/item/${item.id}`} className="block overflow-hidden">
+      <Link to={`/item/${item._id}`} className="block overflow-hidden">
         <div className="relative aspect-[4/3] overflow-hidden rounded-lg bg-gray-200">
           <img 
             src={item.images[0]} 
