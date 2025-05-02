@@ -1,8 +1,16 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Package, DollarSign, ThumbsUp, PlusCircle, Wallet, MessageSquare } from 'lucide-react';
 
-const Overview = ({ stats, user }) => {
+const Overview = ({ stats, user, setActiveTab, setTransactionType, setShowTransactionModal }) => {
+  const navigate = useNavigate();
+
+  const handleWithdraw = () => {
+    setActiveTab('wallet');
+    setTransactionType('withdraw');
+    setShowTransactionModal(true);
+  };
+
   return (
     <div>
       <h2 className="text-xl font-semibold mb-4">Dashboard Overview</h2>
@@ -83,11 +91,17 @@ const Overview = ({ stats, user }) => {
       <div className="bg-white rounded-lg shadow p-6 mb-8">
         <h3 className="text-lg font-semibold mb-4">Quick Actions</h3>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <button className="flex items-center justify-center p-4 border border-gray-200 rounded-lg hover:bg-gray-50">
+          <Link 
+            to="/list-item" 
+            className="flex items-center justify-center p-4 border border-gray-200 rounded-lg hover:bg-gray-50"
+          >
             <PlusCircle className="h-6 w-6 text-primary-600 mr-2" />
             <span>Add New Listing</span>
-          </button>
-          <button className="flex items-center justify-center p-4 border border-gray-200 rounded-lg hover:bg-gray-50">
+          </Link>
+          <button 
+            onClick={handleWithdraw}
+            className="flex items-center justify-center p-4 border border-gray-200 rounded-lg hover:bg-gray-50"
+          >
             <Wallet className="h-6 w-6 text-blue-600 mr-2" />
             <span>Withdraw Earnings</span>
           </button>

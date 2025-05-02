@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
 import { fetchItems } from '../Fetchers/itemFetcher';
-import { fetchWallets } from '../Fetchers/allWallets';
 
 export const useHomePageData = () => {
     const [items, setItems] = useState([]);
@@ -13,14 +12,6 @@ export const useHomePageData = () => {
             })
             .catch((error) => {
                 console.error('Failed to fetch items:', error);
-            });
-
-        fetchWallets()
-            .then((wallets) => {
-                console.log('Wallets fetched:', wallets);
-            })
-            .catch((error) => {
-                console.error('Failed to fetch wallets:', error);
             });
     }, []);
 

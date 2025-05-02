@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
-import { fetchWallets } from '../Fetchers/allWallets';
 import { Shield } from 'lucide-react';
 import { useAdminStats } from '../hooks/useAdminStats';
 import { useAdminData } from '../hooks/useAdminData';
@@ -24,14 +23,6 @@ const AdminDashboardPage = () => {
       navigate('/');
     }
   }, [isAdmin, navigate]);
-
-  useEffect(() => {
-    const FetchWallets = async () => {
-      const wallets = await fetchWallets();
-      console.log(wallets);
-    };
-    FetchWallets();
-  }, []);
 
   if (!isAdmin) {
     return null;

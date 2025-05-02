@@ -8,7 +8,6 @@ import { Calendar, Package, DollarSign, AlertCircle, Clock, PlusCircle, MinusCir
 import ItemGrid from '../components/items/ItemGrid';
 import { mockItems } from '../data/mockItems';
 import { mockRentals } from '../data/mockRentals';
-import { fetchWallets } from '../Fetchers/allWallets';
 import {
   LayoutDashboard,
   Wallet as WalletIcon,
@@ -29,6 +28,7 @@ import Rentals from '../components/dashboard/Rentals';
 import Listings from '../components/dashboard/Listings';
 import WalletComponent from '../components/dashboard/Wallet';
 import StatCard from '../components/dashboard/StatCard';
+import Subscription from '../components/dashboard/Subscription';
 
 const DashboardPage = () => {
   const { user, loading: authLoading, isAuthenticated } = useAuth();
@@ -109,6 +109,9 @@ const DashboardPage = () => {
         return <Overview 
           stats={{ userListedItems, userRentedItems, activeRentals, activeListings, totalEarnings, pendingRequests }}
           user={user}
+          setActiveTab={setActiveTab}
+          setTransactionType={setTransactionType}
+          setShowTransactionModal={setShowTransactionModal}
         />;
       case 'rentals':
         return <Rentals 
@@ -126,6 +129,8 @@ const DashboardPage = () => {
           setShowTransactionModal={setShowTransactionModal}
           user={user}
         />;
+      case 'subscription':
+        return <Subscription />;
       default:
         return <div>Coming soon</div>;
     }
