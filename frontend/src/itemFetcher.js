@@ -2,7 +2,7 @@ import axios from 'axios';
 
 // Function to fetch items from the backend using Axios
 function fetchItems() {
-    return axios.get('http://localhost:5500/api/items')
+    return axios.get('http://localhost:5000/api/items')
         .then((res) => {
             const items = res.data;
             console.log('Fetched items:', items);
