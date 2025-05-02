@@ -20,6 +20,7 @@ import {
 import TransactionModal from '../components/TransactionModal';
 import WithdrawalSuccess from '../components/WithdrawalSuccess';
 import { toast } from 'react-hot-toast';
+import SubscriptionPlans from '../components/subscription/SubscriptionPlans';
 
 const DashboardPage = () => {
   const { user, loading: authLoading, isAuthenticated } = useAuth();
@@ -185,6 +186,14 @@ const DashboardPage = () => {
                   </span>
                 )}
               </div>
+              {!user?.isPremium && (
+                <Link 
+                  to="/subscription" 
+                  className="ml-auto btn-primary"
+                >
+                  Upgrade to Premium
+                </Link>
+              )}
             </div>
           </div>
         </div>
@@ -579,7 +588,13 @@ const DashboardPage = () => {
                     </p>
                   </div>
                   <button className="btn-primary">
-                    {user?.isPremium ? 'Manage Subscription' : 'Upgrade Plan'}
+                    {user?.isPremium ? 'Manage Subscription' : 
+                    <Link 
+                  to="/subscription" 
+                  className="ml-auto btn-primary"
+                >
+                  Upgrade to Premium
+                </Link> }
                   </button>
                 </div>
                 <div className="space-y-4">
@@ -601,6 +616,7 @@ const DashboardPage = () => {
                   )}
                 </div>
               </div>
+              
             </div>
           )}
 

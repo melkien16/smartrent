@@ -17,6 +17,7 @@ import DashboardPage from './pages/DashboardPage';
 import AdminDashboardPage from './pages/AdminDashboardPage';
 import FavoritesPage from './pages/FavoritesPage';
 import PaymentPage from './pages/PaymentPage';
+import SubscriptionPage from './pages/SubscriptionPage';
 
 // Context providers
 import { AuthProvider, useAuth } from './context/AuthContext';
@@ -55,11 +56,13 @@ function App() {
                       <Route path="/" element={<HomePage />} />
                       <Route path="/explore" element={<ExplorePage />} />
                       <Route path="/item/:id" element={<ItemDetailPage />} />
+                      <Route path="/profile" element={<ProfilePage />} />
                       <Route path="/profile/:id" element={<ProfilePage />} />
                       <Route path="/list-item" element={<ListItemPage />} />
                       <Route path="/auth" element={<AuthPage />} />
                       <Route path="/favorites" element={<FavoritesPage />} />
                       <Route path="/payment" element={<PaymentPage />} />
+                      <Route path="/subscription" element={<SubscriptionPage />} />
                       <Route 
                         path="/dashboard" 
                         element={
