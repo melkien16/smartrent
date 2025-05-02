@@ -6,6 +6,8 @@ import UserRouter from "./routes/user.routes.js";
 import ItemRouter from "./routes/item.routes.js";
 import WalletRouter from "./routes/wallet.routes.js";
 import BookindRouter from "./routes/booking.routes.js";
+import SubscriptionRouter from "./routes/subscription.routes.js";
+import CollateralRouter from "./routes/collaterall.routes.js";
 import { notFound, errorHandler } from "./middleware/errorMiddleware.js";
 
 dotenv.config();
@@ -33,6 +35,8 @@ app.use("/api/users", UserRouter);
 app.use("/api/items", ItemRouter);
 app.use("/api/wallets", WalletRouter);
 app.use("/api/bookings", BookindRouter);
+app.use("/api/subscriptions", SubscriptionRouter);
+app.use("/api/collaterals", CollateralRouter);
 
 app.use(notFound);
 app.use(errorHandler);
