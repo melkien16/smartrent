@@ -5,9 +5,11 @@ import colors from "colors";
 import users from "../data/users.js";
 import items from "../data/items.js";
 import wallets from "../data/walets.js";
+import categories from "../data/category.js";
 import Item from "../models/itemModel.js";
 import User from "../models/userModel.js";
 import Wallet from "../models/walletModel.js";
+import Category from "../models/categoryModel.js";
 import connectDb from "../config/db.js";
 
 dotenv.config();
@@ -18,6 +20,7 @@ const importData = async () => {
     await User.deleteMany();
     await Item.deleteMany();
     await Wallet.deleteMany();
+    await Category.deleteMany();
 
     const createdUser = await User.insertMany(users);
     const currentUser = createdUser[0]._id;
@@ -27,6 +30,8 @@ const importData = async () => {
 
     await Item.insertMany(sampleItems);
     await Wallet.insertMany(wallets);
+
+    await Category.insertMany(categories);
 
     console.log("Data Imported!".green.inverse);
     process.exit();
