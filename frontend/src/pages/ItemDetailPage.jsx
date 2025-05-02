@@ -1,16 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { Calendar, MapPin, AlertCircle, Star, User, ChevronLeft, ChevronRight, Heart, Shield } from 'lucide-react';
-import { featuredItems, recentItems } from '../data/mockData';
-import { useCategories } from '../context/CategoryContext';
 import { useAuth } from '../context/AuthContext';
+import { mockItems } from '../data/mockItems';
+import { useCategories } from '../context/CategoryContext';
 import { useBooking } from '../context/BookingContext';
 import { toast } from 'react-hot-toast';
 
 const ItemDetailPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { isAuthenticated } = useAuth();
+  const { user, isAuthenticated } = useAuth();
   const { createBooking } = useBooking();
   const { getCategoryById } = useCategories();
   const [item, setItem] = useState(null);
@@ -24,14 +24,10 @@ const ItemDetailPage = () => {
 
   // Fetch item data
   useEffect(() => {
-    // In a real app, this would be an API call
-    const foundItem = [...featuredItems, ...recentItems].find(item => item.id === id);
-    
-    // Simulate API delay
-    setTimeout(() => {
-      setItem(foundItem || null);
-      setLoading(false);
-    }, 300);
+    // Find item in mockItems
+    const foundItem = [...mockItems.featured, ...mockItems.recent].find(item => item.id === id);
+    setItem(foundItem);
+    setLoading(false);
   }, [id]);
 
   // Calculate total days and cost when dates change
@@ -286,6 +282,12 @@ const ItemDetailPage = () => {
                     />
                     <div>
                       <h3 className="font-medium text-gray-900">{item.owner.name}</h3>
+                      {item.owner.isPremium && (
+                        <div className="mt-1 inline-flex items-center rounded-full bg-gradient-to-r from-yellow-400 to-yellow-600 px-2 py-0.5 text-xs font-medium text-white">
+                          <Star size={12} className="mr-1" fill="currentColor" />
+                          Premium
+                        </div>
+                      )}
                       <div className="mt-1 flex items-center">
                         <Star size={14} className="mr-1 text-yellow-400" fill="currentColor" />
                         <span className="text-sm">{item.owner.rating} rating</span>

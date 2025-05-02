@@ -3,7 +3,9 @@ import { useParams, Link } from 'react-router-dom';
 import { Mail, MapPin, Calendar, Star, Shield, AlertCircle } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import ItemGrid from '../components/items/ItemGrid';
-import { featuredItems, recentItems } from '../data/mockData';
+import { mockUsers } from '../data/mockUsers';
+import { mockItems } from '../data/mockItems';
+import { mockRentals } from '../data/mockRentals';
 
 const ProfilePage = () => {
   const { id } = useParams();
@@ -17,27 +19,25 @@ const ProfilePage = () => {
 
   // Fetch user data
   useEffect(() => {
-    // In a real app, this would be an API call
-    // For demo purposes, we'll use the current user or a mock user
-    
     const fetchUser = async () => {
       try {
         if (isOwnProfile) {
           setProfileUser(user);
         } else {
-          // Get owner info from an item with matching owner id
-          const allItems = [...featuredItems, ...recentItems];
-          const ownerItem = allItems.find(item => item.owner?.id === id);
+          // Find user in mockUsers
+          const foundUser = Object.values(mockUsers).find(u => u.id === id);
           
-          if (ownerItem) {
+          if (foundUser) {
             setProfileUser({
-              id: ownerItem.owner.id,
-              name: ownerItem.owner.name,
-              avatar: ownerItem.owner.avatar,
-              rating: ownerItem.owner.rating,
-              email: 'owner@example.com', // Mock data
-              location: 'San Francisco, CA', // Mock data
-              memberSince: 'January 2023', // Mock data
+              id: foundUser.id,
+              name: foundUser.name,
+              avatar: foundUser.avatar,
+              rating: foundUser.rating,
+              email: foundUser.email,
+              location: foundUser.location,
+              memberSince: foundUser.memberSince,
+              isPremium: foundUser.isPremium,
+              wallet: foundUser.wallet
             });
           }
         }
@@ -50,24 +50,34 @@ const ProfilePage = () => {
 
     // Fetch user items
     const fetchUserItems = () => {
-      // In a real app, this would be an API call
-      // For demo, we'll pick random items
-      const allItems = [...featuredItems, ...recentItems];
-      
-      // If looking at own profile, show 3 random items
-      // Otherwise, show items from this owner
       if (isOwnProfile) {
-        const randomItems = allItems.sort(() => 0.5 - Math.random()).slice(0, 3);
-        setUserItems(randomItems);
+        // Get items owned by the current user
+        const ownedItems = mockItems.featured.filter(item => item?.owner?.id === user?.id);
+        setUserItems(ownedItems);
       } else {
-        const ownerItems = allItems.filter(item => item.owner?.id === id);
-        setUserItems(ownerItems);
+        // Get items owned by the profile user
+        const ownedItems = mockItems.featured.filter(item => item?.owner?.id === id);
+        setUserItems(ownedItems);
       }
     };
 
     fetchUser();
     fetchUserItems();
   }, [id, user, isOwnProfile]);
+
+  // Get user's rentals
+  const userRentals = mockRentals.active.filter(rental => rental?.renter?.id === (isOwnProfile ? user?.id : id));
+
+  // Get user's reviews
+  const userReviews = mockRentals.active
+    .filter(rental => rental?.item?.owner?.id === (isOwnProfile ? user?.id : id))
+    .map(rental => ({
+      id: rental.id,
+      rating: rental.rating,
+      comment: rental.review,
+      date: rental.endDate,
+      renter: rental.renter
+    }));
 
   if (loading) {
     return (
@@ -120,6 +130,12 @@ const ProfilePage = () => {
             <div className="flex flex-col justify-between sm:flex-row sm:items-end">
               <div>
                 <h1 className="text-2xl font-bold text-gray-900 sm:text-3xl">{profileUser.name}</h1>
+                {profileUser.isPremium && (
+                  <div className="mt-2 inline-flex items-center rounded-full bg-gradient-to-r from-yellow-400 to-yellow-600 px-3 py-1 text-sm font-medium text-white">
+                    <Star size={14} className="mr-1" fill="currentColor" />
+                    Premium Member
+                  </div>
+                )}
                 <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-gray-500">
                   {profileUser.location && (
                     <div className="flex items-center">
@@ -223,116 +239,127 @@ const ProfilePage = () => {
         )}
 
         {/* Tab Content */}
-        <div className="animate-fade-in">
-          {!isAdmin && activeTab === 'listings' && (
+        <div className="mt-6">
+          {activeTab === 'listings' && (
             <div>
               <h2 className="mb-4 text-xl font-semibold text-gray-900">
-                {isOwnProfile ? 'My Listings' : `${profileUser.name}'s Listings`}
+                {isOwnProfile ? 'My Listings' : 'Listings'}
               </h2>
-              
               {userItems.length > 0 ? (
                 <ItemGrid items={userItems} />
               ) : (
-                <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-gray-300 bg-gray-50 px-6 py-12 text-center">
-                  <p className="mb-2 text-lg font-medium text-gray-900">No listings yet</p>
-                  {isOwnProfile ? (
-                    <>
-                      <p className="mb-4 text-gray-500">Start earning money by listing your items for rent</p>
-                      <Link to="/list-item" className="btn-primary">
-                        List an Item
-                      </Link>
-                    </>
-                  ) : (
-                    <p className="text-gray-500">This user hasn't listed any items yet</p>
-                  )}
+                <div className="text-center py-8">
+                  <Package className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                  <p className="text-gray-500">No listings found</p>
                 </div>
               )}
             </div>
           )}
-
-          {!isAdmin && activeTab === 'reviews' && (
+          {activeTab === 'reviews' && (
             <div>
               <h2 className="mb-4 text-xl font-semibold text-gray-900">Reviews</h2>
-              
-              <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-gray-300 bg-gray-50 px-6 py-12 text-center">
-                <p className="mb-2 text-lg font-medium text-gray-900">No reviews yet</p>
-                <p className="text-gray-500">
-                  {isOwnProfile 
-                    ? 'You haven\'t received any reviews yet' 
-                    : 'This user hasn\'t received any reviews yet'}
-                </p>
-              </div>
+              {userReviews.length > 0 ? (
+                <div className="space-y-4">
+                  {userReviews.map(review => (
+                    <div key={review.id} className="bg-white p-4 rounded-lg shadow">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center">
+                          <img 
+                            src={review.renter.avatar} 
+                            alt={review.renter.name}
+                            className="h-10 w-10 rounded-full"
+                          />
+                          <div className="ml-3">
+                            <p className="font-medium">{review.renter.name}</p>
+                            <div className="flex items-center">
+                              <Star size={16} className="text-yellow-400 mr-1" fill="currentColor" />
+                              <span className="text-sm text-gray-500">{review.rating}/5</span>
+                            </div>
+                          </div>
+                        </div>
+                        <span className="text-sm text-gray-500">{review.date}</span>
+                      </div>
+                      {review.comment && (
+                        <p className="mt-2 text-gray-600">{review.comment}</p>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center py-8">
+                  <Star className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                  <p className="text-gray-500">No reviews yet</p>
+                </div>
+              )}
             </div>
           )}
-
-          {!isAdmin && activeTab === 'rentals' && isOwnProfile && (
+          {activeTab === 'rentals' && (
             <div>
               <h2 className="mb-4 text-xl font-semibold text-gray-900">My Rentals</h2>
-              
-              <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-gray-300 bg-gray-50 px-6 py-12 text-center">
-                <p className="mb-2 text-lg font-medium text-gray-900">No rentals yet</p>
-                <p className="mb-4 text-gray-500">You haven't rented any items yet</p>
-                <Link to="/explore" className="btn-primary">
-                  Explore Items to Rent
-                </Link>
-              </div>
+              {userRentals.length > 0 ? (
+                <div className="space-y-4">
+                  {userRentals.map(rental => (
+                    <div key={rental.id} className="bg-white p-4 rounded-lg shadow">
+                      <div className="flex items-center">
+                        <img 
+                          src={rental.item.image} 
+                          alt={rental.item.title}
+                          className="h-16 w-16 rounded-lg object-cover"
+                        />
+                        <div className="ml-4">
+                          <h3 className="font-medium">{rental.item.title}</h3>
+                          <p className="text-sm text-gray-500">
+                            From {rental.startDate} to {rental.endDate}
+                          </p>
+                          <p className="text-sm text-gray-500">
+                            Total: ${rental.totalPrice}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center py-8">
+                  <Package className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                  <p className="text-gray-500">No active rentals</p>
+                </div>
+              )}
             </div>
           )}
-
-          {(isAdmin || activeTab === 'settings') && (
+          {activeTab === 'settings' && (
             <div>
-              <h2 className="mb-4 text-xl font-semibold text-gray-900">Profile Settings</h2>
-              
-              <div className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
-                <div className="mb-4">
-                  <label className="mb-1 block text-sm font-medium text-gray-700">
-                    Full Name
-                  </label>
-                  <input
-                    type="text"
-                    className="input"
-                    defaultValue={profileUser.name}
-                  />
-                </div>
-                
-                <div className="mb-4">
-                  <label className="mb-1 block text-sm font-medium text-gray-700">
-                    Email
-                  </label>
-                  <input
-                    type="email"
-                    className="input"
-                    defaultValue={profileUser.email}
-                  />
-                </div>
-                
-                <div className="mb-4">
-                  <label className="mb-1 block text-sm font-medium text-gray-700">
-                    Location
-                  </label>
-                  <input
-                    type="text"
-                    className="input"
-                    defaultValue={profileUser.location}
-                    placeholder="e.g., Seattle, WA"
-                  />
-                </div>
-                
-                <div className="mb-6">
-                  <label className="mb-1 block text-sm font-medium text-gray-700">
-                    About Me
-                  </label>
-                  <textarea
-                    className="input min-h-[120px]"
-                    placeholder="Tell others about yourself..."
-                  ></textarea>
-                </div>
-                
-                <div className="flex justify-end">
-                  <button className="btn-primary">
-                    Save Changes
-                  </button>
-                </div>
+              <h2 className="mb-4 text-xl font-semibold text-gray-900">Settings</h2>
+              <div className="bg-white p-6 rounded-lg shadow">
+                <form className="space-y-6">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">Email</label>
+                    <input
+                      type="email"
+                      value={profileUser.email}
+                      readOnly
+                      className="mt-1 block w-full rounded-md border-gray-300 bg-gray-50 shadow-sm"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">Location</label>
+                    <input
+                      type="text"
+                      value={profileUser.location}
+                      readOnly
+                      className="mt-1 block w-full rounded-md border-gray-300 bg-gray-50 shadow-sm"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">Member Since</label>
+                    <input
+                      type="text"
+                      value={profileUser.memberSince}
+                      readOnly
+                      className="mt-1 block w-full rounded-md border-gray-300 bg-gray-50 shadow-sm"
+                    />
+                  </div>
+                </form>
               </div>
             </div>
           )}

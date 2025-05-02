@@ -3,7 +3,7 @@ import { useSearchParams } from 'react-router-dom';
 import { Filter, Sliders, Search, X } from 'lucide-react';
 import CategoryList from '../components/items/CategoryList';
 import ItemGrid from '../components/items/ItemGrid';
-import { featuredItems, recentItems } from '../data/mockData';
+import { mockItems } from '../data/mockItems';
 import { useCategories } from '../context/CategoryContext';
 
 const ExplorePage = () => {
@@ -26,6 +26,7 @@ const ExplorePage = () => {
   const [priceMin, setPriceMin] = useState(minPrice);
   const [priceMax, setPriceMax] = useState(maxPrice);
   const [selectedSort, setSelectedSort] = useState(sortBy);
+  const [location, setLocation] = useState('');
 
   const toggleFilters = () => {
     setIsFilterOpen(!isFilterOpen);
@@ -67,62 +68,51 @@ const ExplorePage = () => {
 
   // Load and filter items based on URL params
   useEffect(() => {
-    // Combine featured and recent items
-    let allItems = [...featuredItems, ...recentItems];
+    // Get all items from mockItems
+    const allItems = [...mockItems.featured, ...mockItems.recent];
     
-    // Remove duplicates (in case some items appear in both lists)
-    allItems = Array.from(new Map(allItems.map(item => [item.id, item])).values());
-    
-    // Apply category filter
-    if (categoryParam) {
-      allItems = allItems.filter(item => item.category === categoryParam);
-    }
-    
-    // Apply search filter
-    if (searchQuery) {
-      const query = searchQuery.toLowerCase();
-      allItems = allItems.filter(
-        item => 
-          item.title.toLowerCase().includes(query) || 
-          item.description.toLowerCase().includes(query)
-      );
-    }
-    
-    // Apply price filters
-    if (minPrice) {
-      allItems = allItems.filter(item => item.price >= Number(minPrice));
-    }
-    
-    if (maxPrice) {
-      allItems = allItems.filter(item => item.price <= Number(maxPrice));
-    }
+    // Filter items based on search criteria
+    const filteredItems = allItems.filter(item => {
+      const matchesSearch = item.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                           item.description.toLowerCase().includes(searchQuery.toLowerCase());
+      const matchesCategory = !selectedCategory || item.category === selectedCategory;
+      
+      // Handle price range filtering
+      const minPriceValue = priceMin ? parseFloat(priceMin) : 0;
+      const maxPriceValue = priceMax ? parseFloat(priceMax) : Infinity;
+      const matchesPrice = item.price >= minPriceValue && item.price <= maxPriceValue;
+      
+      const matchesLocation = !location || item.location.toLowerCase().includes(location.toLowerCase());
+      
+      return matchesSearch && matchesCategory && matchesPrice && matchesLocation;
+    });
     
     // Apply sorting
     switch (sortBy) {
       case 'price-low':
-        allItems.sort((a, b) => a.price - b.price);
+        filteredItems.sort((a, b) => a.price - b.price);
         break;
       case 'price-high':
-        allItems.sort((a, b) => b.price - a.price);
+        filteredItems.sort((a, b) => b.price - a.price);
         break;
       case 'newest':
         // For demo, we'll just use the recentItems first
-        allItems.sort((a, b) => {
-          if (recentItems.find(item => item.id === a.id)) return -1;
-          if (recentItems.find(item => item.id === b.id)) return 1;
+        filteredItems.sort((a, b) => {
+          if (mockItems.recent.find(item => item.id === a.id)) return -1;
+          if (mockItems.recent.find(item => item.id === b.id)) return 1;
           return 0;
         });
         break;
       case 'rating':
-        allItems.sort((a, b) => b.rating - a.rating);
+        filteredItems.sort((a, b) => b.rating - a.rating);
         break;
       default:
         // Default recommended sorting - no change
         break;
     }
     
-    setItems(allItems);
-  }, [searchParams, categoryParam, searchQuery, minPrice, maxPrice, sortBy]);
+    setItems(filteredItems);
+  }, [searchParams, categoryParam, searchQuery, minPrice, maxPrice, sortBy, selectedCategory, location]);
 
   return (
     <div className="min-h-screen bg-gray-50 pb-12 pt-6">

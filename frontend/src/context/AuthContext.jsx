@@ -1,5 +1,5 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
-import { demoUsers } from '../data/dummyData';
+import { mockUsers } from '../data/mockUsers';
 
 const AuthContext = createContext(null);
 
@@ -13,22 +13,34 @@ export const AuthProvider = ({ children }) => {
     // Check if user is saved in localStorage
     const savedUser = localStorage.getItem('smartRentUser');
     if (savedUser) {
-      setUser(JSON.parse(savedUser));
+      try {
+        const parsedUser = JSON.parse(savedUser);
+        setUser(parsedUser);
+      } catch (error) {
+        console.error('Error parsing saved user:', error);
+        localStorage.removeItem('smartRentUser');
+      }
     }
     setLoading(false);
   }, []);
 
   const login = (email, password) => {
-    // For demo purposes, we'll use hardcoded credentials
-    if (email === 'demo@smartrent.com' && password === 'demo123') {
-      setUser(demoUsers.demo);
-      localStorage.setItem('smartRentUser', JSON.stringify(demoUsers.demo));
-      return demoUsers.demo;
-    }
-    if (email === 'admin@smartrent.com' && password === 'admin123') {
-      setUser(demoUsers.admin);
-      localStorage.setItem('smartRentUser', JSON.stringify(demoUsers.admin));
-      return demoUsers.admin;
+    // Find user in mockUsers
+    const userKey = Object.keys(mockUsers).find(
+      key => mockUsers[key].email === email && mockUsers[key].password === password
+    );
+
+    if (userKey) {
+      const user = mockUsers[userKey];
+      // Remove password from user object before saving
+      const { password, ...userWithoutPassword } = user;
+      const userToSave = {
+        ...userWithoutPassword,
+        id: userKey // Ensure we have the correct ID
+      };
+      setUser(userToSave);
+      localStorage.setItem('smartRentUser', JSON.stringify(userToSave));
+      return userToSave;
     }
     throw new Error('Invalid credentials');
   };
@@ -40,7 +52,13 @@ export const AuthProvider = ({ children }) => {
       ...userData,
       id: Math.random().toString(36).substring(2, 9),
       createdAt: new Date().toISOString(),
-      role: userData.email === 'admin@smartrent.com' ? 'admin' : 'user', // Default role
+      role: 'user', // Default role
+      isPremium: false,
+      rating: 0,
+      wallet: {
+        balance: 0,
+        transactions: []
+      }
     };
     setUser(newUser);
     localStorage.setItem('smartRentUser', JSON.stringify(newUser));
