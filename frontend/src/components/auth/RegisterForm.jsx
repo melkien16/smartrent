@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
-import { Mail, Lock, User, AlertCircle } from 'lucide-react';
+import { Mail, Lock, User, Phone, MapPin, AlertCircle } from 'lucide-react';
 
 const RegisterForm = ({ onToggleForm }) => {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
+  const [phone, setPhone] = useState('');
+  const [address, setAddress] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState('');
@@ -18,7 +20,7 @@ const RegisterForm = ({ onToggleForm }) => {
     setError('');
 
     // Basic validation
-    if (!name || !email || !password || !confirmPassword) {
+    if (!name || !email || !phone || !address || !password || !confirmPassword) {
       setError('Please fill in all fields');
       return;
     }
@@ -36,21 +38,18 @@ const RegisterForm = ({ onToggleForm }) => {
     setLoading(true);
 
     try {
-      // Simulate API call delay
-      await new Promise(resolve => setTimeout(resolve, 800));
-
-      // In a real app, this would communicate with a backend
-      register({
+      await register({
         name,
         email,
-        // Password would be handled by the backend
-        avatar: 'https://images.pexels.com/photos/614810/pexels-photo-614810.jpeg?auto=compress&cs=tinysrgb&w=150',
-        role: 'user'
+        phone,
+        address,
+        password,
+        avatar: 'https://images.pexels.com/photos/614810/pexels-photo-614810.jpeg?auto=compress&cs=tinysrgb&w=150'
       });
       
       navigate('/dashboard');
     } catch (err) {
-      setError('Failed to create account. Please try again.');
+      setError(err.response?.data?.message || 'Failed to create account. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -88,7 +87,7 @@ const RegisterForm = ({ onToggleForm }) => {
         </div>
 
         <div>
-          <label htmlFor="register-email" className="mb-1 block text-sm font-medium text-gray-700">
+          <label htmlFor="email" className="mb-1 block text-sm font-medium text-gray-700">
             Email Address
           </label>
           <div className="relative">
@@ -96,7 +95,7 @@ const RegisterForm = ({ onToggleForm }) => {
               <Mail size={16} className="text-gray-400" />
             </div>
             <input
-              id="register-email"
+              id="email"
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
@@ -107,7 +106,45 @@ const RegisterForm = ({ onToggleForm }) => {
         </div>
 
         <div>
-          <label htmlFor="register-password" className="mb-1 block text-sm font-medium text-gray-700">
+          <label htmlFor="phone" className="mb-1 block text-sm font-medium text-gray-700">
+            Phone Number
+          </label>
+          <div className="relative">
+            <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+              <Phone size={16} className="text-gray-400" />
+            </div>
+            <input
+              id="phone"
+              type="tel"
+              value={phone}
+              onChange={(e) => setPhone(e.target.value)}
+              className="input pl-10"
+              placeholder="+1 (555) 000-0000"
+            />
+          </div>
+        </div>
+
+        <div>
+          <label htmlFor="address" className="mb-1 block text-sm font-medium text-gray-700">
+            Address
+          </label>
+          <div className="relative">
+            <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+              <MapPin size={16} className="text-gray-400" />
+            </div>
+            <input
+              id="address"
+              type="text"
+              value={address}
+              onChange={(e) => setAddress(e.target.value)}
+              className="input pl-10"
+              placeholder="123 Main St, City, State"
+            />
+          </div>
+        </div>
+
+        <div>
+          <label htmlFor="password" className="mb-1 block text-sm font-medium text-gray-700">
             Password
           </label>
           <div className="relative">
@@ -115,7 +152,7 @@ const RegisterForm = ({ onToggleForm }) => {
               <Lock size={16} className="text-gray-400" />
             </div>
             <input
-              id="register-password"
+              id="password"
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}

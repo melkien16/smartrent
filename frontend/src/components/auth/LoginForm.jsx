@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import { Mail, Lock, AlertCircle, Eye, EyeOff } from "lucide-react";
-import { loginUser } from "../../userLoginFetcher";
+
 
 const LoginForm = ({ onToggleForm }) => {
   const [email, setEmail] = useState("");

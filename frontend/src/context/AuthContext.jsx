@@ -1,5 +1,6 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
-import { loginUser } from '../userLoginFetcher';
+import { loginUser } from '../Fetchers/userLoginFetcher';
+import { registerUser } from '../Fetchers/userRegisterFetcher';
 
 const AuthContext = createContext(null);
 
@@ -36,24 +37,15 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  const register = (userData) => {
-    // For a real app, this would make an API call
-    // For demo purposes, we'll simulate successful registration
-    const newUser = {
-      ...userData,
-      id: Math.random().toString(36).substring(2, 9),
-      createdAt: new Date().toISOString(),
-      role: 'user', // Default role
-      isPremium: false,
-      rating: 0,
-      wallet: {
-        balance: 0,
-        transactions: []
-      }
-    };
-    setUser(newUser);
-    localStorage.setItem('smartRentUser', JSON.stringify(newUser));
-    return newUser;
+  const register = async (userData) => {
+    try {
+      const response = await registerUser(userData);
+      setUser(response);
+      localStorage.setItem('smartRentUser', JSON.stringify(response));
+      return response;
+    } catch (error) {
+      throw error;
+    }
   };
 
   const logout = () => {

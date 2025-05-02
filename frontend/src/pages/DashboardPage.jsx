@@ -5,6 +5,7 @@ import { Calendar, Package, DollarSign, AlertCircle, Clock, PlusCircle, MinusCir
 import ItemGrid from '../components/items/ItemGrid';
 import { mockItems } from '../data/mockItems';
 import { mockRentals } from '../data/mockRentals';
+import { fetchWallets } from '../Fetchers/allWallets';
 import {
   LayoutDashboard,
   Wallet,
@@ -30,6 +31,14 @@ const DashboardPage = () => {
       navigate('/auth');
     }
   }, [loading, isAuthenticated, navigate]);
+
+  useEffect(() => {
+    const FetchWallets = async () => {
+      const wallets = await fetchWallets();
+      console.log(wallets);
+    };
+    FetchWallets();
+  }, []);
 
   if (loading) {
     return <div className="flex justify-center items-center h-screen">Loading...</div>;
