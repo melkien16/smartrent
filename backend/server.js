@@ -8,6 +8,7 @@ import WalletRouter from "./routes/wallet.routes.js";
 import BookindRouter from "./routes/booking.routes.js";
 import SubscriptionRouter from "./routes/subscription.routes.js";
 import CollateralRouter from "./routes/collaterall.routes.js";
+import ReportRouter from "./routes/report.routes.js";
 import { notFound, errorHandler } from "./middleware/errorMiddleware.js";
 
 dotenv.config();
