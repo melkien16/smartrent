@@ -58,7 +58,7 @@ const AdminDashboardPage = () => {
     { id: 'settings', label: 'Platform Settings', icon: Settings },
   ];
 
-  const filteredItems = mockItems.filter(item => 
+  const filteredItems = mockItems.featured.filter(item => 
     item.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
     item.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
     item.category.toLowerCase().includes(searchQuery.toLowerCase()) ||
