@@ -1,7 +1,9 @@
+import BASE_URL from "../../constants/baseUrl";
+
 // Function to fetch items from the backend
 async function fetchItems() {
   try {
-    const response = await fetch("http://localhost:5000/api/items");
+    const response = await fetch(`${BASE_URL}/items`);
 
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);

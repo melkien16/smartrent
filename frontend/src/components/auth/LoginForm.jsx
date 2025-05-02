@@ -27,8 +27,12 @@ const LoginForm = ({ onToggleForm }) => {
     try {
       
       // Still use the context login to maintain the auth state
-      await login(email, password);
-      navigate("/dashboard");
+      const loggedInUser =await login(email, password);
+      if(loggedInUser.isAdmin === true){
+        navigate("/admin");
+      }else{
+        navigate("/dashboard");
+      }
     } catch (err) {
       console.error("Login error:", err);
       setError(err.response?.data?.message || err.message || "An error occurred during login");

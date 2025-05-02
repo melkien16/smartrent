@@ -1,9 +1,10 @@
 import axios from 'axios';
+import BASE_URL from "../../constants/baseUrl";
 
 // Function to handle user registration
 async function registerUser(userData) {
     try {
-        const response = await axios.post('http://localhost:5500/api/users/register', {
+        const response = await axios.post(`${BASE_URL}/users`, {
             name: userData.name,
             email: userData.email,
             phone: userData.phone,
