@@ -5,14 +5,20 @@ import { useAuth } from '../context/AuthContext';
 import { useBooking } from '../context/BookingContext';
 import { useBalance } from '../context/BalanceContext';
 import { toast } from 'react-hot-toast';
+import TransactionModal from '../components/TransactionModal';
+import WithdrawalSuccess from '../components/WithdrawalSuccess';
 
 const PaymentPage = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { isAuthenticated } = useAuth();
   const { updateBookingStatus } = useBooking();
-  const { balance, deductFunds, fetchBalance } = useBalance();
+  const { balance, deductFunds, addFunds, fetchBalance } = useBalance();
   const [loading, setLoading] = useState(false);
+  const [showDepositModal, setShowDepositModal] = useState(false);
+  const [transactionError, setTransactionError] = useState('');
+  const [showPaymentSuccess, setShowPaymentSuccess] = useState(false);
+  const [paymentAmount, setPaymentAmount] = useState(0);
 
   // Get booking details from location state
   const booking = location.state?.booking;
@@ -44,13 +50,41 @@ const PaymentPage = () => {
         throw new Error('Payment failed. Please check your balance.');
       }
 
+      // Store payment amount and show success modal
+      setPaymentAmount(booking.totalAmount);
+      setShowPaymentSuccess(true);
+
       // Update booking status to 'confirmed'
       await updateBookingStatus(booking.id, 'confirmed');
       
-      toast.success('Payment successful! Your booking is confirmed.');
-      navigate('/bookings');
+      // Refresh balance after payment
+      await fetchBalance();
     } catch (error) {
       toast.error(error.message || 'Payment failed. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleDeposit = async (amount) => {
+    const numericAmount = parseFloat(amount);
+    if (isNaN(numericAmount) || numericAmount <= 0) {
+      setTransactionError('Please enter a valid amount');
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const success = await addFunds(numericAmount);
+      if (!success) {
+        throw new Error('Failed to deposit funds');
+      }
+      await fetchBalance();
+      setShowDepositModal(false);
+      setTransactionError('');
+      toast.success('Funds added successfully!');
+    } catch (err) {
+      setTransactionError(err.message || 'Transaction failed');
     } finally {
       setLoading(false);
     }
@@ -143,7 +177,7 @@ const PaymentPage = () => {
             <div className="mt-4 text-center text-sm text-gray-500">
               <p>Need to add funds to your account?</p>
               <button
-                onClick={() => navigate('/add-funds')}
+                onClick={() => setShowDepositModal(true)}
                 className="mt-1 text-primary-500 hover:text-primary-600"
               >
                 Add Funds
@@ -152,6 +186,23 @@ const PaymentPage = () => {
           </div>
         </div>
       </div>
+
+      <TransactionModal
+        showModal={showDepositModal}
+        setShowModal={setShowDepositModal}
+        transactionType="deposit"
+        handleTransaction={handleDeposit}
+        loading={loading}
+        error={transactionError}
+      />
+
+      {showPaymentSuccess && (
+        <WithdrawalSuccess 
+          amount={paymentAmount}
+          message="Payment Successful!"
+          description="Your booking has been confirmed and payment has been processed."
+        />
+      )}
     </div>
   );
 };

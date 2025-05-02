@@ -1,6 +1,6 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
 import { loginUser } from '../Fetchers/userLoginFetcher';
-import { registerUser } from '../Fetchers/userRegisterFetcher';
+import { registerUser } from '../Fetchers/registrationFetcher';
 
 const AuthContext = createContext(null);
 

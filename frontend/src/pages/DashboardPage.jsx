@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { useBalance } from '../context/BalanceContext';
 import { Calendar, Package, DollarSign, AlertCircle, Clock, PlusCircle, MinusCircle, X } from 'lucide-react';
 import ItemGrid from '../components/items/ItemGrid';
 import { mockItems } from '../data/mockItems';
@@ -16,25 +17,32 @@ import {
   AlertTriangle,
   FileBox
 } from 'lucide-react';
+import TransactionModal from '../components/TransactionModal';
+import WithdrawalSuccess from '../components/WithdrawalSuccess';
+import { toast } from 'react-hot-toast';
 
 const DashboardPage = () => {
-  const { user, loading, isAuthenticated } = useAuth();
+  const { user, loading: authLoading, isAuthenticated } = useAuth();
+  const { balance, addFunds, deductFunds, fetchBalance } = useBalance();
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('overview');
   const [showTransactionModal, setShowTransactionModal] = useState(false);
   const [transactionType, setTransactionType] = useState('deposit');
   const [amount, setAmount] = useState('');
   const [error, setError] = useState('');
+  const [transactionLoading, setTransactionLoading] = useState(false);
+  const [showWithdrawalSuccess, setShowWithdrawalSuccess] = useState(false);
+  const [withdrawalAmount, setWithdrawalAmount] = useState(0);
 
   useEffect(() => {
-    if (!loading && !isAuthenticated) {
+    if (!authLoading && !isAuthenticated) {
       navigate('/auth');
     }
-  }, [loading, isAuthenticated, navigate]);
+  }, [authLoading, isAuthenticated, navigate]);
 
   
 
-  if (loading) {
+  if (authLoading) {
     return <div className="flex justify-center items-center h-screen">Loading...</div>;
   }
 
@@ -67,112 +75,65 @@ const DashboardPage = () => {
     { id: 'report', label: 'Report a Problem', icon: AlertTriangle },
   ];
 
-  const handleTransaction = () => {
+  const handleTransaction = async (amount) => {
     const numericAmount = parseFloat(amount);
     if (isNaN(numericAmount) || numericAmount <= 0) {
       setError('Please enter a valid amount');
       return;
     }
 
-    if (transactionType === 'withdraw' && numericAmount > (user?.wallet?.balance || 0)) {
+    if (transactionType === 'withdraw' && numericAmount > balance) {
       setError('Insufficient balance');
       return;
     }
 
-    // In a real app, this would be an API call
-    // For demo purposes, we'll update the mock data
-    const newTransaction = {
-      id: Date.now().toString(),
-      type: transactionType,
-      amount: numericAmount,
-      date: new Date().toISOString().split('T')[0],
-      status: 'completed'
-    };
+    setTransactionLoading(true);
+    try {
+      if (transactionType === 'deposit') {
+        const success = await addFunds(numericAmount);
+        if (!success) {
+          throw new Error('Failed to deposit funds');
+        }
+        // Show success toast for deposit
+        toast.success('Deposit successful!');
+      } else {
+        const success = await deductFunds(numericAmount);
+        if (!success) {
+          throw new Error('Failed to withdraw funds');
+        }
+        // Store withdrawal amount and show success modal
+        setWithdrawalAmount(numericAmount);
+        setShowWithdrawalSuccess(true);
+      }
 
-    // Update wallet balance
-    const updatedBalance = transactionType === 'deposit' 
-      ? (user?.wallet?.balance || 0) + numericAmount
-      : (user?.wallet?.balance || 0) - numericAmount;
+      // Refresh the balance after transaction
+      await fetchBalance();
 
-    // Update user's wallet data
-    user.wallet = {
-      ...user.wallet,
-      balance: updatedBalance,
-      recentTransactions: [
-        newTransaction,
-        ...(user?.wallet?.recentTransactions || [])
-      ]
-    };
-
-    // Reset form and close modal
-    setAmount('');
-    setError('');
-    setShowTransactionModal(false);
+      // Reset form and close modal
+      setShowTransactionModal(false);
+      setError('');
+    } catch (err) {
+      setError(err.message || 'Transaction failed');
+    } finally {
+      setTransactionLoading(false);
+    }
   };
 
   return (
     <div className="container mx-auto px-4 py-8">
-      {/* Transaction Modal */}
-      {showTransactionModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 w-full max-w-md">
-            <div className="flex justify-between items-center mb-4">
-              <h3 className="text-xl font-semibold">
-                {transactionType === 'deposit' ? 'Deposit Funds' : 'Withdraw Funds'}
-              </h3>
-              <button 
-                onClick={() => {
-                  setShowTransactionModal(false);
-                  setError('');
-                  setAmount('');
-                }}
-                className="text-gray-500 hover:text-gray-700"
-              >
-                <X size={24} />
-              </button>
-            </div>
+      <TransactionModal
+        showModal={showTransactionModal}
+        setShowModal={setShowTransactionModal}
+        transactionType={transactionType}
+        handleTransaction={handleTransaction}
+        loading={transactionLoading}
+        error={error}
+      />
 
-            <div className="mb-4">
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Amount
-              </label>
-              <div className="relative">
-                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">$</span>
-                <input
-                  type="number"
-                  value={amount}
-                  onChange={(e) => setAmount(e.target.value)}
-                  placeholder="0.00"
-                  className="w-full pl-8 pr-4 py-2 border border-gray-300 rounded-md focus:ring-primary-500 focus:border-primary-500"
-                  min="0"
-                  step="0.01"
-                />
-              </div>
-              {error && (
-                <p className="mt-1 text-sm text-red-600">{error}</p>
-              )}
-            </div>
-
-            <div className="flex justify-end gap-4">
-              <button
-                onClick={() => {
-                  setShowTransactionModal(false);
-                  setError('');
-                  setAmount('');
-                }}
-                className="btn-secondary"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={handleTransaction}
-                className="btn-primary"
-              >
-                {transactionType === 'deposit' ? 'Deposit' : 'Withdraw'}
-              </button>
-            </div>
-          </div>
-        </div>
+      {showWithdrawalSuccess && (
+        <WithdrawalSuccess 
+          amount={withdrawalAmount}
+        />
       )}
 
       <div className="mb-8">
@@ -205,7 +166,7 @@ const DashboardPage = () => {
             <Wallet className="h-10 w-10 text-blue-600" />
             <div className="ml-4">
               <p className="text-sm font-medium text-gray-500">Wallet Balance</p>
-              <p className="text-2xl font-semibold">${user?.wallet?.balance}</p>
+              <p className="text-2xl font-semibold">${balance.toFixed(2)}</p>
             </div>
           </div>
         </div>
@@ -506,7 +467,7 @@ const DashboardPage = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
                 <div className="bg-white p-4 rounded-lg shadow">
                   <p className="text-sm text-gray-500">Current Balance</p>
-                  <p className="text-2xl font-semibold">${user?.wallet?.balance || 0}</p>
+                  <p className="text-2xl font-semibold">${balance.toFixed(2)}</p>
                 </div>
                 <div className="bg-white p-4 rounded-lg shadow">
                   <p className="text-sm text-gray-500">Pending Deposits</p>
