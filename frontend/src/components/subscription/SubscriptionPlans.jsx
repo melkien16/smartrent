@@ -1,56 +1,62 @@
-import React from 'react';
-import { Check, Star } from 'lucide-react';
+import React from "react";
+import { Check, Star } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 const SubscriptionPlans = () => {
+  const navigate = useNavigate();
   const plans = [
     {
-      name: 'Basic',
-      price: 'Free',
-      period: '',
+      name: "Basic",
+      price: "Free",
+      period: "",
       features: [
-        'Basic listing features',
-        'Standard customer support',
-        'Up to 5 active listings',
-        'Basic analytics',
+        "Basic listing features",
+        "Standard customer support",
+        "Up to 5 active listings",
+        "Basic analytics",
       ],
-      buttonText: 'Current Plan',
-      buttonVariant: 'outline',
+      buttonText: "Current Plan",
+      buttonVariant: "outline",
       isCurrent: true,
     },
     {
-      name: 'Premium',
-      price: '$9.99',
-      period: '/month',
+      name: "Premium",
+      price: "$9.99",
+      period: "/month",
       features: [
-        'All Basic features',
-        'Priority customer support',
-        'Unlimited listings',
-        'Advanced analytics',
-        'Featured listings',
-        'Custom branding',
+        "All Basic features",
+        "Priority customer support",
+        "Unlimited listings",
+        "Advanced analytics",
+        "Featured listings",
+        "Custom branding",
       ],
-      buttonText: 'Upgrade to Monthly',
-      buttonVariant: 'primary',
+      buttonText: "Upgrade to Monthly",
+      buttonVariant: "primary",
       isPopular: true,
     },
     {
-      name: 'Premium',
-      price: '$99.99',
-      period: '/year',
+      name: "Premium",
+      price: "$99.99",
+      period: "/year",
       features: [
-        'All Premium features',
-        'Priority customer support',
-        'Unlimited listings',
-        'Advanced analytics',
-        'Featured listings',
-        'Custom branding',
-        '2 months free',
+        "All Premium features",
+        "Priority customer support",
+        "Unlimited listings",
+        "Advanced analytics",
+        "Featured listings",
+        "Custom branding",
+        "2 months free",
       ],
-      buttonText: 'Upgrade to Yearly',
-      buttonVariant: 'primary',
+      buttonText: "Upgrade to Yearly",
+      buttonVariant: "primary",
       isPopular: false,
     },
   ];
+
+  const handleSubscribe = (plan) => {
+    navigate("/subscribe", { state: { plan } });
+  };
 
   return (
     <div className="py-12 bg-gray-50">
@@ -69,7 +75,9 @@ const SubscriptionPlans = () => {
             <div
               key={plan.name + plan.period}
               className={`relative rounded-lg border bg-white p-8 shadow-sm ${
-                plan.isPopular ? 'border-primary-500 ring-2 ring-primary-500' : 'border-gray-200'
+                plan.isPopular
+                  ? "border-primary-500 ring-2 ring-primary-500"
+                  : "border-gray-200"
               }`}
             >
               {plan.isPopular && (
@@ -82,10 +90,16 @@ const SubscriptionPlans = () => {
               )}
 
               <div className="text-center">
-                <h3 className="text-lg font-medium text-gray-900">{plan.name}</h3>
+                <h3 className="text-lg font-medium text-gray-900">
+                  {plan.name}
+                </h3>
                 <div className="mt-4 flex items-baseline justify-center">
-                  <span className="text-4xl font-bold text-gray-900">{plan.price}</span>
-                  <span className="ml-1 text-lg text-gray-500">{plan.period}</span>
+                  <span className="text-4xl font-bold text-gray-900">
+                    {plan.price}
+                  </span>
+                  <span className="ml-1 text-lg text-gray-500">
+                    {plan.period}
+                  </span>
                 </div>
               </div>
 
@@ -101,10 +115,11 @@ const SubscriptionPlans = () => {
               <div className="mt-8">
                 <button
                   className={`w-full rounded-md px-4 py-2 text-sm font-medium ${
-                    plan.buttonVariant === 'primary'
-                      ? 'bg-primary-500 text-white hover:bg-primary-600'
-                      : 'border border-gray-300 bg-white text-gray-700 hover:bg-gray-50'
+                    plan.buttonVariant === "primary"
+                      ? "bg-primary-500 text-white hover:bg-primary-600"
+                      : "border border-gray-300 bg-white text-gray-700 hover:bg-gray-50"
                   }`}
+                  onClick={() => handleSubscribe(plan)}
                 >
                   {plan.buttonText}
                 </button>

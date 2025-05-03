@@ -130,7 +130,7 @@ const DashboardPage = () => {
           user={user}
         />;
       case 'subscription':
-        return <Subscription />;
+        return <SubscriptionPlans />;
       default:
         return <div>Coming soon</div>;
     }
