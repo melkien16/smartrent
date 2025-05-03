@@ -9,7 +9,7 @@
     "client": "npm start --prefix frontend",
     "dev": "concurrently \"npm run server\" \"npm run client\"",
     "data:import": "node backend/seeders/seedUser.js",
-    "data:destroy": "node backend/seeders/seedUser.js -d",
+    "data:destroy": "node backend/seeders/seedUser.js -d"
   },
   "keywords": [],
   "author": "Rent Smart",
