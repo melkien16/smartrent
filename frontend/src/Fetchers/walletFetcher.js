@@ -35,7 +35,11 @@ export const createWallet = async () => {
 };
 
 // Credit wallet
-export const creditWallet = async (amount) => {
+export const creditWallet = async (amount, userId) => {
+  if (!userId) {
+    throw new Error("User ID is required for wallet operations");
+  }
+
   try {
     const response = await axios.put(
       `${API_URL}/${userId}/credit`,
@@ -52,7 +56,11 @@ export const creditWallet = async (amount) => {
 };
 
 // Debit wallet
-export const debitWallet = async (amount) => {
+export const debitWallet = async (amount, userId) => {
+  if (!userId) {
+    throw new Error("User ID is required for wallet operations");
+  }
+
   try {
     const response = await axios.put(
       `${API_URL}/${userId}/debit`,

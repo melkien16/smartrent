@@ -45,7 +45,7 @@ const PaymentPage = () => {
     try {
       // Deduct amount from balance
       const success = await deductFunds(booking.totalAmount);
-      
+
       if (!success) {
         throw new Error('Payment failed. Please check your balance.');
       }
@@ -58,7 +58,7 @@ const PaymentPage = () => {
 
       // Update booking status to 'confirmed'
       await updateBookingStatus(booking._id, 'confirmed');
-      
+
       // Refresh balance after payment
       await fetchBalance();
     } catch (error) {
@@ -199,10 +199,14 @@ const PaymentPage = () => {
       />
 
       {showPaymentSuccess && (
-        <WithdrawalSuccess 
+        <WithdrawalSuccess
           amount={paymentAmount}
           message="Payment Successful!"
           description="Your booking has been confirmed and payment has been processed."
+          onClose={() => {
+            setShowPaymentSuccess(false);
+            navigate('/dashboard?tab=rentals');
+          }}
         />
       )}
     </div>

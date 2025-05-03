@@ -13,6 +13,8 @@ export const BalanceProvider = ({ children }) => {
   const [error, setError] = useState(null);
 
   const fetchBalance = async () => {
+    if (!user?._id) return;
+
     setLoading(true);
     try {
       try {
@@ -35,12 +37,12 @@ export const BalanceProvider = ({ children }) => {
   };
 
   const addFunds = async (amount) => {
-    if (!user) return false;
+    if (!user?._id) return false;
 
     setLoading(true);
     try {
       try {
-        const updatedWallet = await creditWallet(amount);
+        const updatedWallet = await creditWallet(amount, user._id);
         setBalance(updatedWallet.balance);
         return true;
       } catch (err) {
@@ -48,7 +50,7 @@ export const BalanceProvider = ({ children }) => {
           // Create a new wallet if it doesn't exist
           const newWallet = await createWallet();
           // Try crediting again
-          const updatedWallet = await creditWallet(amount);
+          const updatedWallet = await creditWallet(amount, user._id);
           setBalance(updatedWallet.balance);
           return true;
         } else {
@@ -64,11 +66,11 @@ export const BalanceProvider = ({ children }) => {
   };
 
   const deductFunds = async (amount) => {
-    if (!user) return false;
+    if (!user?._id) return false;
 
     setLoading(true);
     try {
-      const updatedWallet = await debitWallet(amount);
+      const updatedWallet = await debitWallet(amount, user._id);
       setBalance(updatedWallet.balance);
       return true;
     } catch (err) {

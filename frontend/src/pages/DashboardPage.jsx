@@ -33,13 +33,13 @@ import Subscription from '../components/dashboard/Subscription';
 const DashboardPage = () => {
   const { user, loading: authLoading, isAuthenticated } = useAuth();
   const { balance, addFunds, deductFunds, fetchBalance } = useBalance();
-  const { 
-    userListedItems, 
-    userRentedItems, 
-    activeRentals, 
-    activeListings, 
-    totalEarnings, 
-    pendingRequests 
+  const {
+    userListedItems,
+    userRentedItems,
+    activeRentals,
+    activeListings,
+    totalEarnings,
+    pendingRequests
   } = useUserStats(user);
 
   const {
@@ -51,7 +51,9 @@ const DashboardPage = () => {
     transactionLoading,
     error,
     showWithdrawalSuccess,
-    withdrawalAmount
+    withdrawalAmount,
+    handleCloseWithdrawalSuccess,
+    resetTransactionState
   } = useTransaction();
 
   const navigate = useNavigate();
@@ -106,7 +108,7 @@ const DashboardPage = () => {
   const renderTabContent = () => {
     switch (activeTab) {
       case 'overview':
-        return <Overview 
+        return <Overview
           stats={{ userListedItems, userRentedItems, activeRentals, activeListings, totalEarnings, pendingRequests }}
           user={user}
           setActiveTab={setActiveTab}
@@ -114,16 +116,16 @@ const DashboardPage = () => {
           setShowTransactionModal={setShowTransactionModal}
         />;
       case 'rentals':
-        return <Rentals 
-          userRentedItems={userRentedItems} 
-          setActiveTab={setActiveTab} 
+        return <Rentals
+          userRentedItems={userRentedItems}
+          setActiveTab={setActiveTab}
         />;
       case 'listings':
-        return <Listings 
-          userListedItems={userListedItems} 
+        return <Listings
+          userListedItems={userListedItems}
         />;
       case 'wallet':
-        return <WalletComponent 
+        return <WalletComponent
           balance={balance}
           setTransactionType={setTransactionType}
           setShowTransactionModal={setShowTransactionModal}
@@ -141,10 +143,10 @@ const DashboardPage = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="flex flex-col lg:flex-row gap-8">
           {/* Sidebar Navigation */}
-          <TabNavigation 
-            tabs={tabs} 
-            activeTab={activeTab} 
-            setActiveTab={setActiveTab} 
+          <TabNavigation
+            tabs={tabs}
+            activeTab={activeTab}
+            setActiveTab={setActiveTab}
           />
 
           {/* Main Content */}
@@ -162,11 +164,13 @@ const DashboardPage = () => {
         handleTransaction={handleTransaction}
         loading={transactionLoading}
         error={error}
+        resetTransactionState={resetTransactionState}
       />
 
       {showWithdrawalSuccess && (
-        <WithdrawalSuccess 
+        <WithdrawalSuccess
           amount={withdrawalAmount}
+          onClose={handleCloseWithdrawalSuccess}
         />
       )}
     </div>
