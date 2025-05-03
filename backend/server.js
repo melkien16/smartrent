@@ -2,6 +2,8 @@ import express from "express";
 import dotenv from "dotenv";
 import cookieParser from "cookie-parser";
 import cors from "cors";
+import path from "path";
+import { fileURLToPath } from "url";
 
 import UserRouter from "./routes/user.routes.js";
 import ItemRouter from "./routes/item.routes.js";
@@ -12,31 +14,29 @@ import CollateralRouter from "./routes/collaterall.routes.js";
 import ReportRouter from "./routes/report.routes.js";
 import { notFound, errorHandler } from "./middleware/errorMiddleware.js";
 
-dotenv.config();
-
 import connectDb from "./config/db.js";
 
-const PORT = process.env.PORT || 5000;
-
+dotenv.config();
 connectDb();
 
 const app = express();
-app.use(cors({
-  origin: process.env.CLIENT_URL,
-  credentials: true,
-}));
 
-// Body parser middleware
+app.use(
+  cors({
+    origin: process.env.CLIENT_URL,
+    credentials: true,
+  })
+);
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-
-// Cookie parser middleware
 app.use(cookieParser());
 
 app.get("/api", (_, res) => {
   res.send("API is running...");
 });
 
+// API Routes
 app.use("/api/users", UserRouter);
 app.use("/api/items", ItemRouter);
 app.use("/api/wallets", WalletRouter);
@@ -45,9 +45,22 @@ app.use("/api/subscriptions", SubscriptionRouter);
 app.use("/api/collaterals", CollateralRouter);
 app.use("/api/reports", ReportRouter);
 
+// Serve React Frontend (in production)
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+const frontendPath = path.resolve(__dirname, "../frontend/build");
+app.use(express.static(frontendPath));
+
+app.get("*", (req, res) => {
+  res.sendFile(path.join(frontendPath, "index.html"));
+});
+
+// Error Handling
 app.use(notFound);
 app.use(errorHandler);
 
+const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });

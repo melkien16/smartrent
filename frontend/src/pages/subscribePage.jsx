@@ -52,11 +52,7 @@ const SubscribePage = () => {
     const subscriptionType = plan.name.toLowerCase();
 
     const subscriptionData = {
-<<<<<<< HEAD
-      type: "premium",
-=======
       type: subscriptionType,
->>>>>>> 842ae5523c8e2b59104de532d416d1226f6b8c94
       startDate: now.toISOString().slice(0, 10),
       endDate: endDate.toISOString().slice(0, 10),
     };
