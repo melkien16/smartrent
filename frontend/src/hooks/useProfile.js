@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { toast } from 'react-hot-toast';
 import { getUserProfile } from '../Fetchers/userDataFetcher';
+import { fetchItemsByOwner } from '../Fetchers/itemFetcher';
 import { mockRentals } from '../data/mockRentals';
 
 export const useProfile = () => {
@@ -20,8 +21,11 @@ export const useProfile = () => {
             try {
                 if (isOwnProfile) {
                     const userData = await getUserProfile();
+                    console.log('User Profile Data:', userData);
                     setProfileUser(userData);
-                    setUserItems(userData.items || []);
+                    const items = await fetchItemsByOwner();
+                    console.log('Fetched Items:', items);
+                    setUserItems(items);
                 }
             } catch (error) {
                 console.error('Error fetching user data:', error);

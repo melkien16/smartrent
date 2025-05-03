@@ -13,15 +13,17 @@ async function fetchItems() {
   }
 }
 
-const userId = JSON.parse(localStorage.getItem('smartRentUser'))?._id;
+
 // Function to fetch items by owner ID
 async function fetchItemsByOwner() {
   try {
-    const response = await axios.get(`${BASE_URL}/items`);
+    const userId = JSON.parse(localStorage.getItem('smartRentUser'))?._id;
+    const response = await axios.get(`${BASE_URL}/items`, {
+      withCredentials: true
+    });
     const items = response.data;
-
     // Filter items by owner ID
-    const ownerItems = items.filter(item => item.owner === userId);
+    const ownerItems = items.filter(item => item.owner._id === userId);
     console.log(`Fetched ${ownerItems.length} items for owner ${userId}`);
     return ownerItems;
   } catch (error) {
@@ -34,7 +36,10 @@ async function fetchItemsByOwner() {
 async function createItem(itemData) {
   try {
     const response = await axios.post(`${BASE_URL}/items`, itemData, {
-      withCredentials: true
+      withCredentials: true,
+      headers: {
+        'Content-Type': 'application/json'
+      }
     });
     console.log("Created new item:", response.data);
     return response.data;

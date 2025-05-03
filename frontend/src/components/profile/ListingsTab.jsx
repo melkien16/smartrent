@@ -3,6 +3,8 @@ import ItemGrid from '../../components/items/ItemGrid';
 import { Package } from 'lucide-react';
 
 const ListingsTab = ({ userItems }) => {
+  console.log('ListingsTab received items:', userItems);
+
   return (
     <div>
       <h2 className="mb-4 text-xl font-semibold text-gray-900">

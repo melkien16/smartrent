@@ -15,31 +15,30 @@ const ItemCard = ({ item }) => {
   const handleFavoriteClick = (e) => {
     e.preventDefault();
     e.stopPropagation();
-    
+
     if (!isAuthenticated) {
       navigate('/auth');
       return;
     }
-    
-    toggleFavorite(item.id);
+
+    toggleFavorite(item._id);
   };
 
   return (
     <div className="group animate-fade-in">
       <Link to={`/item/${item._id}`} className="block overflow-hidden">
         <div className="relative aspect-[4/3] overflow-hidden rounded-lg bg-gray-200">
-          <img 
-            src={item.images[0]} 
+          <img
+            src={item.images[0]}
             alt={item.title}
             className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
           />
           <button
             onClick={handleFavoriteClick}
-            className={`absolute right-3 top-3 rounded-full bg-white p-1.5 shadow-sm transition-colors ${
-              isFavorite(item.id) ? 'text-red-500' : 'text-gray-400 hover:text-gray-600'
-            }`}
+            className={`absolute right-3 top-3 rounded-full bg-white p-1.5 shadow-sm transition-colors ${isFavorite(item._id) ? 'text-red-500' : 'text-gray-400 hover:text-gray-600'
+              }`}
           >
-            <Heart size={18} fill={isFavorite(item.id) ? 'currentColor' : 'none'} />
+            <Heart size={18} fill={isFavorite(item._id) ? 'currentColor' : 'none'} />
           </button>
           {category && (
             <div className={`absolute left-3 top-3 rounded-full px-2.5 py-1 text-xs font-medium ${category.color}`}>
