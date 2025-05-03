@@ -31,20 +31,35 @@ export const useTransaction = () => {
                 const success = await addFunds(numericAmount);
                 if (!success) throw new Error('Failed to deposit funds');
                 toast.success('Deposit successful!');
+                setShowTransactionModal(false);
             } else {
                 const success = await deductFunds(numericAmount);
                 if (!success) throw new Error('Failed to withdraw funds');
                 setWithdrawalAmount(numericAmount);
                 setShowWithdrawalSuccess(true);
+                setShowTransactionModal(false);
             }
 
             await fetchBalance();
-            setShowTransactionModal(false);
         } catch (err) {
             setError(err.message || 'Transaction failed');
+            // Don't close the modal on error, let the user try again
         } finally {
             setTransactionLoading(false);
         }
+    };
+
+    const handleCloseWithdrawalSuccess = () => {
+        setShowWithdrawalSuccess(false);
+        setWithdrawalAmount(0);
+    };
+
+    const resetTransactionState = () => {
+        setShowTransactionModal(false);
+        setTransactionType('deposit');
+        setError('');
+        setTransactionLoading(false);
+        setAmount('');
     };
 
     return {
@@ -57,5 +72,7 @@ export const useTransaction = () => {
         error,
         showWithdrawalSuccess,
         withdrawalAmount,
+        handleCloseWithdrawalSuccess,
+        resetTransactionState
     };
 }; 

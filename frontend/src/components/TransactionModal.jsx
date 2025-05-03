@@ -8,12 +8,14 @@ const TransactionModal = ({
   handleTransaction,
   loading,
   error,
+  resetTransactionState
 }) => {
   const [amount, setAmount] = useState("");
 
   const handleClose = () => {
-    setShowModal(false);
-    setAmount("");
+    if (!loading) {
+      resetTransactionState();
+    }
   };
 
   return (

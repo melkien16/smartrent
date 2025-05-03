@@ -1,14 +1,12 @@
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
-import { CheckCircle, Home } from 'lucide-react';
+import { CheckCircle, X } from 'lucide-react';
 
-const WithdrawalSuccess = ({ 
-  amount, 
-  message = "Withdrawal Successful!", 
-  description = "has been withdrawn from your account." 
+const WithdrawalSuccess = ({
+  amount,
+  message = "Withdrawal Successful!",
+  description = "has been withdrawn from your account.",
+  onClose
 }) => {
-  const navigate = useNavigate();
-
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
       <div className="bg-white rounded-lg p-6 w-full max-w-md">
@@ -19,11 +17,11 @@ const WithdrawalSuccess = ({
             ${amount.toFixed(2)} {description}
           </p>
           <button
-            onClick={() => navigate('/')}
+            onClick={onClose}
             className="btn-primary flex items-center justify-center gap-2 mx-auto"
           >
-            <Home className="h-5 w-5" />
-            Return to Home
+            <X className="h-5 w-5" />
+            Close
           </button>
         </div>
       </div>

@@ -1,7 +1,7 @@
 import React from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import BASE_URL from "../../constants/baseUrl";
-import { toast } from "react-toastify";
+import toast from "react-hot-toast";
 import axios from "axios";
 
 const addMonths = (date, months) => {
@@ -48,8 +48,15 @@ const SubscribePage = () => {
   }
 
   const handleConfirm = async () => {
+    // Convert plan name to lowercase for backend validation
+    const subscriptionType = plan.name.toLowerCase();
+
     const subscriptionData = {
+<<<<<<< HEAD
       type: "premium",
+=======
+      type: subscriptionType,
+>>>>>>> 842ae5523c8e2b59104de532d416d1226f6b8c94
       startDate: now.toISOString().slice(0, 10),
       endDate: endDate.toISOString().slice(0, 10),
     };

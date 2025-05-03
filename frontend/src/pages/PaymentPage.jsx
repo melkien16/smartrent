@@ -7,13 +7,14 @@ import { useBalance } from '../context/BalanceContext';
 import { toast } from 'react-hot-toast';
 import TransactionModal from '../components/TransactionModal';
 import WithdrawalSuccess from '../components/WithdrawalSuccess';
+import { debitWallet } from '../Fetchers/walletFetcher';
 
 const PaymentPage = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { isAuthenticated } = useAuth();
   const { updateBookingStatus } = useBooking();
-  const { balance, deductFunds, addFunds, fetchBalance } = useBalance();
+  const { balance, fetchBalance } = useBalance();
   const [loading, setLoading] = useState(false);
   const [showDepositModal, setShowDepositModal] = useState(false);
   const [transactionError, setTransactionError] = useState('');
@@ -30,7 +31,7 @@ const PaymentPage = () => {
     }
 
     if (!booking) {
-      navigate('/bookings');
+      navigate('/dashboard?tab=rentals');
       return;
     }
 
@@ -41,28 +42,40 @@ const PaymentPage = () => {
   const handlePayment = async (e) => {
     e.preventDefault();
     setLoading(true);
+    setTransactionError('');
 
     try {
-      // Deduct amount from balance
-      const success = await deductFunds(booking.totalAmount);
-      
+      // Check if user has sufficient balance
+      if (balance < booking.totalAmount) {
+        throw new Error('Insufficient balance. Please add funds to your account.');
+      }
+
+      // Get user ID from auth context
+      const user = JSON.parse(localStorage.getItem('smartRentUser'));
+      if (!user?._id) {
+        throw new Error('User not authenticated');
+      }
+
+      // Deduct amount from wallet
+      const success = await debitWallet(booking.totalAmount, user._id);
       if (!success) {
-        throw new Error('Payment failed. Please check your balance.');
+        throw new Error('Payment failed. Please try again.');
       }
 
       // Store payment amount and show success modal
       setPaymentAmount(booking.totalAmount);
       setShowPaymentSuccess(true);
 
-      console.log("Payment successful:", booking);
-
       // Update booking status to 'confirmed'
       await updateBookingStatus(booking._id, 'confirmed');
-      
+
       // Refresh balance after payment
       await fetchBalance();
+
+      toast.success('Payment successful!');
     } catch (error) {
-      toast.error(error.message || 'Payment failed. Please try again.');
+      setTransactionError(error.message);
+      toast.error(error.message);
     } finally {
       setLoading(false);
     }
@@ -100,10 +113,10 @@ const PaymentPage = () => {
           <h2 className="mt-4 text-xl font-semibold text-gray-900">No Booking Found</h2>
           <p className="mt-2 text-gray-600">Please select a booking to proceed with payment.</p>
           <button
-            onClick={() => navigate('/bookings')}
+            onClick={() => navigate('/dashboard?tab=rentals')}
             className="mt-4 rounded-lg bg-primary-500 px-4 py-2 text-white hover:bg-primary-600"
           >
-            View Bookings
+            View Rentals
           </button>
         </div>
       </div>
@@ -158,6 +171,12 @@ const PaymentPage = () => {
               )}
             </div>
 
+            {transactionError && (
+              <div className="mb-4 rounded-lg bg-red-50 p-4 text-sm text-red-600">
+                {transactionError}
+              </div>
+            )}
+
             <button
               onClick={handlePayment}
               disabled={loading || balance < booking.totalAmount}
@@ -199,10 +218,14 @@ const PaymentPage = () => {
       />
 
       {showPaymentSuccess && (
-        <WithdrawalSuccess 
+        <WithdrawalSuccess
           amount={paymentAmount}
           message="Payment Successful!"
           description="Your booking has been confirmed and payment has been processed."
+          onClose={() => {
+            setShowPaymentSuccess(false);
+            navigate('/dashboard?tab=rentals');
+          }}
         />
       )}
     </div>
