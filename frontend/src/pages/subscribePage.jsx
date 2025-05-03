@@ -48,11 +48,11 @@ const SubscribePage = () => {
   }
 
   const handleConfirm = async () => {
+    // Convert plan name to lowercase for backend validation
+    const subscriptionType = plan.name.toLowerCase();
+
     const subscriptionData = {
-      planName: plan.name,
-      price: plan.price,
-      period: plan.period,
-      features: plan.features,
+      type: subscriptionType,
       startDate: now.toISOString().slice(0, 10),
       endDate: endDate.toISOString().slice(0, 10),
     };
