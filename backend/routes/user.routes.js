@@ -21,6 +21,10 @@ router
   .route("/profile")
   .get(protect, getUserProfile)
   .put(protect, updateUserProfile);
+
+router.route("/").post(registerUser).get(protect, admin, getUsers);
+
+// PUT these after all the specific ones
 router
   .route("/:id")
   .delete(protect, admin, deleteUser)
