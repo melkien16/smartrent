@@ -23,7 +23,7 @@ const app = express();
 
 app.use(
   cors({
-    origin: process.env.CLIENT_URL,
+    origin: "process.env.CLIENT_URL",
     credentials: true,
   })
 );
@@ -44,17 +44,6 @@ app.use("/api/bookings", BookindRouter);
 app.use("/api/subscriptions", SubscriptionRouter);
 app.use("/api/collaterals", CollateralRouter);
 app.use("/api/reports", ReportRouter);
-
-// Serve React Frontend (in production)
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
-const frontendPath = path.resolve(__dirname, "../frontend/build");
-app.use(express.static(frontendPath));
-
-app.get("*", (req, res) => {
-  res.sendFile(path.join(frontendPath, "index.html"));
-});
 
 // Error Handling
 app.use(notFound);
