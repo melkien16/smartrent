@@ -21,9 +21,13 @@ export const getWalletByUserId = async (userId) => {
 // Create a new wallet
 export const createWallet = async () => {
   try {
-    const response = await axios.post(API_URL, {
-      withCredentials: true,
-    });
+    const response = await axios.post(
+      API_URL,
+      {},
+      {
+        withCredentials: true,
+      }
+    );
     return response.data;
   } catch (error) {
     throw error.response?.data || { message: "Error creating wallet" };

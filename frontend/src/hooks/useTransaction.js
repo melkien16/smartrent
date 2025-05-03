@@ -24,6 +24,8 @@ export const useTransaction = () => {
         }
 
         setTransactionLoading(true);
+        setError('');
+
         try {
             if (transactionType === 'deposit') {
                 const success = await addFunds(numericAmount);
@@ -38,7 +40,6 @@ export const useTransaction = () => {
 
             await fetchBalance();
             setShowTransactionModal(false);
-            setError('');
         } catch (err) {
             setError(err.message || 'Transaction failed');
         } finally {
