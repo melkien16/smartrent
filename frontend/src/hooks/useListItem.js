@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useCategories } from '../context/CategoryContext';
+import { createItem } from '../Fetchers/itemFetcher';
 
 export const useListItem = () => {
     const { isAuthenticated, user } = useAuth();
@@ -99,7 +100,7 @@ export const useListItem = () => {
         setError('');
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
 
         if (formData.images.length === 0) {
@@ -112,21 +113,30 @@ export const useListItem = () => {
 
         setIsSubmitting(true);
 
-        setTimeout(() => {
-            console.log({
-                ...formData,
+        try {
+            const itemData = {
+                title: formData.title,
+                description: formData.description,
                 price: Number(formData.price),
+                priceUnit: formData.priceUnit || 'day',
+                location: formData.location,
+                images: formData.images.map(img => img.url),
+                category: formData.category,
                 features: filteredFeatures,
                 rules: filteredRules,
-                owner: {
-                    id: user.id,
-                    name: user.name,
-                },
-            });
+                availability: 'Now',
+                rating: 0,
+                reviews: 0
+            };
 
+            await createItem(itemData);
             setStep(4);
+        } catch (error) {
+            setError('Failed to create item. Please try again.');
+            console.error('Error creating item:', error);
+        } finally {
             setIsSubmitting(false);
-        }, 1000);
+        }
     };
 
     const handlers = {

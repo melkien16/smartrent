@@ -16,7 +16,7 @@ const SuccessMessage = React.memo(() => {
       </p>
       <div className="flex flex-col space-y-4 sm:flex-row sm:justify-center sm:space-x-4 sm:space-y-0">
         <button
-          onClick={() => navigate('/profile/me')}
+          onClick={() => navigate('/profile')}
           className="btn-primary"
         >
           View My Listings
