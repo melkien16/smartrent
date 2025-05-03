@@ -49,10 +49,7 @@ const SubscribePage = () => {
 
   const handleConfirm = async () => {
     const subscriptionData = {
-      planName: plan.name,
-      price: plan.price,
-      period: plan.period,
-      features: plan.features,
+      type: "premium",
       startDate: now.toISOString().slice(0, 10),
       endDate: endDate.toISOString().slice(0, 10),
     };
