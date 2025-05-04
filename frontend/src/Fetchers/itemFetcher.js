@@ -37,9 +37,6 @@ async function createItem(itemData) {
   try {
     const response = await axios.post(`${BASE_URL}/items`, itemData, {
       withCredentials: true,
-      headers: {
-        'Content-Type': 'application/json'
-      }
     });
     console.log("Created new item:", response.data);
     return response.data;

@@ -15,12 +15,10 @@ export const getMySubscription = async () => {
 };
 
 // Create or update a subscription
-export const createOrUpdateSubscription = async (subscriptionData, token) => {
+export const createOrUpdateSubscription = async (subscriptionData) => {
     try {
         const response = await axios.post(`${BASE_URL}/subscriptions`, subscriptionData, {
-            headers: {
-                Authorization: `Bearer ${token}`,
-            },
+            withCredentials: true,
         });
         return response.data;
     } catch (error) {
@@ -30,15 +28,12 @@ export const createOrUpdateSubscription = async (subscriptionData, token) => {
 };
 
 // Deactivate a subscription (admin only)
-export const deactivateSubscription = async (subscriptionId, token) => {
+export const deactivateSubscription = async (subscriptionId) => {
     try {
         const response = await axios.put(
             `${BASE_URL}/subscriptions/${subscriptionId}/deactivate`,
-            {},
             {
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                },
+                withCredentials: true,
             }
         );
         return response.data;
@@ -52,9 +47,7 @@ export const deactivateSubscription = async (subscriptionId, token) => {
 export const checkExpiredSubscriptions = async (token) => {
     try {
         const response = await axios.get(`${BASE_URL}/subscriptions/check-expired`, {
-            headers: {
-                Authorization: `Bearer ${token}`,
-            },
+            withCredentials: true,
         });
         return response.data;
     } catch (error) {

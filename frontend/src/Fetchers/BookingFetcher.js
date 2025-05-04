@@ -7,9 +7,6 @@ async function fetchBookingsByUser() {
         const userId = JSON.parse(localStorage.getItem('smartRentUser'))?._id;
         const response = await axios.get(`${BASE_URL}/bookings/user/${userId}`, {
             withCredentials: true,
-            headers: {
-                'Content-Type': 'application/json'
-            }
         });
         console.log(`Fetched ${response.data.length} bookings for user ${userId}`);
         return response.data;
