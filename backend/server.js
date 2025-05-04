@@ -26,14 +26,20 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 app.use(
-  express.static(path.join(__dirname, "dist"), {
+  express.static(path.join(__dirname, "..", "frontend", "dist", "dist"), {
     maxAge: "30d",
     etag: true,
   })
 );
 
 app.get("*", (req, res, next) => {
-  const indexPath = path.resolve(__dirname, "dist", "index.html");
+  const indexPath = path.resolve(
+    __dirname,
+    "..",
+    "frontend",
+    "dist",
+    "index.html"
+  );
   res.sendFile(indexPath, (err) => {
     if (err) next(err);
   });
