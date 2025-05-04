@@ -19,10 +19,9 @@ connectDb();
 
 const app = express();
 
-
 app.use(
   cors({
-    origin: "https://smartrent-render-21.onrender.com",
+    origin: "https://smartrent-render-21.onrender.com/",
     credentials: true,
   })
 );
