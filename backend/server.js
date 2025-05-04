@@ -21,17 +21,26 @@ connectDb();
 
 const app = express();
 
-// Handle ES module __dirname (required for ESM compatibility)
+// Resolve __dirname for ES modules
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// Serve static files from the Vite build folder
-// Make sure you're pointing to the correct location of the dist folder
-app.use(express.static(path.join(__dirname, "dist")));
+// Serve static files from the Vite 'dist' folder with caching
+app.use(
+  express.static(path.join(__dirname, "dist"), {
+    maxAge: "30d", // Cache static assets for 30 days
+    etag: true, // Enable ETag for efficient caching
+  })
+);
 
-// Fallback route for React Router (SPA routing)
-app.get("*", (req, res) => {
-  res.sendFile(path.resolve(__dirname, "dist", "index.html"));
+// Fallback route for SPA routing (React Router)
+app.get("*", (req, res, next) => {
+  const indexPath = path.resolve(__dirname, "dist", "index.html");
+  res.sendFile(indexPath, (err) => {
+    if (err) {
+      next(err); // Forward to error handler
+    }
+  });
 });
 
 app.use(
