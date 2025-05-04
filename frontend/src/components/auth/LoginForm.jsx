@@ -144,12 +144,12 @@ const LoginForm = ({ onToggleForm }) => {
           </div>
         </div>
         <p className="mt-2 text-center text-xs text-gray-500">
-          Demo User: <span className="font-medium">demo@smartrent.com</span> /{" "}
-          <span className="font-medium">demo123</span>
+          Demo User: <span className="font-medium">premium@smartrent.com</span> /{" "}
+          <span className="font-medium">123456</span>
           <br />
           Admin User: <span className="font-medium">
             admin@smartrent.com
-          </span> / <span className="font-medium">admin123</span>
+          </span> / <span className="font-medium">123456</span>
         </p>
       </div>
     </div>
