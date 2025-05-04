@@ -2,8 +2,6 @@ import express from "express";
 import dotenv from "dotenv";
 import cookieParser from "cookie-parser";
 import cors from "cors";
-import path from "path";
-import { fileURLToPath } from "url";
 
 import UserRouter from "./routes/user.routes.js";
 import ItemRouter from "./routes/item.routes.js";
@@ -21,38 +19,10 @@ connectDb();
 
 const app = express();
 
-// Resolve __dirname for ES modules
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
-app.use(
-  express.static(path.join(__dirname, "..", "frontend", "dist", "dist"), {
-    maxAge: "30d",
-    etag: true,
-  })
-);
-
-app.get("*", (req, res, next) => {
-  const indexPath = path.resolve(
-    __dirname,
-    "..",
-    "frontend",
-    "dist",
-    "index.html"
-  );
-  res.sendFile(indexPath, (err) => {
-    if (err) next(err);
-  });
-});
-
-app.use((err, req, res, next) => {
-  console.error(`Error serving file: ${err.message}`);
-  res.status(500).json({ error: "Failed to serve application" });
-});
 
 app.use(
   cors({
-    origin: "https://smartrent-1.onrender.com",
+    origin: "https://smartrent-21.onrender.com",
     credentials: true,
   })
 );
