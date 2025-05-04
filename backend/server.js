@@ -2,8 +2,8 @@ import express from "express";
 import dotenv from "dotenv";
 import cookieParser from "cookie-parser";
 import cors from "cors";
-import path from 'path';
-import { fileURLToPath } from 'url';
+import path from "path";
+import { fileURLToPath } from "url";
 
 import UserRouter from "./routes/user.routes.js";
 import ItemRouter from "./routes/item.routes.js";
@@ -27,11 +27,11 @@ const __dirname = path.dirname(__filename);
 
 // Serve static files from the Vite build folder
 // Make sure you're pointing to the correct location of the dist folder
-app.use(express.static(path.join(__dirname, '/dist')));
+app.use(express.static(path.join(__dirname, "dist")));
 
 // Fallback route for React Router (SPA routing)
-app.get('*', (req, res) => {
-  res.sendFile(path.resolve(__dirname, 'dist', 'index.html'));
+app.get("*", (req, res) => {
+  res.sendFile(path.resolve(__dirname, "dist", "index.html"));
 });
 
 app.use(
