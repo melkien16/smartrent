@@ -25,22 +25,23 @@ const app = express();
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// Serve static files from the Vite 'dist' folder with caching
 app.use(
   express.static(path.join(__dirname, "dist"), {
-    maxAge: "30d", // Cache static assets for 30 days
-    etag: true, // Enable ETag for efficient caching
+    maxAge: "30d",
+    etag: true,
   })
 );
 
-// Fallback route for SPA routing (React Router)
 app.get("*", (req, res, next) => {
   const indexPath = path.resolve(__dirname, "dist", "index.html");
   res.sendFile(indexPath, (err) => {
-    if (err) {
-      next(err); // Forward to error handler
-    }
+    if (err) next(err);
   });
+});
+
+app.use((err, req, res, next) => {
+  console.error(`Error serving file: ${err.message}`);
+  res.status(500).json({ error: "Failed to serve application" });
 });
 
 app.use(
