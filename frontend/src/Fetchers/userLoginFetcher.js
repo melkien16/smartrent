@@ -9,15 +9,11 @@ async function loginUser(email, password) {
         email,
         password,
       },
-      {
-        withCredentials: true,
-      }
+      
     );
 
-    console.log("Login response:", response.data);
     return response.data;
   } catch (error) {
-    console.error("Login error:", error.response?.data || error.message);
     throw error;
   }
 }

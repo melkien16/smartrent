@@ -1,6 +1,6 @@
 const authFetch = async (email, password) => {
     try {
-        const response = await axios.post('http://localhost:5500/api/users/auth', {
+        const response = await axios.post('/api/users/auth', {
             email,
             password
         });

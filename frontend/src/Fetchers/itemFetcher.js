@@ -1,5 +1,5 @@
 import BASE_URL from "../../constants/baseUrl";
-import axios from 'axios';
+import axios from "axios";
 
 // Function to fetch items from the backend
 async function fetchItems() {
@@ -13,21 +13,16 @@ async function fetchItems() {
   }
 }
 
-
 // Function to fetch items by owner ID
 async function fetchItemsByOwner() {
   try {
-    const userId = JSON.parse(localStorage.getItem('smartRentUser'))?._id;
-    const response = await axios.get(`${BASE_URL}/items`, {
-      withCredentials: true
-    });
+    const userId = JSON.parse(localStorage.getItem("smartRentUser"))?._id;
+    const response = await axios.get(`${BASE_URL}/items`);
     const items = response.data;
     // Filter items by owner ID
-    const ownerItems = items.filter(item => item.owner._id === userId);
-    console.log(`Fetched ${ownerItems.length} items for owner ${userId}`);
+    const ownerItems = items.filter((item) => item.owner._id === userId);
     return ownerItems;
   } catch (error) {
-    console.error("Error fetching items by owner:", error);
     throw error;
   }
 }
@@ -35,13 +30,9 @@ async function fetchItemsByOwner() {
 // Function to create a new item
 async function createItem(itemData) {
   try {
-    const response = await axios.post(`${BASE_URL}/items`, itemData, {
-      withCredentials: true,
-    });
-    console.log("Created new item:", response.data);
+    const response = await axios.post(`${BASE_URL}/items`, itemData);
     return response.data;
   } catch (error) {
-    console.error("Error creating item:", error);
     throw error;
   }
 }

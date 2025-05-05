@@ -58,9 +58,7 @@ const SubscribePage = () => {
     };
 
     try {
-      await axios.post(`${BASE_URL}/subscriptions`, subscriptionData, {
-        withCredentials: true,
-      });
+      await axios.post(`${BASE_URL}/subscriptions`, subscriptionData);
       toast.success("Subscription successful!");
       navigate("/");
     } catch (error) {

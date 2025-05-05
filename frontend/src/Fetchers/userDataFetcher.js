@@ -4,12 +4,9 @@ import BASE_URL from "../../constants/baseUrl";
 // Register a new user
 export const registerUser = async (userData) => {
   try {
-    const response = await axios.post(`${BASE_URL}/users`, userData, {
-      withCredentials: true, // 🔐 Important if backend sets auth cookie
-    });
+    const response = await axios.post(`${BASE_URL}/users`, userData);
     return response.data;
   } catch (error) {
-    console.error("Error registering user:", error);
     throw new Error(error.response?.data?.message || "Failed to register user");
   }
 };
@@ -17,12 +14,9 @@ export const registerUser = async (userData) => {
 // Login user
 export const loginUser = async (credentials) => {
   try {
-    const response = await axios.post(`${BASE_URL}/users/auth`, credentials, {
-      withCredentials: true, // 🔐 Required for cookies to work
-    });
+    const response = await axios.post(`${BASE_URL}/users/auth`);
     return response.data;
   } catch (error) {
-    console.error("Error logging in:", error);
     throw new Error(error.response?.data?.message || "Failed to login");
   }
 };
@@ -30,11 +24,8 @@ export const loginUser = async (credentials) => {
 // Logout user
 export const logoutUser = async () => {
   try {
-    await axios.post(`${BASE_URL}/users/logout`, null, {
-      withCredentials: true, // 🔐 Required to include the cookie
-    });
+    await axios.post(`${BASE_URL}/users/logout`);
   } catch (error) {
-    console.error("Error logging out:", error);
     throw new Error(error.response?.data?.message || "Failed to logout");
   }
 };
@@ -42,12 +33,9 @@ export const logoutUser = async () => {
 // Get user profile
 export const getUserProfile = async () => {
   try {
-    const response = await axios.get(`${BASE_URL}/users/profile`, {
-      withCredentials: true,
-    });
+    const response = await axios.get(`${BASE_URL}/users/profile`);
     return response.data;
   } catch (error) {
-    console.error("Error fetching user profile:", error);
     throw new Error(
       error.response?.data?.message || "Failed to fetch user profile"
     );
@@ -57,12 +45,9 @@ export const getUserProfile = async () => {
 // Update user profile
 export const updateUserProfile = async (userData, token) => {
   try {
-    const response = await axios.put(`${BASE_URL}/users/profile`, userData, {
-      withCredentials: true,
-    });
+    const response = await axios.put(`${BASE_URL}/users/profile`, userData);
     return response.data;
   } catch (error) {
-    console.error("Error updating user profile:", error);
     throw new Error(
       error.response?.data?.message || "Failed to update user profile"
     );
@@ -72,12 +57,9 @@ export const updateUserProfile = async (userData, token) => {
 // Get user by ID (admin only)
 export const getUserById = async (userId) => {
   try {
-    const response = await axios.get(`${BASE_URL}/users/${userId}`, {
-      withCredentials: true,
-    });
+    const response = await axios.get(`${BASE_URL}/users/${userId}`);
     return response.data;
   } catch (error) {
-    console.error("Error fetching user by ID:", error);
     throw new Error(error.response?.data?.message || "Failed to fetch user");
   }
 };
@@ -85,12 +67,9 @@ export const getUserById = async (userId) => {
 // Get all users (admin only)
 export const getAllUsers = async () => {
   try {
-    const response = await axios.get(`${BASE_URL}/users`, {
-      withCredentials: true,
-    });
+    const response = await axios.get(`${BASE_URL}/users`);
     return response.data;
   } catch (error) {
-    console.error("Error fetching all users:", error);
     throw new Error(error.response?.data?.message || "Failed to fetch users");
   }
 };
@@ -103,7 +82,6 @@ export const updateUser = async (userId, userData) => {
     });
     return response.data;
   } catch (error) {
-    console.error("Error updating user:", error);
     throw new Error(error.response?.data?.message || "Failed to update user");
   }
 };
@@ -111,11 +89,8 @@ export const updateUser = async (userId, userData) => {
 // Delete user (admin only)
 export const deleteUser = async (userId, token) => {
   try {
-    await axios.delete(`${BASE_URL}/users/${userId}`, {
-      withCredentials: true,
-    });
+    await axios.delete(`${BASE_URL}/users/${userId}`);
   } catch (error) {
-    console.error("Error deleting user:", error);
     throw new Error(error.response?.data?.message || "Failed to delete user");
   }
 };

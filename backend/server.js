@@ -1,7 +1,7 @@
 import express from "express";
 import dotenv from "dotenv";
 import cookieParser from "cookie-parser";
-import cors from "cors";
+import path from "path";
 
 import UserRouter from "./routes/user.routes.js";
 import ItemRouter from "./routes/item.routes.js";
@@ -10,6 +10,7 @@ import BookindRouter from "./routes/booking.routes.js";
 import SubscriptionRouter from "./routes/subscription.routes.js";
 import CollateralRouter from "./routes/collaterall.routes.js";
 import ReportRouter from "./routes/report.routes.js";
+import UploadRouter from "./routes/upload.routes.js";
 import { notFound, errorHandler } from "./middleware/errorMiddleware.js";
 
 import connectDb from "./config/db.js";
@@ -19,20 +20,9 @@ connectDb();
 
 const app = express();
 
-app.use(
-  cors({
-    origin: "https://smartrent-render-21.onrender.com/",
-    credentials: true,
-  })
-);
-
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
-
-app.get("/api", (_, res) => {
-  res.send("API is running...");
-});
 
 // API Routes
 app.use("/api/users", UserRouter);
@@ -42,6 +32,23 @@ app.use("/api/bookings", BookindRouter);
 app.use("/api/subscriptions", SubscriptionRouter);
 app.use("/api/collaterals", CollateralRouter);
 app.use("/api/reports", ReportRouter);
+app.use("/api/upload", UploadRouter);
+
+if (process.env.NODE_ENV === "production") {
+  const __dirname = path.resolve();
+  app.use("/uploads", express.static("/var/data/uploads"));
+  app.use(express.static(path.join(__dirname, "/frontend/dist")));
+
+  app.get("*", (req, res) =>
+    res.sendFile(path.resolve(__dirname, "frontend", "dist", "index.html"))
+  );
+} else {
+  const __dirname = path.resolve();
+  app.use("/uploads", express.static(path.join(__dirname, "/uploads")));
+  app.get("/", (req, res) => {
+    res.send("API is running....");
+  });
+}
 
 // Error Handling
 app.use(notFound);

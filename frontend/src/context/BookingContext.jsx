@@ -57,8 +57,7 @@ export const BookingProvider = ({ children }) => {
       // Post the new booking to the server by axios in BASE_URL/bookings and withCredential
       const response = await axios.post(
         `${BASE_URL}/bookings`,
-        { ...bookingData },
-        { withCredentials: true }
+        { ...bookingData }
       );
       if (response.status !== 201) {
         throw new Error("Failed to create booking");

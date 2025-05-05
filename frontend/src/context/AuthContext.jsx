@@ -28,10 +28,6 @@ export const AuthProvider = ({ children }) => {
   const login = async (email, password) => {
     try {
       const response = await loginUser(email, password);
-      console.log('Login response:', response);
-      console.log('isAdmin value:', response.isAdmin);
-      console.log('isAdmin type:', typeof response.isAdmin);
-      // Save the user data from the API response
       setUser(response);
       localStorage.setItem('smartRentUser', JSON.stringify(response));
       return response;
@@ -57,9 +53,6 @@ export const AuthProvider = ({ children }) => {
   };
 
   const isAdmin = () => {
-    console.log('Current user:', user);
-    console.log('isAdmin check:', user?.isAdmin);
-    console.log('isAdmin type:', typeof user?.isAdmin);
     return user?.isAdmin === true || user?.isAdmin === 'true';
   };
 

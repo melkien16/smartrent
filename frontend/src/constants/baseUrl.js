@@ -1,3 +1,3 @@
-const BASE_URL = "https://smartrent-12.onrender.com/api";
+const BASE_URL = "/api";
 
 export default BASE_URL;
