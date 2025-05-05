@@ -43,10 +43,10 @@ if (process.env.NODE_ENV === "production") {
   // Serve uploads folder (use relative, not absolute, path)
   app.use("/uploads", express.static(path.join(__dirname, "/uploads")));
 
-  // Wildcard route for frontend routing (MUST be last!)
-  app.get("*", (req, res) =>
-    res.sendFile(path.join(__dirname, "/frontend/dist/index.html"))
-  );
+  // // Wildcard route for frontend routing (MUST be last!)
+  // app.get("*", (req, res) =>
+  //   res.sendFile(path.join(__dirname, "/frontend/dist/index.html"))
+  // );
 }
 
 
