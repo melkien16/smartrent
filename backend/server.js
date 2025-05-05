@@ -36,19 +36,19 @@ app.use("/api/upload", UploadRouter);
 
 if (process.env.NODE_ENV === "production") {
   const __dirname = path.resolve();
-  app.use("/uploads", express.static("/var/data/uploads"));
+
+  // Serve static frontend files
   app.use(express.static(path.join(__dirname, "/frontend/dist")));
 
-  app.get("*", (req, res) =>
-    res.sendFile(path.resolve(__dirname, "frontend", "dist", "index.html"))
-  );
-} else {
-  const __dirname = path.resolve();
+  // Serve uploads folder (use relative, not absolute, path)
   app.use("/uploads", express.static(path.join(__dirname, "/uploads")));
-  app.get("/", (req, res) => {
-    res.send("API is running....");
-  });
+
+  // Wildcard route for frontend routing (MUST be last!)
+  app.get("*", (req, res) =>
+    res.sendFile(path.join(__dirname, "/frontend/dist/index.html"))
+  );
 }
+
 
 // Error Handling
 app.use(notFound);
