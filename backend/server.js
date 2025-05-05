@@ -6,7 +6,7 @@ import path from "path";
 import UserRouter from "./routes/user.routes.js";
 import ItemRouter from "./routes/item.routes.js";
 import WalletRouter from "./routes/wallet.routes.js";
-import BookindRouter from "./routes/booking.routes.js";
+import BookingRouter from "./routes/booking.routes.js"; // Fixed typo: BookindRouter -> BookingRouter
 import SubscriptionRouter from "./routes/subscription.routes.js";
 import CollateralRouter from "./routes/collaterall.routes.js";
 import ReportRouter from "./routes/report.routes.js";
@@ -15,11 +15,13 @@ import { notFound, errorHandler } from "./middleware/errorMiddleware.js";
 
 import connectDb from "./config/db.js";
 
+// Load environment variables and connect to database
 dotenv.config();
 connectDb();
 
 const app = express();
 
+// Middleware for parsing JSON, URL-encoded data, and cookies
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
@@ -28,32 +30,42 @@ app.use(cookieParser());
 app.use("/api/users", UserRouter);
 app.use("/api/items", ItemRouter);
 app.use("/api/wallets", WalletRouter);
-app.use("/api/bookings", BookindRouter);
+app.use("/api/bookings", BookingRouter); // Fixed typo in route
 app.use("/api/subscriptions", SubscriptionRouter);
 app.use("/api/collaterals", CollateralRouter);
 app.use("/api/reports", ReportRouter);
 app.use("/api/upload", UploadRouter);
 
+// Production-specific configuration
 if (process.env.NODE_ENV === "production") {
   const __dirname = path.resolve();
 
-  // Serve static frontend files
-  app.use(express.static(path.join(__dirname, "/frontend/dist")));
+  // Serve static frontend files from frontend/dist
+  app.use(express.static(path.resolve(__dirname, "frontend", "dist")));
 
-  // Serve uploads folder (use relative, not absolute, path)
-  app.use("/uploads", express.static(path.join(__dirname, "/uploads")));
+  // Serve uploads folder for static assets
+  app.use("/uploads", express.static(path.resolve(__dirname, "uploads")));
 
-  // // Wildcard route for frontend routing (MUST be last!)
-  // app.get("*", (req, res) =>
-  //   res.sendFile(path.join(__dirname, "/frontend/dist/index.html"))
-  // );
+  // Wildcard route for SPA routing (serves index.html for non-API routes)
+  app.get("*", (req, res, next) => {
+    // Skip API routes to avoid conflicts
+    if (
+      req.originalUrl.startsWith("/api") ||
+      req.originalUrl.startsWith("/uploads")
+    ) {
+      return next();
+    }
+    // Optional: Log requests for debugging (can be removed later)
+    console.log(`Serving index.html for: ${req.originalUrl}`);
+    res.sendFile(path.resolve(__dirname, "frontend", "dist", "index.html"));
+  });
 }
 
-
-// Error Handling
+// Error Handling Middleware
 app.use(notFound);
 app.use(errorHandler);
 
+// Start the server
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
