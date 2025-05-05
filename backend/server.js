@@ -44,20 +44,18 @@ if (process.env.NODE_ENV === "production") {
   app.use(express.static(path.resolve(__dirname, "frontend", "dist")));
 
   // Serve uploads folder for static assets
-  app.use("/uploads", express.static(path.resolve(__dirname, "uploads")));
+  app.use("/uploads", express.static(path.resolve(__dirname, "Uploads")));
 
-  // Wildcard route for SPA routing (serves index.html for non-API routes)
-  app.get("*", (req, res, next) => {
-    // Skip API routes to avoid conflicts
-    if (
-      req.originalUrl.startsWith("/api") ||
-      req.originalUrl.startsWith("/uploads")
-    ) {
-      return next();
-    }
-    // Optional: Log requests for debugging (can be removed later)
+  // Wildcard route for SPA routing using regex to avoid path-to-regexp issues
+  app.get(/^(?!\/api|\/uploads).*/, (req, res, next) => {
+    // Log request for debugging
     console.log(`Serving index.html for: ${req.originalUrl}`);
-    res.sendFile(path.resolve(__dirname, "frontend", "dist", "index.html"));
+    res.sendFile(path.resolve(__dirname, "frontend", "dist", "index.html"), (err) => {
+      if (err) {
+        console.error(`Error serving index.html: ${err.message}`);
+        next(err);
+      }
+    });
   });
 }
 
