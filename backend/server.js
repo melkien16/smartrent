@@ -46,7 +46,6 @@ if (process.env.NODE_ENV === "production") {
   // Serve uploads folder for static assets
   app.use("/uploads", express.static(path.resolve(__dirname, "Uploads")));
 
-  // Wildcard route for SPA routing using regex to avoid path-to-regexp issues
   app.get(/^(?!\/api|\/uploads).*/, (req, res, next) => {
     res.sendFile(
       path.resolve(__dirname, "frontend", "dist", "index.html"),
