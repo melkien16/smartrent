@@ -18,6 +18,7 @@
   "description": "eCommerce platform for renting day today products build with MERN stack",
   "dependencies": {
     "bcryptjs": "^3.0.2",
+    "cloudinary": "^1.41.3",
     "colors": "^1.4.0",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
@@ -25,7 +26,8 @@
     "express": "^5.1.0",
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.13.1",
-    "multer": "^1.4.5-lts.2"
+    "multer": "^1.4.5-lts.2",
+    "multer-storage-cloudinary": "^4.0.0"
   },
   "devDependencies": {
     "concurrently": "^9.1.2",
