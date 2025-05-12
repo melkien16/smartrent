@@ -14,5 +14,38 @@ async function fetchBookingsByUser() {
   }
 }
 
+// Send a new message
+async function sendMessage(receiverId, message) {
+  try {
+    const response = await axios.post(`${BASE_URL}/messages`, {
+      receiver: receiverId,
+      message,
+    });
+    return response.data;
+  } catch (error) {
+    throw error.response?.data || { message: "Error sending message" };
+  }
+}
+
+// Get messages between two users
+async function getMessages(userId) {
+  try {
+    const response = await axios.get(`${BASE_URL}/messages/${userId}`);
+    return response.data;
+  } catch (error) {
+    throw error.response?.data || { message: "Error fetching messages" };
+  }
+}
+
+// Mark a message as read
+async function markMessageAsRead(messageId) {
+  try {
+    const response = await axios.put(`${BASE_URL}/messages/${messageId}/read`);
+    return response.data;
+  } catch (error) {
+    throw error.response?.data || { message: "Error marking message as read" };
+  }
+}
+
 // Export the functions for use in other files
-export { fetchBookingsByUser };
+export { fetchBookingsByUser, sendMessage, getMessages, markMessageAsRead };

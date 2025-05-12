@@ -2,6 +2,7 @@ import React, { createContext, useState, useContext } from "react";
 import { useAuth } from "./AuthContext";
 import axios from "axios";
 import BASE_URL from "../../constants/baseUrl";
+import { sendMessage } from "../Fetchers/BookingFetcher";
 
 const BookingContext = createContext(null);
 
@@ -62,6 +63,10 @@ export const BookingProvider = ({ children }) => {
       if (response.status !== 201) {
         throw new Error("Failed to create booking");
       }
+
+      // Send a message to the item owner
+      const message = `New booking request for ${bookingData.itemTitle} from ${new Date(bookingData.startDate).toLocaleDateString()} to ${new Date(bookingData.endDate).toLocaleDateString()}`;
+      await sendMessage(bookingData.ownerId, message);
 
       setBookings((prev) => [...prev, newBooking]);
       return newBooking;
