@@ -24,6 +24,21 @@ const sendMessage = asyncHandler(async (req, res) => {
   res.status(201).json(newMessage);
 });
 
+// @desc    Get All recieved messages of a user
+// @route   GET /api/messages
+// @access  Private
+
+const getAllMessages = asyncHandler(async (req, res) => {
+  const userId = req.user._id;
+
+  const messages = await Message.find({ receiver: userId })
+    .populate("sender", "name email")
+    .populate("receiver", "name email")
+    .sort({ createdAt: -1 });
+
+  res.json(messages);
+});
+
 // @desc    Get messages between two users
 // @route   GET /api/messages/:userId
 // @access  Private
@@ -97,4 +112,10 @@ const deleteMessage = asyncHandler(async (req, res) => {
   res.json({ message: "Message deleted" });
 });
 
-export { sendMessage, getMessages, markMessageAsRead, deleteMessage };
+export {
+  sendMessage,
+  getMessages,
+  getAllMessages,
+  markMessageAsRead,
+  deleteMessage,
+};
