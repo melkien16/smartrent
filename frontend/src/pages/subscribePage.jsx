@@ -1,8 +1,10 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import BASE_URL from "../../constants/baseUrl";
 import toast from "react-hot-toast";
 import axios from "axios";
+import { useBalance } from "../context/BalanceContext";
+import { debitWallet } from "../Fetchers/walletFetcher";
 
 const addMonths = (date, months) => {
   const d = new Date(date);
@@ -19,8 +21,25 @@ const addYears = (date, years) => {
 const SubscribePage = () => {
   const { state } = useLocation();
   const navigate = useNavigate();
+  const { balance, fetchBalance } = useBalance();
+  const [loading, setLoading] = useState(false);
+  const [currentSubscription, setCurrentSubscription] = useState(null);
   const plan = state?.plan;
   const now = new Date();
+
+  useEffect(() => {
+    fetchBalance();
+    fetchCurrentSubscription();
+  }, [fetchBalance]);
+
+  const fetchCurrentSubscription = async () => {
+    try {
+      const response = await axios.get(`${BASE_URL}/subscriptions/current`);
+      setCurrentSubscription(response.data);
+    } catch (error) {
+      console.error('Error fetching current subscription:', error);
+    }
+  };
 
   if (!plan) {
     return (
@@ -39,6 +58,25 @@ const SubscribePage = () => {
     );
   }
 
+  // Check if user is trying to subscribe to the same plan
+  const isSamePlan = currentSubscription?.type?.toLowerCase() === plan.name.toLowerCase();
+  if (isSamePlan) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-gray-50">
+        <div className="bg-white p-8 rounded-lg shadow-md text-center">
+          <h1 className="text-2xl font-bold mb-4">Already Subscribed</h1>
+          <p className="mb-4">You are already subscribed to the {plan.name} plan.</p>
+          <button
+            className="px-4 py-2 bg-primary-500 text-white rounded hover:bg-primary-600 transition"
+            onClick={() => navigate("/dashboard")}
+          >
+            Go to Dashboard
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   // Determine end date based on plan
   let endDate = now;
   if (plan.name === "Basic" || plan.period === "/month") {
@@ -48,23 +86,52 @@ const SubscribePage = () => {
   }
 
   const handleConfirm = async () => {
-    // Convert plan name to lowercase for backend validation
-    const subscriptionType = plan.name.toLowerCase();
-
-    const subscriptionData = {
-      type: subscriptionType,
-      startDate: now.toISOString().slice(0, 10),
-      endDate: endDate.toISOString().slice(0, 10),
-    };
-
+    setLoading(true);
     try {
+      // Get subscription price
+      const price = parseFloat(plan.price.replace('$', ''));
+
+      // Check if user has sufficient balance
+      if (balance < price) {
+        toast.error('Insufficient balance. Please add funds to your account.');
+        return;
+      }
+
+      // Get user ID from localStorage
+      const user = JSON.parse(localStorage.getItem('smartRentUser'));
+      if (!user?._id) {
+        throw new Error('User not authenticated');
+      }
+
+      // Deduct amount from wallet
+      const success = await debitWallet(price, user._id);
+      if (!success) {
+        throw new Error('Payment failed. Please try again.');
+      }
+
+      // Convert plan name to lowercase for backend validation
+      const subscriptionType = plan.name.toLowerCase();
+
+      const subscriptionData = {
+        type: subscriptionType,
+        startDate: now.toISOString().slice(0, 10),
+        endDate: endDate.toISOString().slice(0, 10),
+      };
+
+      // Create subscription
       await axios.post(`${BASE_URL}/subscriptions`, subscriptionData);
+
+      // Refresh balance
+      await fetchBalance();
+
       toast.success("Subscription successful!");
-      navigate("/");
+      navigate("/dashboard");
     } catch (error) {
       toast.error(
         error.response?.data?.message || error.message || "Subscription failed"
       );
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -96,14 +163,25 @@ const SubscribePage = () => {
               <span className="font-semibold">End Date:</span>
               <span>{endDate.toISOString().slice(0, 10)}</span>
             </div>
+            <div className="mb-4 flex justify-between items-center">
+              <span className="font-semibold">Available Balance:</span>
+              <span>${balance.toFixed(2)}</span>
+            </div>
           </div>
         </div>
         <button
-          className="w-full py-3 rounded-md bg-primary-500 text-white font-semibold text-lg hover:bg-primary-600 transition"
+          className={`w-full py-3 rounded-md bg-primary-500 text-white font-semibold text-lg hover:bg-primary-600 transition ${loading || balance < parseFloat(plan.price.replace('$', '')) ? 'opacity-50 cursor-not-allowed' : ''
+            }`}
           onClick={handleConfirm}
+          disabled={loading || balance < parseFloat(plan.price.replace('$', ''))}
         >
-          Confirm Subscription
+          {loading ? 'Processing...' : 'Confirm Subscription'}
         </button>
+        {balance < parseFloat(plan.price.replace('$', '')) && (
+          <p className="mt-2 text-center text-sm text-red-600">
+            Insufficient balance. Please add funds to your account.
+          </p>
+        )}
       </div>
     </div>
   );

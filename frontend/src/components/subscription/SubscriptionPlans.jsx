@@ -1,9 +1,29 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { Check, Star } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
+import BASE_URL from "../../../constants/baseUrl";
 
 const SubscriptionPlans = () => {
   const navigate = useNavigate();
+  const [currentSubscription, setCurrentSubscription] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchCurrentSubscription();
+  }, []);
+
+  const fetchCurrentSubscription = async () => {
+    try {
+      const response = await axios.get(`${BASE_URL}/subscriptions/current`);
+      setCurrentSubscription(response.data);
+    } catch (error) {
+      console.error('Error fetching current subscription:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const plans = [
     {
       name: "Basic",
@@ -17,7 +37,7 @@ const SubscriptionPlans = () => {
       ],
       buttonText: "Current Plan",
       buttonVariant: "outline",
-      isCurrent: true,
+      isCurrent: currentSubscription?.type?.toLowerCase() === "basic",
     },
     {
       name: "Premium",
@@ -31,8 +51,12 @@ const SubscriptionPlans = () => {
         "Featured listings",
         "Custom branding",
       ],
-      buttonText: "Upgrade to Monthly",
-      buttonVariant: "primary",
+      buttonText: currentSubscription?.type?.toLowerCase() === "premium" && currentSubscription?.period === "monthly" 
+        ? "Current Plan" 
+        : "Upgrade to Monthly",
+      buttonVariant: currentSubscription?.type?.toLowerCase() === "premium" && currentSubscription?.period === "monthly" 
+        ? "outline" 
+        : "primary",
       isPopular: true,
     },
     {
@@ -48,8 +72,12 @@ const SubscriptionPlans = () => {
         "Custom branding",
         "2 months free",
       ],
-      buttonText: "Upgrade to Yearly",
-      buttonVariant: "primary",
+      buttonText: currentSubscription?.type?.toLowerCase() === "premium" && currentSubscription?.period === "yearly" 
+        ? "Current Plan" 
+        : "Upgrade to Yearly",
+      buttonVariant: currentSubscription?.type?.toLowerCase() === "premium" && currentSubscription?.period === "yearly" 
+        ? "outline" 
+        : "primary",
       isPopular: false,
     },
   ];
@@ -57,6 +85,20 @@ const SubscriptionPlans = () => {
   const handleSubscribe = (plan) => {
     navigate("/subscribe", { state: { plan } });
   };
+
+  if (loading) {
+    return (
+      <div className="py-12 bg-gray-50">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center">
+            <h2 className="text-3xl font-bold text-gray-900 sm:text-4xl">
+              Loading Plans...
+            </h2>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="py-12 bg-gray-50">
