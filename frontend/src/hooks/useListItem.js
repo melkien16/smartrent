@@ -4,6 +4,7 @@ import { useAuth } from "../context/AuthContext";
 import { useCategories } from "../context/CategoryContext";
 import { createItem } from "../Fetchers/itemFetcher";
 import axios from "axios";
+import BASE_URL from "../constants/baseUrl";
 
 export const useListItem = () => {
   const { isAuthenticated, user } = useAuth();
@@ -31,19 +32,23 @@ export const useListItem = () => {
 
   const handleImageUpload = async (e) => {
     const files = Array.from(e.target.files);
-
+  
+    console.log("Selected files:", files);
+  
     const uploadedImages = await Promise.all(
       files.map(async (file) => {
         const formData = new FormData();
         formData.append("image", file);
-
+  
         try {
-          const response = await axios.post("/upload", formData, {
+          const response = await axios.post(`${BASE_URL}/upload`, formData, {
             headers: {
               "Content-Type": "multipart/form-data",
             },
           });
-
+  
+          console.log("Image uploaded successfully:", response.data);
+  
           return {
             url: response.data.image, // Cloudinary URL
             name: file.name,
@@ -55,13 +60,16 @@ export const useListItem = () => {
         }
       })
     );
-
+  
+    console.log("Uploaded images:", uploadedImages);
+  
     const successfulUploads = uploadedImages.filter(Boolean);
     setFormData((prev) => ({
       ...prev,
       images: [...prev.images, ...successfulUploads],
     }));
   };
+  
 
   const removeImage = (index) => {
     const newImages = [...formData.images];
