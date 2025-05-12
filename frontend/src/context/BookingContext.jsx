@@ -66,7 +66,7 @@ export const BookingProvider = ({ children }) => {
 
       // Send a message to the item owner
       const message = `New booking request for ${bookingData.itemTitle} from ${new Date(bookingData.startDate).toLocaleDateString()} to ${new Date(bookingData.endDate).toLocaleDateString()}`;
-      await sendMessage(bookingData.ownerId, message);
+      await sendMessage(bookingData.itemOwnerId, message);
 
       setBookings((prev) => [...prev, newBooking]);
       return newBooking;

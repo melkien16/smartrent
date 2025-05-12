@@ -17,11 +17,11 @@ export const useBookingLogic = (item) => {
     if (startDate && endDate) {
       const start = new Date(startDate);
       const end = new Date(endDate);
-      
+
       // Calculate days difference
       const diffTime = Math.abs(end - start);
       const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-      
+
       setTotalDays(diffDays || 1);
     }
   }, [startDate, endDate]);
@@ -49,6 +49,7 @@ export const useBookingLogic = (item) => {
       const bookingData = {
         itemId: item._id,
         itemTitle: item.title,
+        itemOwnerId: item.owner._id,
         startDate: start.toISOString(),
         endDate: end.toISOString(),
         totalAmount: item.price * totalDays,
@@ -62,13 +63,13 @@ export const useBookingLogic = (item) => {
     }
   };
 
-  return { 
-    startDate, 
-    endDate, 
-    totalDays, 
-    error, 
-    setStartDate, 
-    setEndDate, 
+  return {
+    startDate,
+    endDate,
+    totalDays,
+    error,
+    setStartDate,
+    setEndDate,
     handleRentNow,
     isAuthenticated
   };
