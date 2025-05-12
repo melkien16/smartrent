@@ -69,3 +69,17 @@ export const getAllWallets = async () => {
     throw error.response?.data || { message: "Error fetching all wallets" };
   }
 };
+
+// Get transactions for a specific user
+export const getUserTransactions = async (userId) => {
+  if (!userId) {
+    throw new Error("User ID is required to fetch transactions");
+  }
+
+  try {
+    const response = await axios.get(`${API_URL}/${userId}`);
+    return response.data.transactions || [];
+  } catch (error) {
+    throw error.response?.data || { message: "Error fetching user transactions" };
+  }
+};

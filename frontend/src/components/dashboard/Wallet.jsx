@@ -1,12 +1,28 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { PlusCircle, MinusCircle, Wallet } from 'lucide-react';
+import { useBalance } from '../../context/BalanceContext';
+import { format } from 'date-fns';
 
-const WalletComponent = ({ 
-  balance, 
-  setTransactionType, 
+const WalletComponent = ({
+  balance,
+  setTransactionType,
   setShowTransactionModal,
-  user 
+  user
 }) => {
+  const { transactions, fetchTransactions } = useBalance();
+
+  useEffect(() => {
+    fetchTransactions();
+  }, [fetchTransactions]);
+
+  const formatDate = (dateString) => {
+    try {
+      return format(new Date(dateString), 'MMM d, yyyy h:mm a');
+    } catch (error) {
+      return 'Unknown date';
+    }
+  };
+
   return (
     <div>
       <h2 className="text-xl font-semibold mb-4">Wallet & Deposit</h2>
@@ -23,7 +39,7 @@ const WalletComponent = ({
 
       {/* Action Buttons */}
       <div className="flex gap-4 mb-6">
-        <button 
+        <button
           className="flex-1 btn-primary flex items-center justify-center gap-2"
           onClick={() => {
             setTransactionType('deposit');
@@ -33,7 +49,7 @@ const WalletComponent = ({
           <PlusCircle className="h-5 w-5" />
           Deposit
         </button>
-        <button 
+        <button
           className="flex-1 btn-secondary flex items-center justify-center gap-2"
           onClick={() => {
             setTransactionType('withdraw');
@@ -46,19 +62,30 @@ const WalletComponent = ({
       </div>
 
       <div className="space-y-4">
-        <h3 className="text-lg font-semibold">Recent Transactions</h3>
-        {user?.wallet?.recentTransactions?.length > 0 ? (
-          user.wallet.recentTransactions.map((transaction) => (
-            <div key={transaction?.id} className="bg-white p-4 rounded-lg shadow">
+        <div className="flex justify-between items-center">
+          <h3 className="text-lg font-semibold">Recent Transactions</h3>
+          <button
+            onClick={fetchTransactions}
+            className="text-sm text-primary-600 hover:text-primary-700"
+          >
+            Refresh
+          </button>
+        </div>
+
+        {transactions?.length > 0 ? (
+          transactions.map((transaction) => (
+            <div key={transaction._id || transaction.createdAt} className="bg-white p-4 rounded-lg shadow">
               <div className="flex justify-between items-center">
                 <div>
-                  <p className="font-medium">{transaction?.type === 'deposit' ? 'Deposit' : 'Withdrawal'}</p>
-                  <p className="text-sm text-gray-500">{transaction?.date || 'Unknown date'}</p>
+                  <p className="font-medium">{transaction.type === 'credit' ? 'Deposit' : 'Withdrawal'}</p>
+                  <p className="text-sm text-gray-500">{formatDate(transaction.createdAt)}</p>
+                  {transaction.description && (
+                    <p className="text-sm text-gray-500">{transaction.description}</p>
+                  )}
                 </div>
-                <p className={`text-lg font-semibold ${
-                  transaction?.type === 'deposit' ? 'text-green-600' : 'text-red-600'
-                }`}>
-                  {transaction?.type === 'deposit' ? '+' : '-'}${transaction?.amount || 0}
+                <p className={`text-lg font-semibold ${transaction.type === 'credit' ? 'text-green-600' : 'text-red-600'
+                  }`}>
+                  {transaction.type === 'credit' ? '+' : '-'}${transaction.amount.toFixed(2)}
                 </p>
               </div>
             </div>

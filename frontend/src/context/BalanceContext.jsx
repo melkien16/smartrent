@@ -1,6 +1,6 @@
-import React, { createContext, useContext, useState } from 'react';
+import React, { createContext, useContext, useState, useCallback } from 'react';
 import { useAuth } from './AuthContext';
-import { getWalletByUserId, creditWallet, debitWallet, createWallet } from '../Fetchers/walletFetcher';
+import { getWalletByUserId, creditWallet, debitWallet, createWallet, getUserTransactions } from '../Fetchers/walletFetcher';
 
 const BalanceContext = createContext(null);
 
@@ -11,8 +11,9 @@ export const BalanceProvider = ({ children }) => {
   const [balance, setBalance] = useState(0);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [transactions, setTransactions] = useState([]);
 
-  const fetchBalance = async () => {
+  const fetchBalance = useCallback(async () => {
     if (!user?._id) return;
 
     setLoading(true);
@@ -34,7 +35,18 @@ export const BalanceProvider = ({ children }) => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [user?._id]);
+
+  const fetchTransactions = useCallback(async () => {
+    if (!user?._id) return;
+
+    try {
+      const transactions = await getUserTransactions(user._id);
+      setTransactions(transactions || []);
+    } catch (err) {
+      setError(err.message || 'Error fetching transactions');
+    }
+  }, [user?._id]);
 
   const addFunds = async (amount) => {
     if (!user?._id) return false;
@@ -44,6 +56,7 @@ export const BalanceProvider = ({ children }) => {
       try {
         const updatedWallet = await creditWallet(amount, user._id);
         setBalance(updatedWallet.balance);
+        await fetchTransactions();
         return true;
       } catch (err) {
         if (err.message === "Wallet not found") {
@@ -52,6 +65,7 @@ export const BalanceProvider = ({ children }) => {
           // Try crediting again
           const updatedWallet = await creditWallet(amount, user._id);
           setBalance(updatedWallet.balance);
+          await fetchTransactions();
           return true;
         } else {
           throw err;
@@ -72,6 +86,7 @@ export const BalanceProvider = ({ children }) => {
     try {
       const updatedWallet = await debitWallet(amount, user._id);
       setBalance(updatedWallet.balance);
+      await fetchTransactions();
       return true;
     } catch (err) {
       setError(err.message || 'Error deducting funds');
@@ -85,9 +100,11 @@ export const BalanceProvider = ({ children }) => {
     balance,
     loading,
     error,
+    transactions,
     fetchBalance,
     addFunds,
-    deductFunds
+    deductFunds,
+    fetchTransactions
   };
 
   return <BalanceContext.Provider value={value}>{children}</BalanceContext.Provider>;
