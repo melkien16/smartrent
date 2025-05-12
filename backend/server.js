@@ -9,6 +9,7 @@ import WalletRouter from "./routes/wallet.routes.js";
 import BookingRouter from "./routes/booking.routes.js";
 import SubscriptionRouter from "./routes/subscription.routes.js";
 import CollateralRouter from "./routes/collaterall.routes.js";
+import MessagesRouter from "./routes/message.routes.js";
 import ReportRouter from "./routes/report.routes.js";
 import UploadRouter from "./routes/upload.routes.js";
 import { notFound, errorHandler } from "./middleware/errorMiddleware.js";
@@ -33,6 +34,7 @@ app.use("/api/wallets", WalletRouter);
 app.use("/api/bookings", BookingRouter); // Fixed typo in route
 app.use("/api/subscriptions", SubscriptionRouter);
 app.use("/api/collaterals", CollateralRouter);
+app.use("/api/messages", MessagesRouter);
 app.use("/api/reports", ReportRouter);
 app.use("/api/upload", UploadRouter);
 
