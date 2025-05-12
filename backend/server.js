@@ -26,13 +26,6 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
-
-// default route for testing
-app.get("/", (req, res) => {
-  res.send("API is running...");
-}
-);
-
 // API Routes
 app.use("/api/users", UserRouter);
 app.use("/api/items", ItemRouter);
@@ -43,26 +36,29 @@ app.use("/api/collaterals", CollateralRouter);
 app.use("/api/reports", ReportRouter);
 app.use("/api/upload", UploadRouter);
 
-// // Production-specific configuration
-// if (process.env.NODE_ENV === "production") {
-//   const __dirname = path.resolve();
+// Production-specific configuration
+if (process.env.NODE_ENV === "production") {
+  const __dirname = path.resolve();
 
-//   // Serve static frontend files from frontend/dist
-//   app.use(express.static(path.resolve(__dirname, "frontend", "dist")));
+  // Serve static frontend files from frontend/dist
+  app.use(express.static(path.resolve(__dirname, "frontend", "dist")));
 
-//   // Serve uploads folder for static assets
-//   app.use("/uploads", express.static(path.resolve(__dirname, "Uploads")));
+  // Serve uploads folder for static assets
+  app.use("/uploads", express.static(path.resolve(__dirname, "Uploads")));
 
-//   // Wildcard route for SPA routing using regex to avoid path-to-regexp issues
-//   app.get(/^(?!\/api|\/uploads).*/, (req, res, next) => {
-//     res.sendFile(path.resolve(__dirname, "frontend", "dist", "index.html"), (err) => {
-//       if (err) {
-//         console.error(`Error serving index.html: ${err.message}`);
-//         next(err);
-//       }
-//     });
-//   });
-// }
+  // Wildcard route for SPA routing using regex to avoid path-to-regexp issues
+  app.get(/^(?!\/api|\/uploads).*/, (req, res, next) => {
+    res.sendFile(
+      path.resolve(__dirname, "frontend", "dist", "index.html"),
+      (err) => {
+        if (err) {
+          console.error(`Error serving index.html: ${err.message}`);
+          next(err);
+        }
+      }
+    );
+  });
+}
 
 // Error Handling Middleware
 app.use(notFound);
