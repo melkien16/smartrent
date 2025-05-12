@@ -29,6 +29,7 @@ import Listings from '../components/dashboard/Listings';
 import WalletComponent from '../components/dashboard/Wallet';
 import StatCard from '../components/dashboard/StatCard';
 import Subscription from '../components/dashboard/Subscription';
+import Messages from '../components/dashboard/Messages';
 
 const DashboardPage = () => {
   const { user, loading: authLoading, isAuthenticated } = useAuth();
@@ -131,6 +132,8 @@ const DashboardPage = () => {
           setShowTransactionModal={setShowTransactionModal}
           user={user}
         />;
+      case 'messages':
+        return <Messages />;
       case 'subscription':
         return <SubscriptionPlans />;
       default:

@@ -27,6 +27,16 @@ async function sendMessage(receiverId, message) {
   }
 }
 
+// Get all messages for the current user
+async function getAllMessages() {
+  try {
+    const response = await axios.get(`${BASE_URL}/messages`);
+    return response.data;
+  } catch (error) {
+    throw error.response?.data || { message: "Error fetching messages" };
+  }
+}
+
 // Get messages between two users
 async function getMessages(userId) {
   try {
@@ -48,4 +58,4 @@ async function markMessageAsRead(messageId) {
 }
 
 // Export the functions for use in other files
-export { fetchBookingsByUser, sendMessage, getMessages, markMessageAsRead };
+export { fetchBookingsByUser, sendMessage, getMessages, markMessageAsRead, getAllMessages };
