@@ -6,7 +6,7 @@ import path from "path";
 import UserRouter from "./routes/user.routes.js";
 import ItemRouter from "./routes/item.routes.js";
 import WalletRouter from "./routes/wallet.routes.js";
-import BookingRouter from "./routes/booking.routes.js"; // Fixed typo: BookindRouter -> BookingRouter
+import BookingRouter from "./routes/booking.routes.js";
 import SubscriptionRouter from "./routes/subscription.routes.js";
 import CollateralRouter from "./routes/collaterall.routes.js";
 import ReportRouter from "./routes/report.routes.js";
