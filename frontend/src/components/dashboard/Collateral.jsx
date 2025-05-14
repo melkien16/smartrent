@@ -1,12 +1,19 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../context/AuthContext';
-import { getMyCollateral, uploadOrUpdateCollateral } from '../../Fetchers/collateralFetcher';
+import {
+    getCollateralByUserId,
+    createCollateral,
+    updateCollateral,
+    uploadCollateralDocument,
+    removeCollateralDocument
+} from '../../Fetchers/collateralFetcher';
 import { toast } from 'react-hot-toast';
-import { ShieldCheck, UploadCloud, Edit3, Info, AlertTriangle, DollarSign, FileText, Loader2, Banknote } from 'lucide-react';
+import { ShieldCheck, UploadCloud, Edit3, Info, AlertTriangle, DollarSign, FileText, Loader2, Banknote, X } from 'lucide-react';
 
 const Collateral = () => {
     const { user } = useAuth();
     const [collateral, setCollateralData] = useState(null);
+    const [status, setStatus] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [error, setError] = useState('');
@@ -14,23 +21,28 @@ const Collateral = () => {
         collateralType: 'ID',
         description: '',
         value: '',
-        documents: [],
     });
+    const [documents, setDocuments] = useState([]);
+    const [uploadingDocs, setUploadingDocs] = useState(false);
     const [isEditing, setIsEditing] = useState(false);
 
     const fetchCollateralDetails = async () => {
+        if (!user?._id) return;
+
         setIsLoading(true);
         setError('');
         try {
-            const data = await getMyCollateral();
-            if (data) {
-                setCollateralData(data);
+            const collateralData = await getCollateralByUserId();
+
+            if (collateralData) {
+                setCollateralData(collateralData);
+                setStatus(collateralData.status);
                 setFormData({
-                    collateralType: data.collateralType || 'ID',
-                    description: data.description || '',
-                    value: data.value || '',
-                    documents: data.documents || [],
+                    collateralType: collateralData.collateralType || 'ID',
+                    description: collateralData.description || '',
+                    value: collateralData.value || '',
                 });
+                setDocuments(collateralData.documents || []);
                 setIsEditing(false);
             } else {
                 setFormData(prev => ({ ...prev, collateralType: 'ID' }));
@@ -55,15 +67,37 @@ const Collateral = () => {
         setFormData(prev => ({ ...prev, [name]: value }));
     };
 
-    const handleDocumentChange = (e) => {
-        const files = Array.from(e.target.files).map(file => file.name);
-        setFormData(prev => ({ ...prev, documents: [...prev.documents, ...files] }));
-        toast.success(`${files.length} document(s) added (names only). Actual upload needed.`);
+    const handleDocumentUpload = async (e) => {
+        const files = Array.from(e.target.files);
+        if (!files.length) return;
+
+        setUploadingDocs(true);
+        try {
+            const uploadPromises = files.map(async (file) => {
+                const formData = new FormData();
+                formData.append('file', file);
+                return await uploadCollateralDocument(formData);
+            });
+
+            const uploadedDocs = await Promise.all(uploadPromises);
+            setDocuments(prev => [...prev, ...uploadedDocs]);
+            toast.success(`${files.length} document(s) uploaded successfully`);
+        } catch (err) {
+            toast.error(err.message || 'Failed to upload documents');
+        } finally {
+            setUploadingDocs(false);
+        }
     };
 
-    const removeDocument = (docName) => {
-        setFormData(prev => ({ ...prev, documents: prev.documents.filter(doc => doc !== docName) }));
-    }
+    const handleRemoveDocument = async (documentId) => {
+        try {
+            await removeCollateralDocument(documentId);
+            setDocuments(prev => prev.filter(doc => doc._id !== documentId));
+            toast.success('Document removed successfully');
+        } catch (err) {
+            toast.error(err.message || 'Failed to remove document');
+        }
+    };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -71,19 +105,26 @@ const Collateral = () => {
             toast.error('Collateral type and value are required.');
             return;
         }
+
         setIsSubmitting(true);
         setError('');
         try {
-            const updatedCollateralResponse = await uploadOrUpdateCollateral(formData);
-            setCollateralData(updatedCollateralResponse.collateral);
-            setFormData({
-                collateralType: updatedCollateralResponse.collateral.collateralType || 'ID',
-                description: updatedCollateralResponse.collateral.description || '',
-                value: updatedCollateralResponse.collateral.value || '',
-                documents: updatedCollateralResponse.collateral.documents || [],
-            });
+            const collateralData = {
+                ...formData,
+                value: parseFloat(formData.value)
+            };
+
+            let response;
+            if (collateral) {
+                response = await updateCollateral(collateralData);
+            } else {
+                response = await createCollateral(collateralData);
+            }
+
+            setCollateralData(response);
             toast.success('Collateral information saved successfully!');
             setIsEditing(false);
+            await fetchCollateralDetails(); // Refresh all data
         } catch (err) {
             setError('Failed to save collateral information.');
             toast.error(err.message || 'Failed to save collateral.');
@@ -103,9 +144,17 @@ const Collateral = () => {
 
     return (
         <div className="max-w-2xl mx-auto bg-white p-6 sm:p-8 rounded-lg shadow-md">
-            <div className="flex items-center mb-6">
-                <Banknote size={32} className="text-primary-600 mr-3" />
-                <h2 className="text-2xl sm:text-3xl font-semibold text-gray-800">Manage Collateral</h2>
+            <div className="flex items-center justify-between mb-6">
+                <div className="flex items-center">
+                    <Banknote size={32} className="text-primary-600 mr-3" />
+                    <h2 className="text-2xl sm:text-3xl font-semibold text-gray-800">Manage Collateral</h2>
+                </div>
+                {status && (
+                    <span className={`px-3 py-1 rounded-full text-sm font-medium ${status.verified ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'
+                        }`}>
+                        {status.verified ? 'Verified' : 'Pending Verification'}
+                    </span>
+                )}
             </div>
 
             {error && (
@@ -123,10 +172,22 @@ const Collateral = () => {
                     <p><strong>Value:</strong> ${collateral.value ? parseFloat(collateral.value).toFixed(2) : '0.00'}</p>
                     <div>
                         <strong>Documents:</strong>
-                        {collateral.documents && collateral.documents.length > 0 ? (
-                            <ul className="list-disc list-inside ml-4 mt-1">
-                                {collateral.documents.map((doc, index) => (
-                                    <li key={index} className="text-sm text-gray-600">{doc}</li>
+                        {documents.length > 0 ? (
+                            <ul className="mt-2 space-y-2">
+                                {documents.map((doc) => (
+                                    <li key={doc._id} className="flex items-center justify-between bg-white p-2 rounded border">
+                                        <div className="flex items-center">
+                                            <FileText size={16} className="text-gray-500 mr-2" />
+                                            <span className="text-sm text-gray-600">{doc.url.split('/').pop()}</span>
+                                        </div>
+                                        <button
+                                            onClick={() => handleRemoveDocument(doc._id)}
+                                            className="text-red-500 hover:text-red-700"
+                                            disabled={uploadingDocs}
+                                        >
+                                            <X size={16} />
+                                        </button>
+                                    </li>
                                 ))}
                             </ul>
                         ) : (
@@ -147,6 +208,7 @@ const Collateral = () => {
                     <h3 className="text-xl font-medium text-gray-700">
                         {collateral ? 'Update Your Collateral' : 'Add Collateral Information'}
                     </h3>
+
                     <div>
                         <label htmlFor="collateralType" className="block text-sm font-medium text-gray-700 mb-1">
                             Collateral Type <span className="text-red-500">*</span>
@@ -217,31 +279,28 @@ const Collateral = () => {
                                         className="relative cursor-pointer bg-white rounded-md font-medium text-primary-600 hover:text-primary-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-primary-500"
                                     >
                                         <span>Upload files</span>
-                                        <input id="file-upload" name="file-upload" type="file" className="sr-only" onChange={handleDocumentChange} multiple />
+                                        <input
+                                            id="file-upload"
+                                            name="file-upload"
+                                            type="file"
+                                            className="sr-only"
+                                            onChange={handleDocumentUpload}
+                                            multiple
+                                            accept=".pdf,.jpg,.jpeg,.png"
+                                            disabled={uploadingDocs}
+                                        />
                                     </label>
                                     <p className="pl-1">or drag and drop</p>
                                 </div>
                                 <p className="text-xs text-gray-500">PNG, JPG, PDF up to 10MB</p>
+                                {uploadingDocs && (
+                                    <div className="flex items-center justify-center text-sm text-gray-500">
+                                        <Loader2 className="animate-spin h-4 w-4 mr-2" />
+                                        Uploading...
+                                    </div>
+                                )}
                             </div>
                         </div>
-                        {formData.documents && formData.documents.length > 0 && (
-                            <div className="mt-3">
-                                <p className="text-sm font-medium text-gray-700">Uploaded documents (names only):</p>
-                                <ul className="list-disc list-inside ml-4 mt-1">
-                                    {formData.documents.map((doc, index) => (
-                                        <li key={index} className="text-sm text-gray-600 flex items-center justify-between">
-                                            {doc}
-                                            <button type="button" onClick={() => removeDocument(doc)} className="ml-2 text-red-500 hover:text-red-700">
-                                                Remove
-                                            </button>
-                                        </li>
-                                    ))}
-                                </ul>
-                            </div>
-                        )}
-                        <p className="mt-2 text-xs text-gray-500 flex items-center">
-                            <Info size={14} className="mr-1" /> For demonstration, only file names are stored. Actual file upload functionality needed.
-                        </p>
                     </div>
 
                     <div className="flex items-center justify-end space-x-3">
@@ -254,19 +313,18 @@ const Collateral = () => {
                                         collateralType: collateral.collateralType || 'ID',
                                         description: collateral.description || '',
                                         value: collateral.value || '',
-                                        documents: collateral.documents || [],
                                     });
                                     setError('');
                                 }}
                                 className="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
-                                disabled={isSubmitting}
+                                disabled={isSubmitting || uploadingDocs}
                             >
                                 Cancel
                             </button>
                         )}
                         <button
                             type="submit"
-                            disabled={isSubmitting || isLoading}
+                            disabled={isSubmitting || isLoading || uploadingDocs}
                             className="inline-flex items-center justify-center px-6 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 disabled:opacity-50"
                         >
                             {isSubmitting ? <Loader2 className="animate-spin h-5 w-5 mr-2" /> : <Banknote size={18} className="mr-2" />}
