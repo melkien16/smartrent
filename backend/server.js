@@ -38,6 +38,7 @@ app.use("/api/collaterals", CollateralRouter);
 app.use("/api/messages", MessagesRouter);
 app.use("/api/reports", ReportRouter);
 app.use("/api/upload", UploadRouter);
+app.use("/api/reviews", ReviewRouter);
 
 // Production-specific configuration
 if (process.env.NODE_ENV === "production") {
