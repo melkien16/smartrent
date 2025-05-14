@@ -37,6 +37,10 @@ import Messages from '../components/dashboard/Messages';
 import Reviews from '../components/dashboard/Reviews';
 import RentalRequests from '../components/dashboard/RentalRequests';
 import Reports from '../components/dashboard/Reports';
+import SettingsComponent from '../components/dashboard/Settings';
+import CollateralComponent from '../components/dashboard/Collateral';
+import VerificationComponent from '../components/dashboard/Verification';
+import { Banknote, ShieldCheck } from 'lucide-react';
 
 const DashboardPage = () => {
   const { user, loading: authLoading, isAuthenticated } = useAuth();
@@ -109,7 +113,8 @@ const DashboardPage = () => {
     { id: 'messages', label: 'Messages', icon: MessageSquare },
     { id: 'reviews', label: 'Reviews', icon: Star },
     { id: 'reports', label: 'Reports', icon: AlertTriangle },
-    { id: 'verification', label: 'Verification', icon: Shield },
+    { id: 'verification', label: 'Verification Status', icon: ShieldCheck },
+    { id: 'collateral', label: 'Collateral', icon: Banknote },
     { id: 'subscription', label: 'Subscription', icon: Star },
     { id: 'settings', label: 'Settings', icon: Settings }
   ];
@@ -148,8 +153,14 @@ const DashboardPage = () => {
         return <Reviews />;
       case 'reports':
         return <Reports />;
+      case 'verification':
+        return <VerificationComponent />;
+      case 'collateral':
+        return <CollateralComponent />;
       case 'subscription':
         return <SubscriptionPlans />;
+      case 'settings':
+        return <SettingsComponent />;
       default:
         return <div>Coming soon</div>;
     }
