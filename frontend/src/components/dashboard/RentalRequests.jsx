@@ -3,8 +3,7 @@ import { Calendar, Clock, Check, X } from 'lucide-react';
 import { format } from 'date-fns';
 import { toast } from 'react-hot-toast';
 import { useBooking } from '../../context/BookingContext';
-import { fetchItemsByOwner } from '../../Fetchers/itemFetcher';
-import { fetchBookingsByUser, sendMessage } from '../../Fetchers/BookingFetcher';
+import { sendMessage, getBookingsForOwner } from '../../Fetchers/BookingFetcher';
 
 const RentalRequests = () => {
     const [requests, setRequests] = useState([]);
@@ -15,16 +14,10 @@ const RentalRequests = () => {
     const fetchRequests = async () => {
         try {
             setLoading(true);
-            // Get all items owned by the current user
-            const ownerItems = await fetchItemsByOwner();
-            const ownerItemIds = new Set(ownerItems.map(item => item._id));
+            const ownerBookings = await getBookingsForOwner();
 
-            // Get all bookings
-            const bookings = await fetchBookingsByUser();
-
-            // Filter for pending bookings on owner's items
-            const pendingRequests = bookings.filter(booking =>
-                ownerItemIds.has(booking.item._id) &&
+            // Filter for pending bookings
+            const pendingRequests = ownerBookings.filter(booking =>
                 booking.status === 'pending'
             );
 

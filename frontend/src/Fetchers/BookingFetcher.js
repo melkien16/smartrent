@@ -14,6 +14,18 @@ async function fetchBookingsByUser() {
   }
 }
 
+// Function to fetch bookings for items owned by the logged-in owner
+async function getBookingsForOwner() {
+  try {
+    const response = await axios.get(`${BASE_URL}/bookings/owner`);
+    console.log(`Fetched ${response.data.length} bookings for owned items`);
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching owner bookings:", error);
+    throw error.response?.data || { message: "Error fetching owner bookings" };
+  }
+}
+
 // Send a new message
 async function sendMessage(receiverId, message) {
   try {
@@ -58,4 +70,11 @@ async function markMessageAsRead(messageId) {
 }
 
 // Export the functions for use in other files
-export { fetchBookingsByUser, sendMessage, getMessages, markMessageAsRead, getAllMessages };
+export { 
+  fetchBookingsByUser, 
+  getBookingsForOwner,
+  sendMessage, 
+  getMessages, 
+  markMessageAsRead, 
+  getAllMessages 
+};

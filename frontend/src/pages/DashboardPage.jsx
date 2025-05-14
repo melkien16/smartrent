@@ -36,6 +36,7 @@ import Subscription from '../components/dashboard/Subscription';
 import Messages from '../components/dashboard/Messages';
 import Reviews from '../components/dashboard/Reviews';
 import RentalRequests from '../components/dashboard/RentalRequests';
+import Reports from '../components/dashboard/Reports';
 
 const DashboardPage = () => {
   const { user, loading: authLoading, isAuthenticated } = useAuth();
@@ -145,6 +146,8 @@ const DashboardPage = () => {
         return <Messages />;
       case 'reviews':
         return <Reviews />;
+      case 'reports':
+        return <Reports />;
       case 'subscription':
         return <SubscriptionPlans />;
       default:
