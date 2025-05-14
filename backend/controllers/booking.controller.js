@@ -88,6 +88,25 @@ const getBookingsByUser = asyncHandler(async (req, res) => {
   res.json(bookings);
 });
 
+// @desc    Get bookings for items owned by the logged-in owner
+// @route   GET /api/bookings/owner
+// @access  Private (Owner)
+const getBookingsForOwner = asyncHandler(async (req, res) => {
+  const ownerId = req.user._id;
+
+  // Step 1: Find all items owned by the user
+  const ownedItems = await Item.find({ owner: ownerId }).select("_id");
+
+  const itemIds = ownedItems.map(item => item._id);
+
+  // Step 2: Find bookings for these items
+  const bookings = await Booking.find({ item: { $in: itemIds } })
+    .populate("user", "name email")
+    .populate("item");
+  res.status(200).json(bookings);
+});
+
+
 // @desc    Cancel booking if still pending
 // @route   PUT /api/bookings/:id/cancel
 // @access  Private
@@ -137,6 +156,7 @@ export {
   getBookings,
   getBookingById,
   getBookingsByUser,
+  getBookingsForOwner,
   cancelBooking,
   updateBookingStatus,
 };

@@ -4,6 +4,7 @@ import {
   getBookings,
   getBookingById,
   getBookingsByUser,
+  getBookingsForOwner,
   cancelBooking,
   updateBookingStatus,
 } from "../controllers/booking.controller.js";
@@ -19,6 +20,9 @@ router.route("/user/:userId").get(protect, getBookingsByUser);
 
 // Single booking
 router.route("/:id").get(protect, getBookingById);
+
+// Bookings for owner
+router.route("/owner").get(protect, getBookingsForOwner);
 
 // Cancel booking
 router.route("/:id/cancel").put(protect, cancelBooking);
