@@ -1,9 +1,11 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
-import { MapPin, Calendar, Star, Camera } from 'lucide-react';
-import { useRef } from 'react';
-import { updateUserProfile } from '../../Fetchers/userDataFetcher';
-import { toast } from 'react-hot-toast';
+import React from "react";
+import { Link } from "react-router-dom";
+import { MapPin, Calendar, Star, Camera } from "lucide-react";
+import { useRef } from "react";
+import { updateUserProfile } from "../../Fetchers/userDataFetcher";
+import { toast } from "react-hot-toast";
+import BASE_URL from "../../../constants/baseUrl";
+import axios from "axios";
 
 const ProfileHeader = ({ profileUser, isOwnProfile, onProfileUpdate }) => {
   const fileInputRef = useRef(null);
@@ -19,18 +21,31 @@ const ProfileHeader = ({ profileUser, isOwnProfile, onProfileUpdate }) => {
     if (file) {
       try {
         const formData = new FormData();
-        formData.append('avatar', file);
-        
-        const updatedUser = await updateUserProfile(formData);
-        toast.success('Profile picture updated successfully!');
-        
-        // If onProfileUpdate prop is provided, call it with the updated user data
+        formData.append("image", file);
+
+        const uploadResponse = await axios.post(
+          `${BASE_URL}/upload`,
+          formData,
+          {
+            headers: {
+              "Content-Type": "multipart/form-data",
+            },
+          }
+        );
+
+        const avatarUrl = uploadResponse.data.image;
+        const updatedUser = await updateUserProfile({ avatar: avatarUrl });
+
+        toast.success("Profile picture updated successfully!");
+
         if (onProfileUpdate) {
           onProfileUpdate(updatedUser);
         }
       } catch (error) {
         console.error("Failed to update avatar:", error);
-        toast.error(error.message || 'Failed to update profile picture');
+        toast.error(
+          error.response?.data?.message || "Failed to update profile picture"
+        );
       }
     }
   };
@@ -73,7 +88,9 @@ const ProfileHeader = ({ profileUser, isOwnProfile, onProfileUpdate }) => {
 
         <div className="flex flex-col justify-between sm:flex-row sm:items-end">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900 sm:text-3xl">{profileUser.name}</h1>
+            <h1 className="text-2xl font-bold text-gray-900 sm:text-3xl">
+              {profileUser.name}
+            </h1>
             {profileUser.isPremium && (
               <div className="mt-2 inline-flex items-center rounded-full bg-gradient-to-r from-yellow-400 to-yellow-600 px-3 py-1 text-sm font-medium text-white">
                 <Star size={14} className="mr-1" fill="currentColor" />
@@ -89,11 +106,17 @@ const ProfileHeader = ({ profileUser, isOwnProfile, onProfileUpdate }) => {
               )}
               <div className="flex items-center">
                 <Calendar size={16} className="mr-1" />
-                <span>Member since {profileUser.memberSince || 'recently'}</span>
+                <span>
+                  Member since {profileUser.memberSince || "recently"}
+                </span>
               </div>
               {profileUser.rating && (
                 <div className="flex items-center">
-                  <Star size={16} className="mr-1 text-yellow-400" fill="currentColor" />
+                  <Star
+                    size={16}
+                    className="mr-1 text-yellow-400"
+                    fill="currentColor"
+                  />
                   <span>{profileUser.rating} rating</span>
                 </div>
               )}
@@ -101,10 +124,11 @@ const ProfileHeader = ({ profileUser, isOwnProfile, onProfileUpdate }) => {
           </div>
 
           {isOwnProfile && (
-            <Link to="/list-item" className="mt-4 self-start sm:mt-0 sm:self-auto">
-              <button className="btn-primary">
-                Add New Listing
-              </button>
+            <Link
+              to="/list-item"
+              className="mt-4 self-start sm:mt-0 sm:self-auto"
+            >
+              <button className="btn-primary">Add New Listing</button>
             </Link>
           )}
         </div>
@@ -113,4 +137,4 @@ const ProfileHeader = ({ profileUser, isOwnProfile, onProfileUpdate }) => {
   );
 };
 
-export default React.memo(ProfileHeader); 
+export default React.memo(ProfileHeader);
