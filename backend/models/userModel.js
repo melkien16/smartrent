@@ -37,6 +37,18 @@ const userSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
+    verification: [
+      {
+        verification_type: {
+          type: String,
+          enum: ["email", "phone", "national_id"],
+        },
+        isVerified: {
+          type: Boolean,
+          default: false,
+        },
+      },
+    ],
   },
   {
     timestamps: true,
