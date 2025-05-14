@@ -8,12 +8,13 @@ import { toast } from 'react-hot-toast';
 import TransactionModal from '../components/TransactionModal';
 import WithdrawalSuccess from '../components/WithdrawalSuccess';
 import { debitWallet } from '../Fetchers/walletFetcher';
+import { sendMessage } from '../Fetchers/BookingFetcher';
 
 const PaymentPage = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { isAuthenticated } = useAuth();
-  const { updateBookingStatus } = useBooking();
+  const { createBooking, updateBookingStatus } = useBooking();
   const { balance, fetchBalance } = useBalance();
   const [loading, setLoading] = useState(false);
   const [showDepositModal, setShowDepositModal] = useState(false);
@@ -22,7 +23,7 @@ const PaymentPage = () => {
   const [paymentAmount, setPaymentAmount] = useState(0);
 
   // Get booking details from location state
-  const booking = location.state?.booking;
+  const pendingBooking = location.state?.pendingBooking;
 
   useEffect(() => {
     if (!isAuthenticated) {
@@ -30,14 +31,14 @@ const PaymentPage = () => {
       return;
     }
 
-    if (!booking) {
+    if (!pendingBooking) {
       navigate('/dashboard?tab=rentals');
       return;
     }
 
     // Fetch user's balance
     fetchBalance();
-  }, [isAuthenticated, booking, navigate, fetchBalance]);
+  }, [isAuthenticated, pendingBooking, navigate, fetchBalance]);
 
   const handlePayment = async (e) => {
     e.preventDefault();
@@ -45,8 +46,15 @@ const PaymentPage = () => {
     setTransactionError('');
 
     try {
+      if (!pendingBooking) {
+        throw new Error('No booking information found');
+      }
+
+      // Calculate total amount
+      const totalAmount = calculateTotalAmount(pendingBooking);
+
       // Check if user has sufficient balance
-      if (balance < booking.totalAmount) {
+      if (balance < totalAmount) {
         throw new Error('Insufficient balance. Please add funds to your account.');
       }
 
@@ -57,28 +65,56 @@ const PaymentPage = () => {
       }
 
       // Deduct amount from wallet
-      const success = await debitWallet(booking.totalAmount, user._id);
-      if (!success) {
+      const paymentSuccess = await debitWallet(totalAmount, user._id);
+      if (!paymentSuccess) {
         throw new Error('Payment failed. Please try again.');
       }
 
-      // Store payment amount and show success modal
-      setPaymentAmount(booking.totalAmount);
-      setShowPaymentSuccess(true);
+      // Only create booking after successful payment
+      const newBooking = await createBooking({
+        ...pendingBooking,
+        totalAmount,
+        status: 'confirmed'
+      });
 
-      // Update booking status to 'confirmed'
-      await updateBookingStatus(booking._id, 'confirmed');
+      // Send message to owner after successful booking creation
+      if (pendingBooking.item?.ownerId) {
+        const message = `New booking confirmed from ${new Date(newBooking.startDate).toLocaleDateString()} to ${new Date(newBooking.endDate).toLocaleDateString()}`;
+        await sendMessage(pendingBooking.item.ownerId, message);
+      }
+
+      // Store payment amount and show success modal
+      setPaymentAmount(totalAmount);
+      setShowPaymentSuccess(true);
 
       // Refresh balance after payment
       await fetchBalance();
 
-      toast.success('Payment successful!');
+      toast.success('Payment and booking confirmed!');
+
+      // Remove the automatic navigation timeout
+      // Let user close the modal manually
     } catch (error) {
       setTransactionError(error.message);
       toast.error(error.message);
     } finally {
       setLoading(false);
     }
+  };
+
+  const calculateTotalAmount = (booking) => {
+    const startDate = new Date(booking.startDate);
+    const endDate = new Date(booking.endDate);
+    const days = Math.ceil((endDate - startDate) / (1000 * 60 * 60 * 24));
+
+    // We need the item price from the booking data
+    if (!booking.item?.price) {
+      throw new Error('Item price not found');
+    }
+
+    const basePrice = booking.item.price * days;
+    const serviceFee = basePrice * 0.1; // 10% service fee
+    return basePrice + serviceFee;
   };
 
   const handleDeposit = async (amount) => {
@@ -105,7 +141,7 @@ const PaymentPage = () => {
     }
   };
 
-  if (!booking) {
+  if (!pendingBooking) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-gray-50">
         <div className="text-center">
@@ -139,17 +175,17 @@ const PaymentPage = () => {
               <div className="space-y-2">
                 <div className="flex justify-between">
                   <span className="text-gray-600">Item</span>
-                  <span className="font-medium">{booking.itemTitle}</span>
+                  <span className="font-medium">{pendingBooking.itemTitle || 'N/A'}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-600">Duration</span>
                   <span className="font-medium">
-                    {new Date(booking.startDate).toLocaleDateString()} - {new Date(booking.endDate).toLocaleDateString()}
+                    {new Date(pendingBooking.startDate).toLocaleDateString()} - {new Date(pendingBooking.endDate).toLocaleDateString()}
                   </span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-600">Total Amount</span>
-                  <span className="font-medium">${booking.totalAmount.toFixed(2)}</span>
+                  <span className="font-medium">${calculateTotalAmount(pendingBooking).toFixed(2)}</span>
                 </div>
               </div>
             </div>
@@ -163,7 +199,7 @@ const PaymentPage = () => {
                 </div>
                 <span className="text-lg font-semibold">${balance.toFixed(2)}</span>
               </div>
-              {balance < booking.totalAmount && (
+              {balance < calculateTotalAmount(pendingBooking) && (
                 <div className="mt-2 flex items-center text-sm text-red-600">
                   <AlertCircle className="mr-1 h-4 w-4" />
                   <span>Insufficient balance. Please add funds to your account.</span>
@@ -179,7 +215,7 @@ const PaymentPage = () => {
 
             <button
               onClick={handlePayment}
-              disabled={loading || balance < booking.totalAmount}
+              disabled={loading || balance < calculateTotalAmount(pendingBooking)}
               className="mt-6 flex w-full items-center justify-center space-x-2 rounded-lg bg-primary-500 px-4 py-2 text-white hover:bg-primary-600 disabled:opacity-50"
             >
               {loading ? (
@@ -190,7 +226,7 @@ const PaymentPage = () => {
               ) : (
                 <>
                   <Wallet className="h-5 w-5" />
-                  <span>Pay ${booking.totalAmount.toFixed(2)}</span>
+                  <span>Pay ${calculateTotalAmount(pendingBooking).toFixed(2)}</span>
                 </>
               )}
             </button>

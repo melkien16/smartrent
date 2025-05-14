@@ -49,13 +49,19 @@ export const useBookingLogic = (item) => {
       const bookingData = {
         itemId: item._id,
         startDate: start.toISOString(),
-        endDate: end.toISOString()
+        endDate: end.toISOString(),
+        item: {
+          _id: item._id,
+          title: item.title,
+          price: item.price,
+          ownerId: item.owner._id
+        }
       };
 
-      const newBooking = await createBooking(bookingData);
-      navigate('/payment', { state: { booking: newBooking } });
+      // Instead of creating booking here, just pass the data to payment page
+      navigate('/payment', { state: { pendingBooking: bookingData } });
     } catch (error) {
-      const errorMessage = error.response?.data?.message || error.message || 'Failed to create booking';
+      const errorMessage = error.response?.data?.message || error.message || 'Failed to process request';
       toast.error(errorMessage);
       setError(errorMessage);
     }
