@@ -30,6 +30,7 @@ import WalletComponent from '../components/dashboard/Wallet';
 import StatCard from '../components/dashboard/StatCard';
 import Subscription from '../components/dashboard/Subscription';
 import Messages from '../components/dashboard/Messages';
+import Reviews from '../components/dashboard/Reviews';
 
 const DashboardPage = () => {
   const { user, loading: authLoading, isAuthenticated } = useAuth();
@@ -134,6 +135,8 @@ const DashboardPage = () => {
         />;
       case 'messages':
         return <Messages />;
+      case 'reviews':
+        return <Reviews />;
       case 'subscription':
         return <SubscriptionPlans />;
       default:

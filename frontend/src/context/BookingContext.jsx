@@ -48,30 +48,30 @@ export const BookingProvider = ({ children }) => {
     setError(null);
 
     try {
-      // In a real app, this would be an API call
-      const newBooking = {
-        ...bookingData,
-        renterId: user._id,
-        status: "pending",
-      };
-
-      // Post the new booking to the server by axios in BASE_URL/bookings and withCredential
       const response = await axios.post(
         `${BASE_URL}/bookings`,
-        { ...bookingData }
+        bookingData,
+        {
+          withCredentials: true,
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        }
       );
-      if (response.status !== 201) {
-        throw new Error("Failed to create booking");
-      }
+
+      const newBooking = response.data;
+      setBookings((prev) => [...prev, newBooking]);
 
       // Send a message to the item owner
-      const message = `New booking request for ${bookingData.itemTitle} from ${new Date(bookingData.startDate).toLocaleDateString()} to ${new Date(bookingData.endDate).toLocaleDateString()}`;
-      await sendMessage(bookingData.itemOwnerId, message);
+      if (newBooking.item && newBooking.item.owner) {
+        const message = `New booking request from ${new Date(newBooking.startDate).toLocaleDateString()} to ${new Date(newBooking.endDate).toLocaleDateString()}`;
+        await sendMessage(newBooking.item.owner, message);
+      }
 
-      setBookings((prev) => [...prev, newBooking]);
       return newBooking;
     } catch (err) {
-      setError(err.message);
+      const errorMessage = err.response?.data?.message || err.message || "Failed to create booking";
+      setError(errorMessage);
       throw err;
     } finally {
       setLoading(false);

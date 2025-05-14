@@ -10,24 +10,28 @@ const Overview = ({ stats }) => {
       {/* KPI Overview */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
         <StatCard
+          key="active-users"
           icon={Users}
           label="Active Users"
           value={stats.activeUsers}
           color="text-blue-600"
         />
         <StatCard
+          key="rentals-today"
           icon={BookOpen}
           label="Rentals Today"
           value={stats.rentalsToday}
           color="text-green-600"
         />
         <StatCard
+          key="weekly-income"
           icon={DollarSign}
           label="Weekly Income"
           value={`$${stats.weeklyIncome}`}
           color="text-yellow-600"
         />
         <StatCard
+          key="pending-tasks"
           icon={AlertTriangle}
           label="Pending Tasks"
           value={stats.pendingTasks}

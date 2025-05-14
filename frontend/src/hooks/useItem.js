@@ -1,16 +1,30 @@
 import { useState, useEffect } from 'react';
-import { useHomePageData } from './useHomePageData';
+import axios from 'axios';
 
 export const useItem = (id) => {
     const [item, setItem] = useState(null);
     const [loading, setLoading] = useState(true);
-    const { items } = useHomePageData();
+    const [error, setError] = useState(null);
 
     useEffect(() => {
-        const foundItem = items.find(item => item._id === id);
-        setItem(foundItem);
-        setLoading(false);
-    }, [id, items]);
+        const fetchItem = async () => {
+            try {
+                setLoading(true);
+                const response = await axios.get(`/api/items/${id}`);
+                setItem(response.data);
+                setError(null);
+            } catch (err) {
+                setError(err.message);
+                setItem(null);
+            } finally {
+                setLoading(false);
+            }
+        };
 
-    return { item, loading };
+        if (id) {
+            fetchItem();
+        }
+    }, [id]);
+
+    return { item, loading, error };
 }; 

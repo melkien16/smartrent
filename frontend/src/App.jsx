@@ -30,6 +30,7 @@ import { CategoryProvider } from "./context/CategoryContext";
 import { FavoritesProvider } from "./context/FavoritesContext";
 import { BookingProvider } from "./context/BookingContext";
 import { BalanceProvider } from "./context/BalanceContext";
+import { ReviewProvider } from './context/ReviewContext';
 
 // Protected Route component
 const ProtectedRoute = ({ children, requireAdmin = false }) => {
@@ -54,42 +55,44 @@ function App() {
           <CategoryProvider>
             <BookingProvider>
               <BalanceProvider>
-                <div className="flex min-h-screen flex-col">
-                  <Navbar />
-                  <main className="flex-1">
-                    <Routes>
-                      <Route path="/" element={<HomePage />} />
-                      <Route path="/explore" element={<ExplorePage />} />
-                      <Route path="/item/:id" element={<ItemDetailPage />} />
-                      <Route path="/profile" element={<ProfilePage />} />
-                      <Route path="/profile/:id" element={<ProfilePage />} />
-                      <Route path="/list-item" element={<ListItemPage />} />
-                      <Route path="/auth" element={<AuthPage />} />
-                      <Route path="/favorites" element={<FavoritesPage />} />
-                      <Route path="/payment" element={<PaymentPage />} />
-                      <Route path="/subscribe" element={<SubscribePage />} />
-                      <Route
-                        path="/dashboard"
-                        element={
-                          <ProtectedRoute>
-                            <DashboardPage />
-                          </ProtectedRoute>
-                        }
-                      />
-                      <Route
-                        path="/admin"
-                        element={
-                          <ProtectedRoute requireAdmin>
-                            <AdminDashboardPage />
-                          </ProtectedRoute>
-                        }
-                      />
-                      <Route path="*" element={<Navigate to="/" />} />
-                    </Routes>
-                  </main>
-                  <Footer />
-                  <Toaster position="top-right" />
-                </div>
+                <ReviewProvider>
+                  <div className="flex min-h-screen flex-col">
+                    <Navbar />
+                    <main className="flex-1">
+                      <Routes>
+                        <Route path="/" element={<HomePage />} />
+                        <Route path="/explore" element={<ExplorePage />} />
+                        <Route path="/item/:id" element={<ItemDetailPage />} />
+                        <Route path="/profile" element={<ProfilePage />} />
+                        <Route path="/profile/:id" element={<ProfilePage />} />
+                        <Route path="/list-item" element={<ListItemPage />} />
+                        <Route path="/auth" element={<AuthPage />} />
+                        <Route path="/favorites" element={<FavoritesPage />} />
+                        <Route path="/payment" element={<PaymentPage />} />
+                        <Route path="/subscribe" element={<SubscribePage />} />
+                        <Route
+                          path="/dashboard"
+                          element={
+                            <ProtectedRoute>
+                              <DashboardPage />
+                            </ProtectedRoute>
+                          }
+                        />
+                        <Route
+                          path="/admin"
+                          element={
+                            <ProtectedRoute requireAdmin>
+                              <AdminDashboardPage />
+                            </ProtectedRoute>
+                          }
+                        />
+                        <Route path="*" element={<Navigate to="/" />} />
+                      </Routes>
+                    </main>
+                    <Footer />
+                    <Toaster position="top-right" />
+                  </div>
+                </ReviewProvider>
               </BalanceProvider>
             </BookingProvider>
           </CategoryProvider>

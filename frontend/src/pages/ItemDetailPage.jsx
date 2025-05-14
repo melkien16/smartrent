@@ -12,11 +12,11 @@ import NotFoundState from '../components/itemDetail/NotFoundState';
 
 const ItemDetailPage = () => {
   const { id } = useParams();
-  const { item, loading } = useItem(id);
+  const { item, loading, error } = useItem(id);
   const bookingProps = useBookingLogic(item);
 
   if (loading) return <LoadingState />;
-  if (!item) return <NotFoundState />;
+  if (error || !item) return <NotFoundState message={error || "Item not found"} />;
 
   return (
     <div className="min-h-screen bg-gray-50 pb-12 pt-6">

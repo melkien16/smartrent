@@ -48,18 +48,16 @@ export const useBookingLogic = (item) => {
     try {
       const bookingData = {
         itemId: item._id,
-        itemTitle: item.title,
-        itemOwnerId: item.owner._id,
         startDate: start.toISOString(),
-        endDate: end.toISOString(),
-        totalAmount: item.price * totalDays,
-        status: 'pending'
+        endDate: end.toISOString()
       };
 
       const newBooking = await createBooking(bookingData);
       navigate('/payment', { state: { booking: newBooking } });
     } catch (error) {
-      toast.error(error.message || 'Failed to create booking');
+      const errorMessage = error.response?.data?.message || error.message || 'Failed to create booking';
+      toast.error(errorMessage);
+      setError(errorMessage);
     }
   };
 
