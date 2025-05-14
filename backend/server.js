@@ -12,6 +12,7 @@ import CollateralRouter from "./routes/collaterall.routes.js";
 import MessagesRouter from "./routes/message.routes.js";
 import ReportRouter from "./routes/report.routes.js";
 import UploadRouter from "./routes/upload.routes.js";
+import ReviewRouter from "./routes/review.routes.js";
 import { notFound, errorHandler } from "./middleware/errorMiddleware.js";
 
 import connectDb from "./config/db.js";

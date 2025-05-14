@@ -3,7 +3,7 @@ import {
   createReview,
   getReviewsForOwner,
   getMyReviews,
-} from "../controllers/reviewController.js";
+} from "../controllers/review.controller.js";
 import { protect } from "../middleware/authMiddleware.js";
 
 const router = express.Router();
