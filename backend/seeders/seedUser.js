@@ -9,6 +9,8 @@ import categories from "../data/category.js";
 import messages from "../data/message.js";
 import reports from "../data/report.js";
 import reviews from "../data/review.js";
+import collaterals from "../data/collateral.js";
+
 import Item from "../models/itemModel.js";
 import User from "../models/userModel.js";
 import Wallet from "../models/walletModel.js";
@@ -16,6 +18,8 @@ import Category from "../models/categoryModel.js";
 import Report from "../models/reportModle.js";
 import Message from "../models/messageModel.js";
 import Review from "../models/reviewModel.js";
+import Collateral from "../models/collateralModel.js";
+
 import connectDb from "../config/db.js";
 
 dotenv.config();
@@ -30,6 +34,7 @@ const importData = async () => {
     await Message.deleteMany();
     await Review.deleteMany();
     await Report.deleteMany();
+    await Collateral.deleteMany();
 
     const createdUser = await User.insertMany(users);
     const currentUser = createdUser[0]._id;
@@ -46,6 +51,7 @@ const importData = async () => {
 
     await Review.insertMany(reviews);
     await Report.insertMany(reports);
+    await Collateral.insertMany(collaterals);
 
     console.log("Data Imported!".green.inverse);
     process.exit();

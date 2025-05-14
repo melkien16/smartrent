@@ -47,6 +47,11 @@ const userSchema = new mongoose.Schema(
           type: Boolean,
           default: false,
         },
+        verificationImg: {
+          type: String,
+          default:
+            "https://images.pexels.com/photos/614810/pexels-photo-614810.jpeg?auto=compress&cs=tinysrgb&w=150",
+        },
       },
     ],
   },
