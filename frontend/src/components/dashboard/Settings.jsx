@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
+import { updateUserProfile } from '../../Fetchers/userDataFetcher.js'; // Import the fetcher
 import { toast } from 'react-hot-toast';
-import { User, Lock, Bell, Trash2, Edit3, Save, XCircle } from 'lucide-react';
+import { User, Lock, Bell, Trash2, Edit3, Save, XCircle, Loader2 } from 'lucide-react';
 
 const Settings = () => {
-    const { user, updateUser, loading } = useAuth();
+    const { user, updateUser, loading: authContextLoading } = useAuth(); // Renamed loading for clarity
     const [isEditingProfile, setIsEditingProfile] = useState(false);
+    const [isSubmittingProfile, setIsSubmittingProfile] = useState(false); // New loading state for profile update
     const [formData, setFormData] = useState({
         name: user?.name || '',
         email: user?.email || '',
@@ -15,6 +17,9 @@ const Settings = () => {
         newPassword: '',
         confirmNewPassword: '',
     });
+    // Separate loading state for password change if needed
+    const [isSubmittingPassword, setIsSubmittingPassword] = useState(false);
+
 
     const handleProfileChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -30,14 +35,16 @@ const Settings = () => {
             setIsEditingProfile(false);
             return;
         }
+        setIsSubmittingProfile(true);
         try {
-            // Assuming updateUser function exists in AuthContext and handles API call
-            // await updateUser({ name: formData.name, email: formData.email }); 
-            toast.success('Profile updated successfully! (Frontend Only)');
+            const updatedUser = await updateUserProfile(formData);
+            updateUser(updatedUser); // Update user in AuthContext
+            toast.success('Profile updated successfully!');
             setIsEditingProfile(false);
-            // You might want to re-fetch user data or update context state here
         } catch (error) {
             toast.error(error.message || 'Failed to update profile.');
+        } finally {
+            setIsSubmittingProfile(false);
         }
     };
 
@@ -51,27 +58,36 @@ const Settings = () => {
             toast.error('Please fill in all password fields.');
             return;
         }
+        setIsSubmittingPassword(true);
         try {
-            // Placeholder for password change logic
-            // await changePassword(passwordData); 
-            toast.success('Password changed successfully! (Frontend Only)');
+            // Placeholder for actual password change API call
+            // Example: await changeUserPassword(passwordData);
+            await new Promise(resolve => setTimeout(resolve, 1000)); // Simulate API call
+            toast.success('Password changed successfully! (Frontend Only - API call needed)');
             setPasswordData({ currentPassword: '', newPassword: '', confirmNewPassword: '' });
         } catch (error) {
             toast.error(error.message || 'Failed to change password.');
+        } finally {
+            setIsSubmittingPassword(false);
         }
     };
 
     const handleDeleteAccount = () => {
         if (window.confirm('Are you sure you want to delete your account? This action cannot be undone.')) {
             // Placeholder for delete account logic
-            toast.success('Account deletion initiated! (Frontend Only)');
+            toast.success('Account deletion initiated! (Frontend Only - API call needed)');
             // Perform actual deletion and logout/redirect
         }
     };
 
 
+    if (authContextLoading && !user) { // Adjusted loading condition slightly
+        return <div className="text-center py-10"><Loader2 className="animate-spin h-8 w-8 text-primary-600 mx-auto" /> Loading user settings...</div>;
+    }
+
     if (!user) {
-        return <div className="text-center py-10">Loading user settings...</div>;
+        // This case might be hit if authContextLoading is false but user is still null (e.g. error during auth load)
+        return <div className="text-center py-10">Could not load user data. Please try refreshing.</div>;
     }
 
     return (
@@ -86,8 +102,15 @@ const Settings = () => {
                         Profile Information
                     </h3>
                     <button
-                        onClick={() => setIsEditingProfile(!isEditingProfile)}
+                        onClick={() => {
+                            setIsEditingProfile(!isEditingProfile);
+                            // Reset form data to current user details if canceling edit
+                            if (isEditingProfile) {
+                                setFormData({ name: user.name, email: user.email });
+                            }
+                        }}
                         className="text-sm text-primary-600 hover:text-primary-700 flex items-center"
+                        disabled={isSubmittingProfile}
                     >
                         {isEditingProfile ? (
                             <>
@@ -104,7 +127,6 @@ const Settings = () => {
                     <div className="space-y-3">
                         <p><strong>Name:</strong> {user.name}</p>
                         <p><strong>Email:</strong> {user.email}</p>
-                        {/* Add other profile details here */}
                     </div>
                 ) : (
                     <form onSubmit={handleProfileUpdate} className="space-y-4">
@@ -128,16 +150,15 @@ const Settings = () => {
                                 value={formData.email}
                                 onChange={handleProfileChange}
                                 className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
-                            // Consider making email read-only or having a separate verification process if changed
                             />
                         </div>
                         <button
                             type="submit"
-                            disabled={loading}
+                            disabled={isSubmittingProfile}
                             className="inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 disabled:opacity-50"
                         >
-                            <Save size={18} className="mr-2" />
-                            {loading ? 'Saving...' : 'Save Changes'}
+                            {isSubmittingProfile ? <Loader2 className="animate-spin h-5 w-5 mr-2" /> : <Save size={18} className="mr-2" />}
+                            {isSubmittingProfile ? 'Saving...' : 'Save Changes'}
                         </button>
                     </form>
                 )}
@@ -162,8 +183,9 @@ const Settings = () => {
                         <label htmlFor="confirmNewPassword" className="block text-sm font-medium text-gray-700">Confirm New Password</label>
                         <input type="password" name="confirmNewPassword" id="confirmNewPassword" value={passwordData.confirmNewPassword} onChange={handlePasswordChange} className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm" />
                     </div>
-                    <button type="submit" disabled={loading} className="inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 disabled:opacity-50">
-                        {loading ? 'Updating...' : 'Update Password'}
+                    <button type="submit" disabled={isSubmittingPassword} className="inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 disabled:opacity-50">
+                        {isSubmittingPassword ? <Loader2 className="animate-spin h-5 w-5 mr-2" /> : <Save size={18} className="mr-2" />}
+                        {isSubmittingPassword ? 'Updating...' : 'Update Password'}
                     </button>
                 </form>
             </div>
@@ -176,13 +198,6 @@ const Settings = () => {
                 </h3>
                 <div className="space-y-3 text-gray-600">
                     <p className="italic">Notification settings are coming soon. You'll be able to control what emails and alerts you receive.</p>
-                    {/* Placeholder for notification toggles */}
-                    {/* Example:
-          <div className="flex items-center justify-between">
-            <span>Email notifications for new messages</span>
-            <Switch disabled /> Toggle switch here
-          </div> 
-          */}
                 </div>
             </div>
 

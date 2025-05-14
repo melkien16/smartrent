@@ -62,9 +62,16 @@ export const BookingProvider = ({ children }) => {
       const newBooking = response.data;
       setBookings((prev) => [...prev, newBooking]);
 
-      // Send a message to the item owner
+      // Send message to item owner
       if (newBooking.item && newBooking.item.owner) {
-        const message = `New booking request from ${new Date(newBooking.startDate).toLocaleDateString()} to ${new Date(newBooking.endDate).toLocaleDateString()}`;
+        let message = `New booking request for your item: "${newBooking.item.title || 'Item'}".`;
+        message += ` Dates: ${new Date(newBooking.startDate).toLocaleDateString()} to ${new Date(newBooking.endDate).toLocaleDateString()}.`;
+        if (newBooking.user && newBooking.user.name) {
+          message += ` Requested by: ${newBooking.user.name}.`;
+        }
+        // You could add more details like total price if available and relevant
+        message += ` Total: $${newBooking.totalPrice}.`;
+
         await sendMessage(newBooking.item.owner, message);
       }
 

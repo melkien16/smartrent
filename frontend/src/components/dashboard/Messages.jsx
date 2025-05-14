@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { getAllMessages, markMessageAsRead, getMessages } from '../../Fetchers/BookingFetcher';
 import { format } from 'date-fns';
-import { MessageSquare, Clock, User, X, Check, X as XIcon } from 'lucide-react';
+import { MessageSquare, Clock, User, X } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 
 const Messages = () => {
@@ -32,17 +32,14 @@ const Messages = () => {
         try {
             if (!message.isRead) {
                 await markMessageAsRead(message._id);
-                // Update the message in the local state immediately
                 const updatedMessages = messages.map(msg =>
                     msg._id === message._id ? { ...msg, isRead: true } : msg
                 );
                 setMessages(updatedMessages);
             }
 
-            // Fetch conversation history
             const conversationData = await getMessages(message.sender._id);
             setConversation(conversationData);
-            // Use the updated message if it was marked as read
             const currentMessage = message.isRead ? message : { ...message, isRead: true };
             setSelectedMessage(currentMessage);
             setIsModalOpen(true);
@@ -55,26 +52,6 @@ const Messages = () => {
         setIsModalOpen(false);
         setSelectedMessage(null);
         setConversation([]);
-    };
-
-    const handleAccept = async (messageId) => {
-        try {
-            // TODO: Implement accept logic for specific message
-            toast.success('Message accepted');
-            fetchMessages(); // Refresh messages
-        } catch (err) {
-            toast.error('Failed to accept message');
-        }
-    };
-
-    const handleReject = async (messageId) => {
-        try {
-            // TODO: Implement reject logic for specific message
-            toast.success('Message rejected');
-            fetchMessages(); // Refresh messages
-        } catch (err) {
-            toast.error('Failed to reject message');
-        }
     };
 
     if (loading) {
@@ -181,7 +158,6 @@ const Messages = () => {
                         {/* Conversation History */}
                         <div className="flex-1 overflow-y-auto p-4 space-y-4">
                             {conversation.map((msg) => {
-                                console.log('Message in conversation:', msg); // Debug log
                                 return (
                                     <div
                                         key={msg._id}
@@ -198,25 +174,6 @@ const Messages = () => {
                                                 {format(new Date(msg.createdAt), 'h:mm a')}
                                             </span>
                                         </div>
-                                        {/* Show accept/reject buttons for received messages */}
-                                        {msg.sender._id === selectedMessage.sender._id && (
-                                            <div className="mt-2 flex space-x-2">
-                                                <button
-                                                    onClick={() => handleAccept(msg._id)}
-                                                    className="flex items-center px-3 py-1 text-xs font-medium text-white bg-primary-600 border border-transparent rounded-md hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
-                                                >
-                                                    <Check size={14} className="mr-1" />
-                                                    Accept
-                                                </button>
-                                                <button
-                                                    onClick={() => handleReject(msg._id)}
-                                                    className="flex items-center px-3 py-1 text-xs font-medium text-red-600 bg-white border border-red-600 rounded-md hover:bg-red-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
-                                                >
-                                                    <XIcon size={14} className="mr-1" />
-                                                    Reject
-                                                </button>
-                                            </div>
-                                        )}
                                     </div>
                                 );
                             })}

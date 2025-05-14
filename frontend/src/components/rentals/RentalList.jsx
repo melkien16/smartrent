@@ -3,6 +3,24 @@ import { Package } from 'lucide-react';
 import { fetchBookingsByUser } from '../../Fetchers/BookingFetcher';
 import { toast } from 'react-hot-toast';
 
+// Helper function to get status styles
+const getStatusStyles = (status) => {
+    switch (status?.toLowerCase()) {
+        case 'active':
+        case 'confirmed':
+            return 'bg-green-100 text-green-800';
+        case 'pending':
+            return 'bg-yellow-100 text-yellow-800';
+        case 'completed':
+            return 'bg-blue-100 text-blue-800';
+        case 'cancelled':
+        case 'rejected':
+            return 'bg-red-100 text-red-800';
+        default:
+            return 'bg-gray-100 text-gray-800'; // Default for unknown statuses
+    }
+};
+
 const RentalList = ({ variant = 'card', onBrowseItems }) => {
     const [rentals, setRentals] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -11,6 +29,7 @@ const RentalList = ({ variant = 'card', onBrowseItems }) => {
         const fetchRentals = async () => {
             try {
                 const bookings = await fetchBookingsByUser();
+                console.log('Fetched rental items (bookings):', bookings);
                 setRentals(bookings);
             } catch (error) {
                 console.error('Error fetching rentals:', error);
@@ -56,7 +75,7 @@ const RentalList = ({ variant = 'card', onBrowseItems }) => {
                     <thead className="bg-gray-50">
                         <tr>
                             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Item</th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Owner</th>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Owner ID</th>
                             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
                             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Return Date</th>
                         </tr>
@@ -67,26 +86,25 @@ const RentalList = ({ variant = 'card', onBrowseItems }) => {
                                 <td className="px-6 py-4 whitespace-nowrap">
                                     <div className="flex items-center">
                                         <img
-                                            className="h-10 w-10 rounded-full"
-                                            src={rental.item.images[0] || 'https://via.placeholder.com/300?text=No+Image'}
-                                            alt={rental.item.title}
+                                            className="h-10 w-10 rounded-full object-cover"
+                                            src={rental.item?.images?.[0] || 'https://via.placeholder.com/300?text=No+Image'}
+                                            alt={rental.item?.title || 'Item Image'}
                                         />
                                         <div className="ml-4">
-                                            <div className="text-sm font-medium text-gray-900">{rental.item.title}</div>
+                                            <div className="text-sm font-medium text-gray-900">{rental.item?.title || 'N/A'}</div>
                                         </div>
                                     </div>
                                 </td>
                                 <td className="px-6 py-4 whitespace-nowrap">
-                                    <div className="text-sm text-gray-900">{rental.item.owner.name}</div>
+                                    <div className="text-sm text-gray-900 truncate max-w-xs" title={rental.item?.owner || 'N/A'}>{rental.item?.owner || 'N/A'}</div>
                                 </td>
                                 <td className="px-6 py-4 whitespace-nowrap">
-                                    <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${rental.status === 'Active' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'
-                                        }`}>
-                                        {rental.status}
+                                    <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusStyles(rental.status)}`}>
+                                        {rental.status || 'Unknown'}
                                     </span>
                                 </td>
                                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                    {new Date(rental.endDate).toLocaleDateString()}
+                                    {rental.endDate ? new Date(rental.endDate).toLocaleDateString() : 'N/A'}
                                 </td>
                             </tr>
                         ))}
@@ -103,21 +121,27 @@ const RentalList = ({ variant = 'card', onBrowseItems }) => {
                 <div key={rental._id} className="bg-white p-4 rounded-lg shadow">
                     <div className="flex items-center">
                         <img
-                            src={rental.item.images[0] || 'https://via.placeholder.com/300?text=No+Image'}
-                            alt={rental.item.title}
+                            src={rental.item?.images?.[0] || 'https://via.placeholder.com/300?text=No+Image'}
+                            alt={rental.item?.title || 'Item Image'}
                             className="h-16 w-16 rounded-lg object-cover"
                         />
-                        <div className="ml-4">
-                            <h3 className="font-medium">{rental.item.title}</h3>
-                            <p className="text-sm text-gray-500">
-                                From {new Date(rental.startDate).toLocaleDateString()} to {new Date(rental.endDate).toLocaleDateString()}
+                        <div className="ml-4 flex-1">
+                            <h3 className="font-medium">{rental.item?.title || 'N/A'}</h3>
+                            <p className="text-sm text-gray-500 truncate max-w-xs" title={rental.item?.owner || 'N/A'}>
+                                Owner ID: {rental.item?.owner || 'N/A'}
                             </p>
                             <p className="text-sm text-gray-500">
-                                Total: ${rental.totalPrice}
+                                Dates: {rental.startDate ? new Date(rental.startDate).toLocaleDateString() : 'N/A'} - {rental.endDate ? new Date(rental.endDate).toLocaleDateString() : 'N/A'}
                             </p>
                             <p className="text-sm text-gray-500">
-                                Status: {rental.status}
+                                Total: ${rental.totalPrice != null ? rental.totalPrice : 'N/A'}
                             </p>
+                            <div className="flex items-center mt-1">
+                                <p className="text-sm text-gray-500 mr-2">Status:</p>
+                                <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusStyles(rental.status)}`}>
+                                    {rental.status || 'Unknown'}
+                                </span>
+                            </div>
                         </div>
                     </div>
                 </div>
