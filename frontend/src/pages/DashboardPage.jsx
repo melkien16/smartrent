@@ -16,7 +16,11 @@ import {
   MessageSquare,
   ThumbsUp,
   AlertTriangle,
-  FileBox
+  FileBox,
+  InboxIcon,
+  Wallet,
+  Settings,
+  Inbox
 } from 'lucide-react';
 import TransactionModal from '../components/TransactionModal';
 import WithdrawalSuccess from '../components/WithdrawalSuccess';
@@ -31,6 +35,7 @@ import StatCard from '../components/dashboard/StatCard';
 import Subscription from '../components/dashboard/Subscription';
 import Messages from '../components/dashboard/Messages';
 import Reviews from '../components/dashboard/Reviews';
+import RentalRequests from '../components/dashboard/RentalRequests';
 
 const DashboardPage = () => {
   const { user, loading: authLoading, isAuthenticated } = useAuth();
@@ -95,16 +100,17 @@ const DashboardPage = () => {
   };
 
   const tabs = [
-    { id: 'overview', label: 'Overview', icon: 'LayoutDashboard' },
-    { id: 'rentals', label: 'My Rentals', icon: 'Package' },
-    { id: 'listings', label: 'My Listings', icon: 'FileBox' },
-    { id: 'wallet', label: 'Wallet', icon: 'Wallet' },
-    { id: 'messages', label: 'Messages', icon: 'MessageSquare' },
-    { id: 'reviews', label: 'Reviews', icon: 'Star' },
-    { id: 'reports', label: 'Reports', icon: 'AlertTriangle' },
-    { id: 'verification', label: 'Verification', icon: 'Shield' },
-    { id: 'subscription', label: 'Subscription', icon: 'DollarSign' },
-    { id: 'settings', label: 'Settings', icon: 'Settings' }
+    { id: 'overview', label: 'Overview', icon: LayoutDashboard },
+    { id: 'rentals', label: 'My Rentals', icon: Package },
+    { id: 'rental-requests', label: 'Rental Requests', icon: Inbox },
+    { id: 'listings', label: 'My Listings', icon: FileBox },
+    { id: 'wallet', label: 'Wallet', icon: Wallet },
+    { id: 'messages', label: 'Messages', icon: MessageSquare },
+    { id: 'reviews', label: 'Reviews', icon: Star },
+    { id: 'reports', label: 'Reports', icon: AlertTriangle },
+    { id: 'verification', label: 'Verification', icon: Shield },
+    { id: 'subscription', label: 'Subscription', icon: Star },
+    { id: 'settings', label: 'Settings', icon: Settings }
   ];
 
   const renderTabContent = () => {
@@ -122,6 +128,8 @@ const DashboardPage = () => {
           userRentedItems={userRentedItems}
           setActiveTab={setActiveTab}
         />;
+      case 'rental-requests':
+        return <RentalRequests />;
       case 'listings':
         return <Listings
           userListedItems={userListedItems}
