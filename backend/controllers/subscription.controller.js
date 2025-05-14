@@ -111,9 +111,18 @@ const checkExpiredSubscriptions = asyncHandler(async (req, res) => {
   });
 });
 
+// @desc    Get all subscriptions (admin use)
+// @route   GET /api/subscriptions
+// @access  Admin
+const getAllSubscriptions = asyncHandler(async (req, res) => {
+  const subscriptions = await Subscription.find({}).populate("user", "name");
+  res.json(subscriptions);
+});
+
 export {
   createOrUpdateSubscription,
   getMySubscription,
   deactivateSubscription,
   checkExpiredSubscriptions,
+  getAllSubscriptions,
 };
