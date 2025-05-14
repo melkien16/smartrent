@@ -146,7 +146,7 @@ const updateBookingStatus = asyncHandler(async (req, res) => {
   }
 
   booking.status = status;
-  await booking.save();  
+  await booking.save();
 
   res.json({ message: `Booking ${status}`, booking });
 });

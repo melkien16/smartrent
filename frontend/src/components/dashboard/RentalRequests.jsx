@@ -2,14 +2,12 @@ import React, { useState, useEffect } from 'react';
 import { Calendar, Clock, Check, X } from 'lucide-react';
 import { format } from 'date-fns';
 import { toast } from 'react-hot-toast';
-import { useBooking } from '../../context/BookingContext';
-import { sendMessage, getBookingsForOwner } from '../../Fetchers/BookingFetcher';
+import { sendMessage, getBookingsForOwner, updateBookingStatus } from '../../Fetchers/BookingFetcher';
 
 const RentalRequests = () => {
     const [requests, setRequests] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
-    const { updateBookingStatus } = useBooking();
 
     const fetchRequests = async () => {
         try {
@@ -36,11 +34,31 @@ const RentalRequests = () => {
 
     const handleStatusUpdate = async (bookingId, newStatus) => {
         try {
-            // Update booking status using context
-            await updateBookingStatus(bookingId, newStatus);
-
             // Find the booking to get renter details
             const booking = requests.find(req => req._id === bookingId);
+
+            // Log the booking details before update
+            console.log('Updating booking status:', {
+                bookingId,
+                bookingDetails: {
+                    item: booking.item,
+                    user: booking.user,
+                    dates: {
+                        start: new Date(booking.startDate).toLocaleDateString(),
+                        end: new Date(booking.endDate).toLocaleDateString()
+                    },
+                    price: {
+                        base: booking.price,
+                        serviceFee: booking.serviceFee,
+                        total: booking.totalPrice
+                    },
+                    status: booking.status
+                }
+            });
+
+            // Update booking status using the API
+            const updatedBooking = await updateBookingStatus(bookingId, newStatus);
+            console.log('Updated booking:', updatedBooking);
 
             // Send message to the renter
             const message = newStatus === 'confirmed'
@@ -50,12 +68,17 @@ const RentalRequests = () => {
             await sendMessage(booking.user._id, message);
 
             // Show success message
-            toast.success(`Booking ${newStatus === 'confirmed' ? 'accepted' : 'rejected'} successfully`);
+            toast.success(
+                newStatus === 'confirmed'
+                    ? 'Booking accepted successfully'
+                    : 'Booking rejected successfully'
+            );
 
             // Refresh the requests list
             fetchRequests();
         } catch (err) {
-            toast.error('Failed to update booking status');
+            console.error('Error updating booking status:', err);
+            toast.error(err.message || 'Failed to update booking status');
         }
     };
 

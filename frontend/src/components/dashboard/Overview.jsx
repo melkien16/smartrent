@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Package, DollarSign, ThumbsUp, PlusCircle, Wallet, MessageSquare } from 'lucide-react';
+import { Package, DollarSign, ThumbsUp, PlusCircle, Wallet, MessageSquare, Users, BookOpen, Star, FileBox } from 'lucide-react';
+import StatCard from './StatCard';
 
 const Overview = ({ stats, user, setActiveTab, setTransactionType, setShowTransactionModal }) => {
   const navigate = useNavigate();
@@ -14,73 +15,89 @@ const Overview = ({ stats, user, setActiveTab, setTransactionType, setShowTransa
   return (
     <div>
       <h2 className="text-xl font-semibold mb-4">Dashboard Overview</h2>
-      
-      {/* Activity Summary */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-        <div className="bg-white rounded-lg shadow p-6">
-          <h3 className="text-lg font-semibold mb-4">Recent Activity</h3>
-          <div className="space-y-4">
-            <div className="flex items-center">
-              <div className="flex-shrink-0">
-                <Package className="h-6 w-6 text-green-600" />
-              </div>
-              <div className="ml-4">
-                <p className="text-sm font-medium text-gray-900">New Rental Request</p>
-                <p className="text-sm text-gray-500">Camera Equipment from John Doe</p>
-              </div>
-              <div className="ml-auto text-sm text-gray-500">2 hours ago</div>
-            </div>
-            <div className="flex items-center">
-              <div className="flex-shrink-0">
-                <DollarSign className="h-6 w-6 text-blue-600" />
-              </div>
-              <div className="ml-4">
-                <p className="text-sm font-medium text-gray-900">Payment Received</p>
-                <p className="text-sm text-gray-500">$75.00 for Drone rental</p>
-              </div>
-              <div className="ml-auto text-sm text-gray-500">1 day ago</div>
-            </div>
-            <div className="flex items-center">
-              <div className="flex-shrink-0">
-                <ThumbsUp className="h-6 w-6 text-yellow-600" />
-              </div>
-              <div className="ml-4">
-                <p className="text-sm font-medium text-gray-900">New Review</p>
-                <p className="text-sm text-gray-500">5 stars for your Camera listing</p>
-              </div>
-              <div className="ml-auto text-sm text-gray-500">2 days ago</div>
-            </div>
-          </div>
+
+      {/* KPI Overview */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+        <StatCard
+          key="active-rentals"
+          icon={Package}
+          label="Active Rentals"
+          value={stats.activeRentals || 0}
+          color="text-green-600"
+        />
+        <StatCard
+          key="active-listings"
+          icon={FileBox}
+          label="Active Listings"
+          value={stats.activeListings || 0}
+          color="text-blue-600"
+        />
+        <StatCard
+          key="total-earnings"
+          icon={DollarSign}
+          label="Total Earnings"
+          value={`$${stats.totalEarnings?.toFixed(2) || '0.00'}`}
+          color="text-yellow-600"
+        />
+        <StatCard
+          key="pending-requests"
+          icon={BookOpen}
+          label="Pending Requests"
+          value={stats.pendingRequests || 0}
+          color="text-purple-600"
+        />
+      </div>
+
+      {/* Platform Status */}
+      <div className="bg-white rounded-lg shadow p-6 mb-8">
+        <div className="flex items-center justify-between mb-6">
+          <h3 className="text-lg font-semibold">Financial Status</h3>
+          <span className="px-3 py-1 bg-green-100 text-green-800 text-sm font-medium rounded-full">
+            Active Account
+          </span>
         </div>
 
-        <div className="bg-white rounded-lg shadow p-6">
-          <h3 className="text-lg font-semibold mb-4">Performance Metrics</h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          {/* Total Earnings */}
           <div className="space-y-4">
-            <div>
-              <div className="flex justify-between mb-1">
-                <span className="text-sm font-medium text-gray-700">Listing Performance</span>
-                <span className="text-sm font-medium text-gray-700">85%</span>
-              </div>
-              <div className="w-full bg-gray-200 rounded-full h-2.5">
-                <div className="bg-primary-600 h-2.5 rounded-full" style={{ width: '85%' }}></div>
+            <h4 className="text-sm font-medium text-gray-500 uppercase tracking-wider">Total Earnings</h4>
+            <div className="bg-gray-50 rounded-lg p-4">
+              <div className="flex items-center justify-between">
+                <span className="text-sm font-medium text-gray-700">Current Balance</span>
+                <span className="text-sm text-green-600">${stats.totalEarnings?.toFixed(2) || '0.00'}</span>
               </div>
             </div>
-            <div>
-              <div className="flex justify-between mb-1">
-                <span className="text-sm font-medium text-gray-700">Response Rate</span>
-                <span className="text-sm font-medium text-gray-700">92%</span>
-              </div>
-              <div className="w-full bg-gray-200 rounded-full h-2.5">
-                <div className="bg-green-600 h-2.5 rounded-full" style={{ width: '92%' }}></div>
+          </div>
+
+          {/* Active Rentals */}
+          <div className="space-y-4">
+            <h4 className="text-sm font-medium text-gray-500 uppercase tracking-wider">Active Rentals</h4>
+            <div className="bg-gray-50 rounded-lg p-4">
+              <div className="flex items-center justify-between">
+                <span className="text-sm font-medium text-gray-700">Current Rentals</span>
+                <span className="text-sm text-blue-600">{stats.activeRentals || 0}</span>
               </div>
             </div>
-            <div>
-              <div className="flex justify-between mb-1">
-                <span className="text-sm font-medium text-gray-700">Customer Satisfaction</span>
-                <span className="text-sm font-medium text-gray-700">4.8/5</span>
+          </div>
+
+          {/* Active Listings */}
+          <div className="space-y-4">
+            <h4 className="text-sm font-medium text-gray-500 uppercase tracking-wider">Active Listings</h4>
+            <div className="bg-gray-50 rounded-lg p-4">
+              <div className="flex items-center justify-between">
+                <span className="text-sm font-medium text-gray-700">Current Listings</span>
+                <span className="text-sm text-blue-600">{stats.activeListings || 0}</span>
               </div>
-              <div className="w-full bg-gray-200 rounded-full h-2.5">
-                <div className="bg-yellow-600 h-2.5 rounded-full" style={{ width: '96%' }}></div>
+            </div>
+          </div>
+
+          {/* Pending Requests */}
+          <div className="space-y-4">
+            <h4 className="text-sm font-medium text-gray-500 uppercase tracking-wider">Pending Requests</h4>
+            <div className="bg-gray-50 rounded-lg p-4">
+              <div className="flex items-center justify-between">
+                <span className="text-sm font-medium text-gray-700">Awaiting Response</span>
+                <span className="text-sm text-yellow-600">{stats.pendingRequests || 0}</span>
               </div>
             </div>
           </div>
@@ -91,14 +108,14 @@ const Overview = ({ stats, user, setActiveTab, setTransactionType, setShowTransa
       <div className="bg-white rounded-lg shadow p-6 mb-8">
         <h3 className="text-lg font-semibold mb-4">Quick Actions</h3>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <Link 
-            to="/list-item" 
+          <Link
+            to="/list-item"
             className="flex items-center justify-center p-4 border border-gray-200 rounded-lg hover:bg-gray-50"
           >
             <PlusCircle className="h-6 w-6 text-primary-600 mr-2" />
             <span>Add New Listing</span>
           </Link>
-          <button 
+          <button
             onClick={handleWithdraw}
             className="flex items-center justify-center p-4 border border-gray-200 rounded-lg hover:bg-gray-50"
           >
@@ -123,9 +140,8 @@ const Overview = ({ stats, user, setActiveTab, setTransactionType, setShowTransa
                 <div className="ml-4">
                   <h4 className="font-medium">{listing.title}</h4>
                   <p className="text-sm text-gray-500">${listing.price}/{listing.priceUnit}</p>
-                  <span className={`mt-1 inline-block px-2 py-1 text-xs font-semibold rounded-full ${
-                    listing.isAvailable ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'
-                  }`}>
+                  <span className={`mt-1 inline-block px-2 py-1 text-xs font-semibold rounded-full ${listing.isAvailable ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'
+                    }`}>
                     {listing.isAvailable ? 'Active' : 'Rented'}
                   </span>
                 </div>

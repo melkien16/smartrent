@@ -1,6 +1,17 @@
 import axios from "axios";
 import BASE_URL from "../../constants/baseUrl";
 
+// Get all subscriptions (admin only)
+export const getAllSubscriptions = async () => {
+  try {
+    const response = await axios.get(`${BASE_URL}/subscriptions`);
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching all subscriptions:', error);
+    throw error.response?.data || { message: "Error fetching subscriptions" };
+  }
+};
+
 // Get current user's subscription
 export const getMySubscription = async () => {
   try {

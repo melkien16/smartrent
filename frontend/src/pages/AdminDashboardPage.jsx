@@ -8,14 +8,16 @@ import TabNavigation from '../components/admin/TabNavigation';
 import Overview from '../components/admin/Overview';
 import Users from '../components/admin/Users';
 import Items from '../components/admin/Items';
+import Bookings from '../components/admin/Bookings';
+import Subscriptions from '../components/admin/Subscriptions';
 
 const AdminDashboardPage = () => {
   const { user, isAdmin } = useAuth();
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('overview');
-  
-  const { users, setUsers, items, loading, error, searchQuery, setSearchQuery, selectedItems, handleItemSelect, handleDeleteSelected } = useAdminData(activeTab);
-  const stats = useAdminStats(users);
+
+  const { users, setUsers, items, loading: dataLoading, error: dataError, searchQuery, setSearchQuery, selectedItems, handleItemSelect, handleDeleteSelected } = useAdminData(activeTab);
+  const { stats, loading: statsLoading, error: statsError } = useAdminStats();
 
   // Redirect if not admin
   useEffect(() => {
@@ -43,6 +45,22 @@ const AdminDashboardPage = () => {
   ];
 
   const renderContent = () => {
+    if (activeTab === 'overview' && (statsLoading || dataLoading)) {
+      return (
+        <div className="flex items-center justify-center h-64">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-500"></div>
+        </div>
+      );
+    }
+
+    if (activeTab === 'overview' && (statsError || dataError)) {
+      return (
+        <div className="flex items-center justify-center h-64 text-red-500">
+          <p>{statsError || dataError || 'Failed to load dashboard data'}</p>
+        </div>
+      );
+    }
+
     switch (activeTab) {
       case 'overview':
         return <Overview stats={stats} />;
@@ -50,8 +68,8 @@ const AdminDashboardPage = () => {
         return (
           <Users
             users={users}
-            loading={loading}
-            error={error}
+            loading={dataLoading}
+            error={dataError}
             searchQuery={searchQuery}
             setSearchQuery={setSearchQuery}
             setUsers={setUsers}
@@ -61,8 +79,8 @@ const AdminDashboardPage = () => {
         return (
           <Items
             items={items}
-            loading={loading}
-            error={error}
+            loading={dataLoading}
+            error={dataError}
             searchQuery={searchQuery}
             setSearchQuery={setSearchQuery}
             selectedItems={selectedItems}
@@ -70,6 +88,10 @@ const AdminDashboardPage = () => {
             handleDeleteSelected={handleDeleteSelected}
           />
         );
+      case 'bookings':
+        return <Bookings />;
+      case 'subscriptions':
+        return <Subscriptions />;
       default:
         return null;
     }

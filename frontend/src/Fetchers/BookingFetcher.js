@@ -69,12 +69,40 @@ async function markMessageAsRead(messageId) {
   }
 }
 
+// Update booking status
+async function updateBookingStatus(bookingId, status) {
+  try {
+    const response = await axios.put(`${BASE_URL}/bookings/${bookingId}/status`, {
+      status
+    });
+    console.log('Booking status updated:', response.data);
+    return response.data;
+  } catch (error) {
+    console.error('Error updating booking status:', error);
+    throw error.response?.data || { message: "Error updating booking status" };
+  }
+}
+
+// Get all bookings (admin only)
+async function getAllBookings() {
+  try {
+    const response = await axios.get(`${BASE_URL}/bookings`);
+    console.log(`Fetched ${response.data.length} total bookings`);
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching all bookings:', error);
+    throw error.response?.data || { message: "Error fetching all bookings" };
+  }
+}
+
 // Export the functions for use in other files
-export { 
-  fetchBookingsByUser, 
+export {
+  fetchBookingsByUser,
   getBookingsForOwner,
-  sendMessage, 
-  getMessages, 
-  markMessageAsRead, 
-  getAllMessages 
+  sendMessage,
+  getMessages,
+  markMessageAsRead,
+  getAllMessages,
+  updateBookingStatus,
+  getAllBookings
 };

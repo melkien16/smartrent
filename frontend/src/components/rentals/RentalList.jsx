@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Package } from 'lucide-react';
 import { fetchBookingsByUser } from '../../Fetchers/BookingFetcher';
+import { getUserById } from '../../Fetchers/userDataFetcher';
 import { toast } from 'react-hot-toast';
 
 // Helper function to get status styles
@@ -24,6 +25,31 @@ const getStatusStyles = (status) => {
 const RentalList = ({ variant = 'card', onBrowseItems }) => {
     const [rentals, setRentals] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [ownerDetails, setOwnerDetails] = useState({});
+
+    // Fetch owner details for each rental
+    const fetchOwnerDetails = async (rentals) => {
+        const ownerIds = [...new Set(rentals.map(rental => rental.item?.owner).filter(Boolean))];
+        const details = {};
+
+        for (const ownerId of ownerIds) {
+            try {
+                const ownerData = await getUserById(ownerId);
+                details[ownerId] = {
+                    name: ownerData.name,
+                    avatar: ownerData.avatar
+                };
+            } catch (error) {
+                console.error(`Failed to fetch owner ${ownerId}:`, error);
+                details[ownerId] = {
+                    name: 'Unknown Owner',
+                    avatar: 'https://via.placeholder.com/150?text=Unknown'
+                };
+            }
+        }
+
+        setOwnerDetails(details);
+    };
 
     useEffect(() => {
         const fetchRentals = async () => {
@@ -31,6 +57,7 @@ const RentalList = ({ variant = 'card', onBrowseItems }) => {
                 const bookings = await fetchBookingsByUser();
                 console.log('Fetched rental items (bookings):', bookings);
                 setRentals(bookings);
+                await fetchOwnerDetails(bookings);
             } catch (error) {
                 console.error('Error fetching rentals:', error);
                 toast.error('Failed to load rentals');
@@ -75,7 +102,7 @@ const RentalList = ({ variant = 'card', onBrowseItems }) => {
                     <thead className="bg-gray-50">
                         <tr>
                             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Item</th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Owner ID</th>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Owner</th>
                             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
                             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Return Date</th>
                         </tr>
@@ -96,7 +123,18 @@ const RentalList = ({ variant = 'card', onBrowseItems }) => {
                                     </div>
                                 </td>
                                 <td className="px-6 py-4 whitespace-nowrap">
-                                    <div className="text-sm text-gray-900 truncate max-w-xs" title={rental.item?.owner || 'N/A'}>{rental.item?.owner || 'N/A'}</div>
+                                    <div className="flex items-center">
+                                        <img
+                                            className="h-8 w-8 rounded-full object-cover"
+                                            src={ownerDetails[rental.item?.owner]?.avatar || 'https://via.placeholder.com/150?text=Loading'}
+                                            alt={ownerDetails[rental.item?.owner]?.name || 'Owner'}
+                                        />
+                                        <div className="ml-3">
+                                            <div className="text-sm text-gray-900">
+                                                {ownerDetails[rental.item?.owner]?.name || 'Loading...'}
+                                            </div>
+                                        </div>
+                                    </div>
                                 </td>
                                 <td className="px-6 py-4 whitespace-nowrap">
                                     <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusStyles(rental.status)}`}>
@@ -127,9 +165,16 @@ const RentalList = ({ variant = 'card', onBrowseItems }) => {
                         />
                         <div className="ml-4 flex-1">
                             <h3 className="font-medium">{rental.item?.title || 'N/A'}</h3>
-                            <p className="text-sm text-gray-500 truncate max-w-xs" title={rental.item?.owner || 'N/A'}>
-                                Owner ID: {rental.item?.owner || 'N/A'}
-                            </p>
+                            <div className="flex items-center mt-1">
+                                <img
+                                    className="h-6 w-6 rounded-full object-cover"
+                                    src={ownerDetails[rental.item?.owner]?.avatar || 'https://via.placeholder.com/150?text=Loading'}
+                                    alt={ownerDetails[rental.item?.owner]?.name || 'Owner'}
+                                />
+                                <p className="text-sm text-gray-500 ml-2">
+                                    Owner: {ownerDetails[rental.item?.owner]?.name || 'Loading...'}
+                                </p>
+                            </div>
                             <p className="text-sm text-gray-500">
                                 Dates: {rental.startDate ? new Date(rental.startDate).toLocaleDateString() : 'N/A'} - {rental.endDate ? new Date(rental.endDate).toLocaleDateString() : 'N/A'}
                             </p>
