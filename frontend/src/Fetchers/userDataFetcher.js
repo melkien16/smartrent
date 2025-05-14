@@ -54,7 +54,7 @@ export const updateUserProfile = async (userData, token) => {
   }
 };
 
-// Get user by ID (admin only)
+// Get user by ID
 export const getUserById = async (userId) => {
   try {
     const response = await axios.get(`${BASE_URL}/users/${userId}`);

@@ -2,8 +2,10 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { MapPin, Calendar, Star, Camera } from 'lucide-react';
 import { useRef } from 'react';
+import { updateUserProfile } from '../../Fetchers/userDataFetcher';
+import { toast } from 'react-hot-toast';
 
-const ProfileHeader = ({ profileUser, isOwnProfile }) => {
+const ProfileHeader = ({ profileUser, isOwnProfile, onProfileUpdate }) => {
   const fileInputRef = useRef(null);
 
   const handleAvatarClick = () => {
@@ -15,20 +17,21 @@ const ProfileHeader = ({ profileUser, isOwnProfile }) => {
   const handleFileChange = async (event) => {
     const file = event.target.files[0];
     if (file) {
-      console.log('Selected file:', file);
-      // Here we will call updateUserProfile
-      // For example:
-      // const formData = new FormData();
-      // formData.append('avatar', file);
-      // try {
-      //   // Assuming you have a way to get the auth token
-      //   // const token = getAuthToken(); 
-      //   // await updateUserProfile(formData, token);
-      //   // Potentially refresh profile data or show a success message
-      // } catch (error) {
-      //   console.error("Failed to update avatar:", error);
-      //   // Show an error message
-      // }
+      try {
+        const formData = new FormData();
+        formData.append('avatar', file);
+        
+        const updatedUser = await updateUserProfile(formData);
+        toast.success('Profile picture updated successfully!');
+        
+        // If onProfileUpdate prop is provided, call it with the updated user data
+        if (onProfileUpdate) {
+          onProfileUpdate(updatedUser);
+        }
+      } catch (error) {
+        console.error("Failed to update avatar:", error);
+        toast.error(error.message || 'Failed to update profile picture');
+      }
     }
   };
 
