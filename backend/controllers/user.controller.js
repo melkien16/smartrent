@@ -48,6 +48,7 @@ const registerUser = asyncHandler(async (req, res) => {
     address,
     avatar,
     password,
+    verification: [],
   });
 
   if (user) {
@@ -70,7 +71,6 @@ const registerUser = asyncHandler(async (req, res) => {
     throw new Error("Invalid user data");
   }
 });
-
 
 // @desc    Logout user / clear cookie
 // @route  POST /api/users/logout
@@ -99,6 +99,7 @@ const getUserProfile = asyncHandler(async (req, res) => {
       address: user.address,
       avatar: user.avatar,
       isPremium: user.isPremium,
+      verification: user.verification,
     });
   } else {
     res.status(404);
@@ -118,6 +119,8 @@ const updateUserProfile = asyncHandler(async (req, res) => {
     user.phone = req.body.phone || user.phone;
     user.address = req.body.address || user.address;
     user.avatar = req.body.avatar || user.avatar;
+    user.isPremium = req.body.isPremium ?? user.isPremium;
+    user.verification = req.body.verification || user.verification;
 
     if (req.body.password) {
       user.password = req.body.password;
@@ -134,6 +137,7 @@ const updateUserProfile = asyncHandler(async (req, res) => {
       address: updatedUser.address,
       avatar: updatedUser.avatar,
       isPremium: updatedUser.isPremium,
+      verification: updatedUser.verification,
     });
   } else {
     res.status(404);
@@ -195,6 +199,7 @@ const updateUser = asyncHandler(async (req, res) => {
     user.address = req.body.address || user.address;
     user.isAdmin = req.body.isAdmin ?? user.isAdmin;
     user.isPremium = req.body.isPremium ?? user.isPremium;
+    user.verification = req.body.verification || user.verification;
 
     const updatedUser = await user.save();
 
@@ -207,6 +212,7 @@ const updateUser = asyncHandler(async (req, res) => {
       address: updatedUser.address,
       avatar: updatedUser.avatar,
       isPremium: updatedUser.isPremium,
+      verification: updatedUser.verification,
     });
   } else {
     res.status(404);
