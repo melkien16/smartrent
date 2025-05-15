@@ -10,6 +10,7 @@ import Users from '../components/admin/Users';
 import Items from '../components/admin/Items';
 import Bookings from '../components/admin/Bookings';
 import Subscriptions from '../components/admin/Subscriptions';
+import Settings from '../components/admin/Settings';
 
 const AdminDashboardPage = () => {
   const { user, isAdmin } = useAuth();
@@ -92,6 +93,8 @@ const AdminDashboardPage = () => {
         return <Bookings />;
       case 'subscriptions':
         return <Subscriptions />;
+      case 'settings':
+        return <Settings />;
       default:
         return null;
     }
