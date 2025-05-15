@@ -72,30 +72,35 @@ const WalletComponent = ({
           </button>
         </div>
 
-        {transactions?.length > 0 ? (
-          transactions.map((transaction) => (
-            <div key={transaction._id || transaction.createdAt} className="bg-white p-4 rounded-lg shadow">
-              <div className="flex justify-between items-center">
-                <div>
-                  <p className="font-medium">{transaction.type === 'credit' ? 'Deposit' : 'Withdrawal'}</p>
-                  <p className="text-sm text-gray-500">{formatDate(transaction.createdAt)}</p>
-                  {transaction.description && (
-                    <p className="text-sm text-gray-500">{transaction.description}</p>
-                  )}
+        <div className="max-h-[500px] overflow-y-auto pr-2">
+          {transactions?.length > 0 ? (
+            [...transactions]
+              .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+              .slice(0, 10)
+              .map((transaction) => (
+                <div key={transaction._id || transaction.createdAt} className="bg-white p-4 rounded-lg shadow mb-3">
+                  <div className="flex justify-between items-center">
+                    <div>
+                      <p className="font-medium">{transaction.type === 'credit' ? 'Deposit' : 'Withdrawal'}</p>
+                      <p className="text-sm text-gray-500">{formatDate(transaction.createdAt)}</p>
+                      {transaction.description && (
+                        <p className="text-sm text-gray-500">{transaction.description}</p>
+                      )}
+                    </div>
+                    <p className={`text-lg font-semibold ${transaction.type === 'credit' ? 'text-green-600' : 'text-red-600'
+                      }`}>
+                      {transaction.type === 'credit' ? '+' : '-'}${transaction.amount.toFixed(2)}
+                    </p>
+                  </div>
                 </div>
-                <p className={`text-lg font-semibold ${transaction.type === 'credit' ? 'text-green-600' : 'text-red-600'
-                  }`}>
-                  {transaction.type === 'credit' ? '+' : '-'}${transaction.amount.toFixed(2)}
-                </p>
-              </div>
+              ))
+          ) : (
+            <div className="text-center py-8">
+              <Wallet className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+              <p className="text-gray-500">No recent transactions</p>
             </div>
-          ))
-        ) : (
-          <div className="text-center py-8">
-            <Wallet className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-            <p className="text-gray-500">No recent transactions</p>
-          </div>
-        )}
+          )}
+        </div>
       </div>
     </div>
   );
